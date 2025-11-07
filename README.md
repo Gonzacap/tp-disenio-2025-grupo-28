@@ -9,6 +9,10 @@
 
  https://start.spring.io/
 
+### configuration
+
+ - copy the .env.example file and rename to .env
+ - replace the DB_PASSWORD value
 
 ### start the project
 
