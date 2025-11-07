@@ -9,7 +9,7 @@ public class Huesped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Int id;
+    private int id;
 
     private String nombre;
     private String apellido;

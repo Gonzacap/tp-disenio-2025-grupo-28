@@ -8,21 +8,21 @@ public abstract class ResponsablePago {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Int id;
+    private int id;
 
     protected String cuit;
     protected String razonSocial;
     protected int telefono;
-    protected Direccion direccion;
+    // protected Direccion direccion;
 
     public ResponsablePago() {
     }
 
-    public ResponsablePago(String cuit, String razonSocial, int telefono, Direccion direccion) {
+    public ResponsablePago(String cuit, String razonSocial, int telefono) {
         this.cuit = cuit;
         this.razonSocial = razonSocial;
         this.telefono = telefono;
-        this.direccion = direccion;
+        this.direccion = null;
     }
 
     public abstract boolean esMayorDeEdad();

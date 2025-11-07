@@ -2,7 +2,7 @@ package tp.tp_disenio_2025_grupo_28.model;
 
 public class Direccion {
 
-    private Int id;
+    private int id;
     private String direccion;
     private int numero;
     private String depto;
