@@ -7,34 +7,34 @@ import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
 
 public class Habitacion {
 
-    private int id;
+    private Integer id;
 
-    private Integer numeroHabitacion;
+    private Integereger numeroHabitacion;
     @Enumerated(EnumType.STRING)
     private EstadoHabitacion estado;
     @Enumerated(EnumType.STRING)
     private TipoHabitacion tipo;
-    private Integer numCamasDobles;
-    private Integer numCamasSimples;
-    private Integer capacidad;
+    private Integereger numCamasDobles;
+    private Integereger numCamasSimples;
+    private Integereger capacidad;
     private Double descuentoPorEstadiaLarga;
 
     public Habitacion() {
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Integer getNumeroHabitacion() {
+    public Integereger getNumeroHabitacion() {
         return numeroHabitacion;
     }
 
-    public void setNumeroHabitacion(Integer numeroHabitacion) {
+    public void setNumeroHabitacion(Integereger numeroHabitacion) {
         this.numeroHabitacion = numeroHabitacion;
     }
 
@@ -54,27 +54,27 @@ public class Habitacion {
         this.tipo = tipo;
     }
 
-    public Integer getNumCamasDobles() {
+    public Integereger getNumCamasDobles() {
         return numCamasDobles;
     }
 
-    public void setNumCamasDobles(Integer numCamasDobles) {
+    public void setNumCamasDobles(Integereger numCamasDobles) {
         this.numCamasDobles = numCamasDobles;
     }
 
-    public Integer getNumCamasSimples() {
+    public Integereger getNumCamasSimples() {
         return numCamasSimples;
     }
 
-    public void setNumCamasSimples(Integer numCamasSimples) {
+    public void setNumCamasSimples(Integereger numCamasSimples) {
         this.numCamasSimples = numCamasSimples;
     }
 
-    public Integer getCapacidad() {
+    public Integereger getCapacidad() {
         return capacidad;
     }
 
-    public void setCapacidad(Integer capacidad) {
+    public void setCapacidad(Integereger capacidad) {
         this.capacidad = capacidad;
     }
 

@@ -2,12 +2,12 @@ package tp.tp_disenio_2025_grupo_28.model;
 
 public class PersonaJuridica extends ResponsablePago {
 
-    protected Long id;
+    protected Integer id;
 
     public PersonaJuridica() {
     }
 
-    public PersonaJuridica(String cuit, String razonSocial, int telefono, Direccion direccion) {
+    public PersonaJuridica(String cuit, String razonSocial, Integer telefono, Direccion direccion) {
         super(cuit, razonSocial, telefono, direccion);
     }
 
@@ -17,11 +17,11 @@ public class PersonaJuridica extends ResponsablePago {
         return true;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

@@ -2,7 +2,7 @@ package tp.tp_disenio_2025_grupo_28.model;
 
 public class Provincia {
 
-    private int id;
+    private Integer id;
     private String nombre;
     private Pais pais;
 
@@ -30,11 +30,11 @@ public class Provincia {
         this.pais = pais;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

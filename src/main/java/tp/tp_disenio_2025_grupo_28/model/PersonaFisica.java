@@ -12,7 +12,7 @@ public class PersonaFisica extends ResponsablePago {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long id;
+    protected Integer id;
 
     protected String nombre;
     protected String apellido;
@@ -24,7 +24,7 @@ public class PersonaFisica extends ResponsablePago {
     public PersonaFisica() {
     }
 
-    public PersonaFisica(String cuit, String razonSocial, int telefono, Direccion direccion,
+    public PersonaFisica(String cuit, String razonSocial, Integer telefono, Direccion direccion,
             String nombre, String apellido, String tipoDocumento,
             String documento, Date fechaNacimiento) {
         super(cuit, razonSocial, telefono, direccion);
@@ -37,8 +37,8 @@ public class PersonaFisica extends ResponsablePago {
 
     @Override
     public boolean esMayorDeEdad() {
-        long edadEnMs = new Date().getTime() - fechaNacimiento.getTime();
-        int edad = (int) (edadEnMs / (1000L * 60 * 60 * 24 * 365));
+        Integer edadEnMs = new Date().getTime() - fechaNacimiento.getTime();
+        Integer edad = (Integer) (edadEnMs / (1000L * 60 * 60 * 24 * 365));
         return edad >= 18;
     }
 
@@ -90,11 +90,11 @@ public class PersonaFisica extends ResponsablePago {
     //     this.fechaNacimiento = fechaNacimiento;
     // }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

@@ -2,13 +2,13 @@ package tp.tp_disenio_2025_grupo_28.model;
 
 public class Pais {
 
-    private int id;
+    private Integer id;
     private String nombre;
 
     public Pais() {
     }
 
-    public Pais(Long id, String nombre) {
+    public Pais(Integer id, String nombre) {
         this.id = id;
         this.nombre = nombre;
     }
@@ -21,11 +21,11 @@ public class Pais {
         this.nombre = nombre;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

@@ -8,17 +8,17 @@ public abstract class ResponsablePago {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     protected String cuit;
     protected String razonSocial;
-    protected int telefono;
-    // protected Direccion direccion;
+    protected Integer telefono;
+    protected Direccion direccion;
 
     public ResponsablePago() {
     }
 
-    public ResponsablePago(String cuit, String razonSocial, int telefono) {
+    public ResponsablePago(String cuit, String razonSocial, Integer telefono, Direccion direccion) {
         this.cuit = cuit;
         this.razonSocial = razonSocial;
         this.telefono = telefono;
@@ -43,11 +43,11 @@ public abstract class ResponsablePago {
         this.razonSocial = razonSocial;
     }
 
-    public int getTelefono() {
+    public Integer getTelefono() {
         return telefono;
     }
 
-    public void setTelefono(int telefono) {
+    public void setTelefono(Integer telefono) {
         this.telefono = telefono;
     }
 

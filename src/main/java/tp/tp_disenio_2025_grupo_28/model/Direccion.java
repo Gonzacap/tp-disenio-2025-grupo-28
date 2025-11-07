@@ -2,9 +2,9 @@ package tp.tp_disenio_2025_grupo_28.model;
 
 public class Direccion {
 
-    private int id;
+    private Integer id;
     private String direccion;
-    private int numero;
+    private Integer numero;
     private String depto;
     private String piso;
     private String nacionalidad;
@@ -13,7 +13,7 @@ public class Direccion {
     public Direccion() {
     }
 
-    public Direccion(String direccion, int numero, String depto, String piso, String nacionalidad, Localidad localidad) {
+    public Direccion(String direccion, Integer numero, String depto, String piso, String nacionalidad, Localidad localidad) {
 
         this.direccion = direccion;
         this.numero = numero;
@@ -23,7 +23,7 @@ public class Direccion {
         this.localidad = localidad;
     }
 
-    public Direccion modificarDireccion(String direccion, int numero, String depto, String piso, String nacionalidad) {
+    public Direccion modificarDireccion(String direccion, Integer numero, String depto, String piso, String nacionalidad) {
         this.direccion = direccion;
         this.numero = numero;
         this.depto = depto;
@@ -40,11 +40,11 @@ public class Direccion {
         this.direccion = direccion;
     }
 
-    public int getNumero() {
+    public Integer getNumero() {
         return numero;
     }
 
-    public void setNumero(int numero) {
+    public void setNumero(Integer numero) {
         this.numero = numero;
     }
 
@@ -80,11 +80,11 @@ public class Direccion {
         this.localidad = localidad;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

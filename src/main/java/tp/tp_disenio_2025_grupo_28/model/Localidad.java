@@ -2,7 +2,7 @@ package tp.tp_disenio_2025_grupo_28.model;
 
 public class Localidad {
 
-    private int id;
+    private Integer id;
 
     private String nombre;
     private String codigoPostal;
@@ -41,11 +41,11 @@ public class Localidad {
         this.provincia = provincia;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

@@ -10,7 +10,7 @@ public class ResponsablePagoDTO {
     private String cuit;
     private String posicionFrenteAlIva;
     private Date fechaNacimiento;
-    private int telefono;
+    private Integer telefono;
     private String email;
     private String ocupacion;
 
@@ -29,8 +29,8 @@ public class ResponsablePagoDTO {
     public void setPosicionFrenteAlIva(String posicionFrenteAlIva) { this.posicionFrenteAlIva = posicionFrenteAlIva; }
     public Date getFechaNacimiento() { return fechaNacimiento; }
     public void setFechaNacimiento(Date fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
-    public int getTelefono() { return telefono; }
-    public void setTelefono(int telefono) { this.telefono = telefono; }
+    public Integer getTelefono() { return telefono; }
+    public void setTelefono(Integer telefono) { this.telefono = telefono; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getOcupacion() { return ocupacion; }

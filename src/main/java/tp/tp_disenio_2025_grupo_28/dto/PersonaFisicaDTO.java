@@ -3,18 +3,18 @@ package tp.tp_disenio_2025_grupo_28.dto;
 import java.util.Date;
 
 public class PersonaFisicaDTO {
-    private int idPersonaFisica;
+    private Integer idPersonaFisica;
     private String nombre;
     private String apellido;
     private String tipoDocumento;
     private String documento;
-    private int idResponsablePago;
+    private Integer idResponsablePago;
 
-	public int getIdPersonaFisica() {
+	public Integer getIdPersonaFisica() {
 		return this.idPersonaFisica;
 	}
 
-	public void setIdPersonaFisica(int idPersonaFisica) {
+	public void setIdPersonaFisica(Integer idPersonaFisica) {
 		this.idPersonaFisica = idPersonaFisica;
 	}
 
@@ -50,11 +50,11 @@ public class PersonaFisicaDTO {
 		this.documento = documento;
 	}
 
-	public int getIdResponsablePago() {
+	public Integer getIdResponsablePago() {
 		return this.idResponsablePago;
 	}
 
-	public void setIdResponsablePago(int idResponsablePago) {
+	public void setIdResponsablePago(Integer idResponsablePago) {
 		this.idResponsablePago = idResponsablePago;
 	}
 
