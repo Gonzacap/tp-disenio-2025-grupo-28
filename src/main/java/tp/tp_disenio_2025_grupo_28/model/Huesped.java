@@ -1,50 +1,58 @@
 package tp.tp_disenio_2025_grupo_28.model;
 
+import jakarta.persistence.*;
 import java.util.Date;
 
-import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
+@Entity
+@Table(name = "huesped")
+public class Huesped {
 
-public class Huesped extends PersonaFisica {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    private String nombre;
+    private String apellido;
+    private String tipoDocumento;
+    private String documento;
+    private String cuit;
     private String posicionFrenteAlIva;
+    private Date fechaNacimiento;
+    private int telefono;
     private String email;
     private String ocupacion;
 
-    public Huesped() {
-    }
+    // Getters y setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Huesped(String cuit, String razonSocial, int telefono, Direccion direccion,
-            String nombre, String apellido, TipoDocumento tipoDocumento,
-            String documento, Date fechaNacimiento,
-            String posicionFrenteAlIva, String email, String ocupacion) {
-        super(cuit, razonSocial, telefono, direccion, nombre, apellido, tipoDocumento, documento, fechaNacimiento);
-        this.posicionFrenteAlIva = posicionFrenteAlIva;
-        this.email = email;
-        this.ocupacion = ocupacion;
-    }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public String getPosicionFrenteAlIva() {
-        return posicionFrenteAlIva;
-    }
+    public String getApellido() { return apellido; }
+    public void setApellido(String apellido) { this.apellido = apellido; }
 
-    public void setPosicionFrenteAlIva(String posicionFrenteAlIva) {
-        this.posicionFrenteAlIva = posicionFrenteAlIva;
-    }
+    public String getTipoDocumento() { return tipoDocumento; }
+    public void setTipoDocumento(String tipoDocumento) { this.tipoDocumento = tipoDocumento; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getDocumento() { return documento; }
+    public void setDocumento(String documento) { this.documento = documento; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public String getCuit() { return cuit; }
+    public void setCuit(String cuit) { this.cuit = cuit; }
 
-    public String getOcupacion() {
-        return ocupacion;
-    }
+    public String getPosicionFrenteAlIva() { return posicionFrenteAlIva; }
+    public void setPosicionFrenteAlIva(String posicionFrenteAlIva) { this.posicionFrenteAlIva = posicionFrenteAlIva; }
 
-    public void setOcupacion(String ocupacion) {
-        this.ocupacion = ocupacion;
-    }
+    public Date getFechaNacimiento() { return fechaNacimiento; }
+    public void setFechaNacimiento(Date fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
 
+    public int getTelefono() { return telefono; }
+    public void setTelefono(int telefono) { this.telefono = telefono; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getOcupacion() { return ocupacion; }
+    public void setOcupacion(String ocupacion) { this.ocupacion = ocupacion; }
 }
