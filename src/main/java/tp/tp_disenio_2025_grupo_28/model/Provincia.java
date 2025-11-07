@@ -2,7 +2,7 @@ package tp.tp_disenio_2025_grupo_28.model;
 
 public class Provincia {
 
-    private Long id;
+    private Int id;
     private String nombre;
     private Pais pais;
 

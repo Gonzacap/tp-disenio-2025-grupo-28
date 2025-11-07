@@ -7,7 +7,7 @@ import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
 
 public class Habitacion {
 
-    private Long id;
+    private Int id;
 
     private Integer numeroHabitacion;
     @Enumerated(EnumType.STRING)

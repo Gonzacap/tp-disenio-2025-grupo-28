@@ -8,8 +8,8 @@ public abstract class ResponsablePago {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
+    private Int id;
+
     protected String cuit;
     protected String razonSocial;
     protected int telefono;
