@@ -1,7 +1,15 @@
 package tp.tp_disenio_2025_grupo_28.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "responsablepago")
 public abstract class ResponsablePago {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
     protected String cuit;
     protected String razonSocial;
     protected int telefono;
