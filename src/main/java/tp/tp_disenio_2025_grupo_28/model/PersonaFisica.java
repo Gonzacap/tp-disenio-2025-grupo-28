@@ -1,16 +1,23 @@
 package tp.tp_disenio_2025_grupo_28.model;
 
+import jakarta.persistence.*;
 import java.util.Date;
 
-import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
+// import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 
+
+@Entity
+@Table(name = "personafisica")
 public class PersonaFisica extends ResponsablePago {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
     protected String nombre;
     protected String apellido;
-    protected TipoDocumento tipoDocumento;
+    // protected TipoDocumento tipoDocumento;
+    protected String tipoDocumento;
     protected String documento;
     protected Date fechaNacimiento;
 
@@ -18,14 +25,14 @@ public class PersonaFisica extends ResponsablePago {
     }
 
     public PersonaFisica(String cuit, String razonSocial, int telefono, Direccion direccion,
-            String nombre, String apellido, TipoDocumento tipoDocumento,
+            String nombre, String apellido, String tipoDocumento,
             String documento, Date fechaNacimiento) {
         super(cuit, razonSocial, telefono, direccion);
         this.nombre = nombre;
         this.apellido = apellido;
         this.tipoDocumento = tipoDocumento;
         this.documento = documento;
-        this.fechaNacimiento = fechaNacimiento;
+        // this.fechaNacimiento = fechaNacimiento;
     }
 
     @Override
@@ -51,11 +58,19 @@ public class PersonaFisica extends ResponsablePago {
         this.apellido = apellido;
     }
 
-    public TipoDocumento getTipoDocumento() {
+    // public TipoDocumento getTipoDocumento() {
+    //     return tipoDocumento;
+    // }
+
+    public String getTipoDocumento() {
         return tipoDocumento;
     }
 
-    public void setTipoDocumento(TipoDocumento tipoDocumento) {
+    // public void setTipoDocumento(TipoDocumento tipoDocumento) {
+    //     this.tipoDocumento = tipoDocumento;
+    // }
+
+    public void setTipoDocumento(String tipoDocumento) {
         this.tipoDocumento = tipoDocumento;
     }
 
@@ -67,13 +82,13 @@ public class PersonaFisica extends ResponsablePago {
         this.documento = documento;
     }
 
-    public Date getFechaNacimiento() {
-        return fechaNacimiento;
-    }
+    // public Date getFechaNacimiento() {
+    //     return fechaNacimiento;
+    // }
 
-    public void setFechaNacimiento(Date fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }
+    // public void setFechaNacimiento(Date fechaNacimiento) {
+    //     this.fechaNacimiento = fechaNacimiento;
+    // }
 
     public Long getId() {
         return id;
