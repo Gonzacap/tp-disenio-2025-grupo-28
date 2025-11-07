@@ -37,8 +37,10 @@ public class PersonaFisica extends ResponsablePago {
 
     @Override
     public boolean esMayorDeEdad() {
-        Integer edadEnMs = new Date().getTime() - fechaNacimiento.getTime();
-        Integer edad = (Integer) (edadEnMs / (1000L * 60 * 60 * 24 * 365));
+        if (fechaNacimiento == null) return false;
+
+        long edadEnMs = new Date().getTime() - fechaNacimiento.getTime();
+        int edad = (int) (edadEnMs / (1000L * 60 * 60 * 24 * 365));
         return edad >= 18;
     }
 
