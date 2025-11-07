@@ -16,7 +16,7 @@ public class TestController {
     @GetMapping("/test")
     public String probarConexion() {
         try {
-            Integereger result = jdbcTemplate.queryForObject("SELECT 1", Integereger.class);
+            Integer result = jdbcTemplate.queryForObject("SELECT 1", Integer.class);
             if (result != null && result == 1) {
                 return "Conexión exitosa a la DB!";
             } else {

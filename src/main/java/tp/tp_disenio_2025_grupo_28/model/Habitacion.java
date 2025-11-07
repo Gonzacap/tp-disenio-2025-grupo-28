@@ -9,14 +9,14 @@ public class Habitacion {
 
     private Integer id;
 
-    private Integereger numeroHabitacion;
+    private Integer numeroHabitacion;
     @Enumerated(EnumType.STRING)
     private EstadoHabitacion estado;
     @Enumerated(EnumType.STRING)
     private TipoHabitacion tipo;
-    private Integereger numCamasDobles;
-    private Integereger numCamasSimples;
-    private Integereger capacidad;
+    private Integer numCamasDobles;
+    private Integer numCamasSimples;
+    private Integer capacidad;
     private Double descuentoPorEstadiaLarga;
 
     public Habitacion() {
@@ -30,11 +30,11 @@ public class Habitacion {
         this.id = id;
     }
 
-    public Integereger getNumeroHabitacion() {
+    public Integer getNumeroHabitacion() {
         return numeroHabitacion;
     }
 
-    public void setNumeroHabitacion(Integereger numeroHabitacion) {
+    public void setNumeroHabitacion(Integer numeroHabitacion) {
         this.numeroHabitacion = numeroHabitacion;
     }
 
@@ -54,27 +54,27 @@ public class Habitacion {
         this.tipo = tipo;
     }
 
-    public Integereger getNumCamasDobles() {
+    public Integer getNumCamasDobles() {
         return numCamasDobles;
     }
 
-    public void setNumCamasDobles(Integereger numCamasDobles) {
+    public void setNumCamasDobles(Integer numCamasDobles) {
         this.numCamasDobles = numCamasDobles;
     }
 
-    public Integereger getNumCamasSimples() {
+    public Integer getNumCamasSimples() {
         return numCamasSimples;
     }
 
-    public void setNumCamasSimples(Integereger numCamasSimples) {
+    public void setNumCamasSimples(Integer numCamasSimples) {
         this.numCamasSimples = numCamasSimples;
     }
 
-    public Integereger getCapacidad() {
+    public Integer getCapacidad() {
         return capacidad;
     }
 
-    public void setCapacidad(Integereger capacidad) {
+    public void setCapacidad(Integer capacidad) {
         this.capacidad = capacidad;
     }
 
