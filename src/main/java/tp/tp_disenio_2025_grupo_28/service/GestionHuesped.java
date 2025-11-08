@@ -24,7 +24,7 @@ public class GestionHuesped {
             throw new IllegalArgumentException("Errores: " + String.join(", ", errores));
         }
 
-        Optional<Huesped> existente = huespedRepository.findByTipoDocumentoAndNumeroDocumento(
+        Optional<Huesped> existente = huespedRepository.findByTipoDocumentoAndDocumento(
                 nuevoHuesped.getTipoDocumento(),
                 nuevoHuesped.getDocumento()
         );

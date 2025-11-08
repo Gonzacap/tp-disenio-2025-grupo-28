@@ -7,5 +7,5 @@ import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 import java.util.*;
 
 public interface HuespedRepository extends JpaRepository<Huesped, Integer> {
-    Optional<Huesped> findByTipoDocumentoAndNumeroDocumento(TipoDocumento tipo, String numero);
+    Optional<Huesped> findByTipoDocumentoAndDocumento(TipoDocumento tipo, String numero);
 }
