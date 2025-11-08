@@ -3,30 +3,33 @@ package tp.tp_disenio_2025_grupo_28.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "responsablepago")
+@Table(name = "responsable_pago")
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class ResponsablePago {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(length = 20)
+    private String cuit;
 
-    protected String cuit;
-    protected String razonSocial;
-    protected Integer telefono;
-    protected Direccion direccion;
+    @Column(name = "razon_social", length = 100)
+    private String razonSocial;
 
-    public ResponsablePago() {
-    }
+    private Integer telefono;
+
+    @ManyToOne
+    @JoinColumn(name = "direccion_id")
+    private Direccion direccion;
+
+    public ResponsablePago() {}
 
     public ResponsablePago(String cuit, String razonSocial, Integer telefono, Direccion direccion) {
         this.cuit = cuit;
         this.razonSocial = razonSocial;
         this.telefono = telefono;
-        this.direccion = null;
+        this.direccion = direccion;
     }
 
-    public abstract boolean esMayorDeEdad();
-
+    // Getters y setters
     public String getCuit() {
         return cuit;
     }
@@ -58,5 +61,4 @@ public abstract class ResponsablePago {
     public void setDireccion(Direccion direccion) {
         this.direccion = direccion;
     }
-
 }
