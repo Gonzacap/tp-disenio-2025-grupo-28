@@ -1,9 +1,18 @@
 package tp.tp_disenio_2025_grupo_28.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "provincia")
 public class Provincia {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String nombre;
+
+    @ManyToOne
+    @JoinColumn(name = "id_pais")
     private Pais pais;
 
     public Provincia() {

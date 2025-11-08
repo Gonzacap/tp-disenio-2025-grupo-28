@@ -15,6 +15,9 @@ public class Direccion {
     private String depto;
     private String piso;
     private String nacionalidad;
+
+    @ManyToOne
+    @JoinColumn(name = "id_localidad")
     private Localidad localidad;
 
     public Direccion() {
