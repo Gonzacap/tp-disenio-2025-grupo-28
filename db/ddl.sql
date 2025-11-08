@@ -19,7 +19,7 @@ CREATE TABLE provincia (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     idPais INT NOT NULL,
-    FOREIGN KEY (idPais) REFERENCES Pais(idPais)
+    FOREIGN KEY (idPais) REFERENCES Pais(idPais) ON DELETE CASCADE
 );
 
 -- ---------------------
@@ -30,7 +30,7 @@ CREATE TABLE localidad (
     nombre VARCHAR(100) NOT NULL,
     codigoPostal VARCHAR(20),
     idProvincia INT NOT NULL,
-    FOREIGN KEY (idProvincia) REFERENCES Provincia(id)
+    FOREIGN KEY (idProvincia) REFERENCES Provincia(id) ON DELETE CASCADE
 );
 
 -- ---------------------
@@ -44,7 +44,7 @@ CREATE TABLE direccion (
     piso VARCHAR(10),
     nacionalidad VARCHAR(50),
     idLocalidad INT NOT NULL,
-    FOREIGN KEY (idLocalidad) REFERENCES Localidad(id)
+    FOREIGN KEY (idLocalidad) REFERENCES Localidad(id) ON DELETE CASCADE
 );
 
 -- ---------------------
@@ -54,14 +54,14 @@ CREATE TABLE responsable_pago (
     cuit VARCHAR(20) PRIMARY KEY,
     razon_social VARCHAR(100),
     telefono INTEGER,
-    direccion_id INTEGER REFERENCES direccion(id)
+    direccion_id INTEGER REFERENCES direccion(id) ON DELETE CASCADE
 );
 
 -- ---------------------
 -- Tabla PersonaFisica
 -- ---------------------
 CREATE TABLE persona_fisica (
-    cuit VARCHAR(20) PRIMARY KEY REFERENCES responsable_pago(cuit),
+    cuit VARCHAR(20) PRIMARY KEY REFERENCES responsable_pago(cuit) ON DELETE CASCADE,
     nombre VARCHAR(50),
     apellido VARCHAR(50),
     tipo_documento tipo_documento,
@@ -73,14 +73,14 @@ CREATE TABLE persona_fisica (
 -- Tabla PersonaJuridica
 -- ---------------------
 CREATE TABLE persona_juridica (
-    cuit VARCHAR(20) PRIMARY KEY REFERENCES responsable_pago(cuit)
+    cuit VARCHAR(20) PRIMARY KEY REFERENCES responsable_pago(cuit) ON DELETE CASCADE
 );
 
 -- ---------------------
 -- Tabla Huesped
 -- ---------------------
 CREATE TABLE huesped (
-    cuit VARCHAR(20) PRIMARY KEY REFERENCES persona_fisica(cuit),
+    cuit VARCHAR(20) PRIMARY KEY REFERENCES persona_fisica(cuit) ON DELETE CASCADE,
     posicion_frente_al_iva VARCHAR(50),
     telefono INTEGER,
     email VARCHAR(100),
