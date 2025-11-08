@@ -28,7 +28,7 @@ CREATE TABLE provincia (
 CREATE TABLE localidad (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
-    codigoPostal VARCHAR(20),
+    codigo_postal VARCHAR(20),
     id_provincia INT NOT NULL,
     FOREIGN KEY (id_provincia) REFERENCES Provincia(id) ON DELETE CASCADE
 );
