@@ -11,12 +11,6 @@ public class PersonaJuridica extends ResponsablePago {
         super(cuit, razonSocial, telefono, direccion);
     }
 
-    @Override
-    public boolean esMayorDeEdad() {
-        // No aplica, pero se devuelve true por compatibilidad
-        return true;
-    }
-
     public Integer getId() {
         return id;
     }

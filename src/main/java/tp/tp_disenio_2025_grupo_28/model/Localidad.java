@@ -7,6 +7,8 @@ import java.util.Date;
 @Table(name = "localidad")
 public class Localidad {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String nombre;

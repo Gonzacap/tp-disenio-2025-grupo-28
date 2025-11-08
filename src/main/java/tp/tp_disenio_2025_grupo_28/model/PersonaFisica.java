@@ -35,7 +35,6 @@ public class PersonaFisica extends ResponsablePago {
         // this.fechaNacimiento = fechaNacimiento;
     }
 
-    @Override
     public boolean esMayorDeEdad() {
         if (fechaNacimiento == null) return false;
 

@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 @Table(name = "pais")
 public class Pais {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String nombre;
 
