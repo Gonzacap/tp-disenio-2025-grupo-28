@@ -1,6 +1,6 @@
 package tp.tp_disenio_2025_grupo_28.dto;
 
-import java.util.Date;
+import java.util.*;
 
 public class HuespedDTO {
     private String nombre;
