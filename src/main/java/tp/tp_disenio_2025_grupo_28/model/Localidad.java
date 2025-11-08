@@ -12,7 +12,7 @@ public class Localidad {
     private Integer id;
 
     private String nombre;
-    private String codigoPostal;
+    private String codigo_postal;
 
     @ManyToOne
     @JoinColumn(name = "id_provincia")
@@ -21,9 +21,9 @@ public class Localidad {
     public Localidad() {
     }
 
-    public Localidad(String nombre, String codigoPostal, Provincia provincia) {
+    public Localidad(String nombre, String codigo_postal, Provincia provincia) {
         this.nombre = nombre;
-        this.codigoPostal = codigoPostal;
+        this.codigo_postal = codigo_postal;
         this.provincia = provincia;
     }
 
@@ -35,12 +35,12 @@ public class Localidad {
         this.nombre = nombre;
     }
 
-    public String getCodigoPostal() {
-        return codigoPostal;
+    public String getcodigo_postal() {
+        return codigo_postal;
     }
 
-    public void setCodigoPostal(String codigoPostal) {
-        this.codigoPostal = codigoPostal;
+    public void setcodigo_postal(String codigo_postal) {
+        this.codigo_postal = codigo_postal;
     }
 
     public Provincia getProvincia() {

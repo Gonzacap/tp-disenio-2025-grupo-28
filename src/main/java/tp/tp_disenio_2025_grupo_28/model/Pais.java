@@ -14,8 +14,7 @@ public class Pais {
     public Pais() {
     }
 
-    public Pais(Integer id, String nombre) {
-        this.id = id;
+    public Pais(String nombre) {
         this.nombre = nombre;
     }
 
