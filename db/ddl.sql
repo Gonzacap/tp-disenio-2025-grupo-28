@@ -8,7 +8,7 @@ CREATE TYPE tipo_documento AS ENUM ('DNI', 'LE', 'LC', 'Pasaporte');
 -- Tabla Pais
 -- ---------------------
 CREATE TABLE Pais (
-    idPais SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL
 );
 
@@ -18,8 +18,8 @@ CREATE TABLE Pais (
 CREATE TABLE provincia (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
-    idPais INT NOT NULL,
-    FOREIGN KEY (idPais) REFERENCES Pais(idPais) ON DELETE CASCADE
+    id_pais INT NOT NULL,
+    FOREIGN KEY (id_pais) REFERENCES Pais(id) ON DELETE CASCADE
 );
 
 -- ---------------------
@@ -29,8 +29,8 @@ CREATE TABLE localidad (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     codigoPostal VARCHAR(20),
-    idProvincia INT NOT NULL,
-    FOREIGN KEY (idProvincia) REFERENCES Provincia(id) ON DELETE CASCADE
+    id_provincia INT NOT NULL,
+    FOREIGN KEY (id_provincia) REFERENCES Provincia(id) ON DELETE CASCADE
 );
 
 -- ---------------------
@@ -43,8 +43,8 @@ CREATE TABLE direccion (
     depto VARCHAR(10),
     piso VARCHAR(10),
     nacionalidad VARCHAR(50),
-    idLocalidad INT NOT NULL,
-    FOREIGN KEY (idLocalidad) REFERENCES Localidad(id) ON DELETE CASCADE
+    id_localidad INT NOT NULL,
+    FOREIGN KEY (id_localidad) REFERENCES Localidad(id) ON DELETE CASCADE
 );
 
 -- ---------------------
