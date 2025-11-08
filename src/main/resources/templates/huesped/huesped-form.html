@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Dar de Alta Huésped</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background-color: #fff; }
+    h2 { text-align: center; margin-bottom: 25px; }
+    form { max-width: 900px; margin: 0 auto; border: 1px solid #ccc; padding: 25px 40px;
+           border-radius: 5px; background-color: #fafafa; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; row-gap: 10px; }
+    label { font-weight: bold; margin-bottom: 3px; display: inline-block; }
+    label .req { color: red; }
+    input, select { width: 95%; padding: 6px; font-size: 14px; }
+    .direccion-group { display: flex; align-items: center; gap: 10px; }
+    .direccion-group input { flex: 1; }
+    .botones { text-align: center; margin-top: 25px; }
+    button { padding: 8px 20px; margin: 0 5px; border: 1px solid #888;
+             background-color: #eee; border-radius: 3px; cursor: pointer; font-size: 14px; }
+    button:hover { background-color: #ddd; }
+    .success { color: green; text-align: center; font-weight: bold; }
+    .error { color: red; text-align: center; font-weight: bold; }
+  </style>
+</head>
+
+<body>
+  <h2>Hotel Premier - Dar de Alta Huésped</h2>
+  <!--  MENSAJES DE CONFIRMACIÓN O ERROR -->
+  <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
+  <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+  <!--<form id="formHuesped"> -->
+<form th:action="@{/huespedes/guardar}" method="post" th:object="${huesped}">
+
+
+    <div class="form-grid">
+      <div>
+        <label>Nombre <span class="req">*</span></label>
+        <input type="text" th:field="*{nombre}" required>
+
+        <label>Tipo de documento <span class="req">*</span></label>
+       <select th:field="*{tipoDocumento}">
+            <option value="" disabled selected>Seleccione un tipo</option>
+            <option th:each="tipo : ${tiposDocumento}"
+                    th:value="${tipo}"
+                    th:text="${tipo}">
+            </option>
+        </select>
+
+
+        <label>CUIT</label>
+        <input type="text" th:field="*{cuit}">
+
+        <label>Fecha de nacimiento <span class="req">*</span></label>
+        <input type="date" th:field="*{fechaNacimiento}" required>
+
+        <label>Dirección <span class="req">*</span></label>
+        <input type="text" th:field="*{direccion.direccion}" required>
+
+        <label>Código Postal <span class="req">*</span></label>
+        <input type="text" th:field="*{direccion.localidad.codigo_postal}" required>
+
+        <label>Provincia <span class="req">*</span></label>
+        <input type="text" th:field="*{direccion.localidad.provincia.nombre}" required>
+
+        <label>Teléfono <span class="req">*</span></label>
+        <input type="text" th:field="*{telefono}" required>
+
+        <label>Nacionalidad <span class="req">*</span></label>
+        <input type="text" th:field="*{direccion.localidad.provincia.pais.nombre}" required>
+      </div>
+
+      <div>
+        <label>Apellido <span class="req">*</span></label>
+        <input type="text" th:field="*{apellido}" required>
+
+        <label>Número de documento <span class="req">*</span></label>
+        <input type="text" th:field="*{documento}" required>
+
+        <label>Posición frente al IVA</label>
+            <select th:field="*{posicionFrenteAlIva}">
+                <option value="CONSUMIDOR_FINAL">Consumidor final por omisión</option>
+                <option value="MONOTRIBUTO">Monotributista</option>
+                <option value="RESPONSABLE_INSCRIPTO">Responsable inscripto</option>
+            </select>
+
+
+        <label>Número / Depto / Piso</label>
+        <div class="direccion-group">
+          <input type="text" th:field="*{direccion.numero}" placeholder="Número" required>
+          <input type="text" th:field="*{direccion.depto}" placeholder="Depto">
+          <input type="text" th:field="*{direccion.piso}" placeholder="Piso">
+        </div>
+
+        <label>Localidad <span class="req">*</span></label>
+        <input type="text" th:field="*{direccion.localidad.nombre}" required>
+
+        <label>País <span class="req">*</span></label>
+        <input type="text" th:field="*{direccion.localidad.provincia.pais.nombre}" required>
+
+        <label>Email</label>
+        <input type="email" th:field="*{email}">
+
+        <label>Ocupación</label>
+        <input type="text" th:field="*{ocupacion}">
+      </div>
+    </div>
+
+    <div class="botones">
+      <button type="submit">Siguiente</button>
+      <button type="reset">Borrar</button>
+      <button type="button" onclick="window.history.back()">Cancelar</button>
+    </div>
+  </form>
+
+<script>
+document.querySelector("form").addEventListener("submit", async (e) => {
+  e.preventDefault(); // evita el envío normal del form
+
+  const form = e.target;
+
+  // Arma el objeto Huesped desde los campos
+  const huesped = {
+    nombre: form.querySelector('[name="nombre"]').value,
+    apellido: form.querySelector('[name="apellido"]').value,
+    tipoDocumento: form.querySelector('[name="tipoDocumento"]').value,
+    documento: form.querySelector('[name="documento"]').value,
+    cuit: form.querySelector('[name="cuit"]').value,
+    telefono: form.querySelector('[name="telefono"]').value,
+    email: form.querySelector('[name="email"]').value,
+    ocupacion: form.querySelector('[name="ocupacion"]').value,
+    fechaNacimiento: form.querySelector('[name="fechaNacimiento"]').value,
+    posicionFrenteAlIva: form.querySelector('[name="posicionFrenteAlIva"]').value,
+    direccion: {
+      direccion: form.querySelector('[name="direccion.direccion"]').value,
+      numero: form.querySelector('[name="direccion.numero"]').value,
+      piso: form.querySelector('[name="direccion.piso"]').value,
+      depto: form.querySelector('[name="direccion.depto"]').value,
+      localidad: {
+        nombre: form.querySelector('[name="direccion.localidad.nombre"]').value,
+        codigo_postal: form.querySelector('[name="direccion.localidad.codigo_postal"]').value,
+        provincia: {
+          nombre: form.querySelector('[name="direccion.localidad.provincia.nombre"]').value,
+          pais: {
+            nombre: form.querySelector('[name="direccion.localidad.provincia.pais.nombre"]').value
+          }
+        }
+      }
+    }
+  };
+
+  try {
+    const response = await fetch("http://localhost:8080/huespedes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(huesped)
+    });
+
+    if (response.ok) {
+      const msg = await response.text();
+      alert(msg);
+      form.reset();
+    } else {
+      const err = await response.text();
+      alert("Error: " + err);
+    }
+  } catch (err) {
+    alert("Error de conexión con el servidor");
+  }
+});
+</script>
+
+
+
+
+
+</body>
+</html>

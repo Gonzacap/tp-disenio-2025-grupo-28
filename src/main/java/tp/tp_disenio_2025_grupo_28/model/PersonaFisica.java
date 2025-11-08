@@ -1,8 +1,16 @@
 package tp.tp_disenio_2025_grupo_28.model;
 
-import jakarta.persistence.*;
-import java.util.*;
+import java.util.Date;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 
 @Entity
@@ -18,6 +26,7 @@ public class PersonaFisica extends ResponsablePago {
     protected String documento;
 
     @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     protected Date fechaNacimiento;
 
     public PersonaFisica() {
@@ -35,7 +44,9 @@ public class PersonaFisica extends ResponsablePago {
     }
 
     public boolean esMayorDeEdad() {
-        if (fechaNacimiento == null) return false;
+        if (fechaNacimiento == null) {
+            return false;
+        }
 
         long edadEnMs = new Date().getTime() - fechaNacimiento.getTime();
         int edad = (int) (edadEnMs / (1000L * 60 * 60 * 24 * 365));

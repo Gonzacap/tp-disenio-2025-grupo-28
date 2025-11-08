@@ -1,16 +1,25 @@
 package tp.tp_disenio_2025_grupo_28.service;
 
-import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
-
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
 
-import tp.tp_disenio_2025_grupo_28.repository.*;
-import tp.tp_disenio_2025_grupo_28.model.*;
-import java.util.*;
-
+import tp.tp_disenio_2025_grupo_28.model.Direccion;
+import tp.tp_disenio_2025_grupo_28.model.Huesped;
+import tp.tp_disenio_2025_grupo_28.model.Localidad;
+import tp.tp_disenio_2025_grupo_28.model.Pais;
+import tp.tp_disenio_2025_grupo_28.model.Provincia;
+import tp.tp_disenio_2025_grupo_28.repository.DireccionRepository;
+import tp.tp_disenio_2025_grupo_28.repository.HuespedRepository;
+import tp.tp_disenio_2025_grupo_28.repository.LocalidadRepository;
+import tp.tp_disenio_2025_grupo_28.repository.PaisRepository;
+import tp.tp_disenio_2025_grupo_28.repository.PersonaFisicaRepository;
+import tp.tp_disenio_2025_grupo_28.repository.ProvinciaRepository;
 
 @Service
 @Transactional
@@ -48,7 +57,6 @@ public class GestionHuesped {
         }
 
         // Pais pais = paisRepository.save(nuevoHuesped.getDireccion().getLocalidad().getProvincia().getPais());
-
         Pais paisHuesped = nuevoHuesped.getDireccion().getLocalidad().getProvincia().getPais();
         Optional<Pais> paisExistente = paisRepository.findByNombre(paisHuesped.getNombre());
 
@@ -93,18 +101,24 @@ public class GestionHuesped {
     private List<String> validarCampos(Huesped h) {
         List<String> errores = new ArrayList<>();
 
-        if (h.getApellido() == null || h.getApellido().isBlank())
+        if (h.getApellido() == null || h.getApellido().isBlank()) {
             errores.add("Apellido");
-        if (h.getNombre() == null || h.getNombre().isBlank())
+        }
+        if (h.getNombre() == null || h.getNombre().isBlank()) {
             errores.add("Nombres");
-        if (h.getDocumento() == null || h.getTipoDocumento() == null)
+        }
+        if (h.getDocumento() == null || h.getTipoDocumento() == null) {
             errores.add("Tipo y número de documento");
-        if (h.getFechaNacimiento() == null)
+        }
+        if (h.getFechaNacimiento() == null) {
             errores.add("Fecha de nacimiento");
-        if (h.getDireccion() == null)
+        }
+        if (h.getDireccion() == null) {
             errores.add("Dirección");
-        if (h.getTelefono() == null)
+        }
+        if (h.getTelefono() == null) {
             errores.add("Teléfono");
+        }
 
         return errores;
     }
