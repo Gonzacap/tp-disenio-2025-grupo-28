@@ -9,7 +9,6 @@ public class Direccion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idDireccion;
     private Integer id;
     private String direccion;
     private Integer numero;
