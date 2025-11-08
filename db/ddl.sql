@@ -1,4 +1,10 @@
 -- ---------------------
+-- Enums
+-- ---------------------
+CREATE TYPE tipo_documento AS ENUM ('DNI', 'LE', 'LC', 'Pasaporte');
+
+
+-- ---------------------
 -- Tabla Pais
 -- ---------------------
 CREATE TABLE Pais (
@@ -9,8 +15,8 @@ CREATE TABLE Pais (
 -- ---------------------
 -- Tabla Provincia
 -- ---------------------
-CREATE TABLE Provincia (
-    idProvincia SERIAL PRIMARY KEY,
+CREATE TABLE provincia (
+    id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     idPais INT NOT NULL,
     FOREIGN KEY (idPais) REFERENCES Pais(idPais)
@@ -19,75 +25,66 @@ CREATE TABLE Provincia (
 -- ---------------------
 -- Tabla Localidad
 -- ---------------------
-CREATE TABLE Localidad (
-    idLocalidad SERIAL PRIMARY KEY,
+CREATE TABLE localidad (
+    id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     codigoPostal VARCHAR(20),
     idProvincia INT NOT NULL,
-    FOREIGN KEY (idProvincia) REFERENCES Provincia(idProvincia)
+    FOREIGN KEY (idProvincia) REFERENCES Provincia(id)
 );
 
 -- ---------------------
 -- Tabla Direccion
 -- ---------------------
-CREATE TABLE Direccion (
-    idDireccion SERIAL PRIMARY KEY,
+CREATE TABLE direccion (
+    id SERIAL PRIMARY KEY,
+    direccion VARCHAR(50),
     numero VARCHAR(10),
     depto VARCHAR(10),
     piso VARCHAR(10),
-    direccion TEXT,
     nacionalidad VARCHAR(50),
     idLocalidad INT NOT NULL,
-    FOREIGN KEY (idLocalidad) REFERENCES Localidad(idLocalidad)
+    FOREIGN KEY (idLocalidad) REFERENCES Localidad(id)
 );
 
 -- ---------------------
 -- Tabla ResponsablePago
 -- ---------------------
-CREATE TABLE ResponsablePago (
-    idResponsablePago SERIAL PRIMARY KEY,
-    cuit VARCHAR(20),
-    direccion TEXT,
-    telefono VARCHAR(20),
-    razonSocial VARCHAR(100)
+CREATE TABLE responsable_pago (
+    cuit VARCHAR(20) PRIMARY KEY,
+    razon_social VARCHAR(100),
+    telefono INTEGER,
+    direccion_id INTEGER REFERENCES direccion(id)
 );
 
 -- ---------------------
 -- Tabla PersonaFisica
 -- ---------------------
-CREATE TABLE PersonaFisica (
-    idPersonaFisica SERIAL PRIMARY KEY,
-    nombre VARCHAR(100),
-    apellido VARCHAR(100),
-    tipoDocumento VARCHAR(50),
-    documento VARCHAR(50),
-    idResponsablePago INT NOT NULL,
-    FOREIGN KEY (idResponsablePago) REFERENCES ResponsablePago(idResponsablePago)
+CREATE TABLE persona_fisica (
+    cuit VARCHAR(20) PRIMARY KEY REFERENCES responsable_pago(cuit),
+    nombre VARCHAR(50),
+    apellido VARCHAR(50),
+    tipo_documento tipo_documento,
+    documento VARCHAR(20),
+    fecha_nacimiento DATE
 );
 
 -- ---------------------
 -- Tabla PersonaJuridica
 -- ---------------------
-CREATE TABLE PersonaJuridica (
-    idPersonaJuridica SERIAL PRIMARY KEY,
-    nombre VARCHAR(100),
-    idResponsablePago INT NOT NULL,
-    FOREIGN KEY (idResponsablePago) REFERENCES ResponsablePago(idResponsablePago)
+CREATE TABLE persona_juridica (
+    cuit VARCHAR(20) PRIMARY KEY REFERENCES responsable_pago(cuit)
 );
 
 -- ---------------------
 -- Tabla Huesped
 -- ---------------------
-CREATE TABLE Huesped (
-    idHuesped SERIAL PRIMARY KEY,
+CREATE TABLE huesped (
+    cuit VARCHAR(20) PRIMARY KEY REFERENCES persona_fisica(cuit),
+    posicion_frente_al_iva VARCHAR(50),
+    telefono INTEGER,
     email VARCHAR(100),
-    ocupacion VARCHAR(50),
-    fechaNacimiento DATE,
-    posicionFrenteAlIva VARCHAR(50),
-    idPersonaFisica INT,
-    idPersonaJuridica INT,
-    FOREIGN KEY (idPersonaFisica) REFERENCES PersonaFisica(idPersonaFisica),
-    FOREIGN KEY (idPersonaJuridica) REFERENCES PersonaJuridica(idPersonaJuridica)
+    ocupacion VARCHAR(100)
 );
 
 -- ---------------------
