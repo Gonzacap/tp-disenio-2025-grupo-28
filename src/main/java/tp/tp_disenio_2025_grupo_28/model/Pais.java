@@ -1,5 +1,9 @@
 package tp.tp_disenio_2025_grupo_28.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "pais")
 public class Pais {
 
     private Integer id;
