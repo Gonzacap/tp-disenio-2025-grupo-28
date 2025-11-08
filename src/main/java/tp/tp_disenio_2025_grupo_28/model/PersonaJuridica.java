@@ -1,5 +1,7 @@
 package tp.tp_disenio_2025_grupo_28.model;
 
+import jakarta.persistence.*;
+
 @Entity
 @Table(name = "persona_juridica")
 public class PersonaJuridica extends ResponsablePago {
