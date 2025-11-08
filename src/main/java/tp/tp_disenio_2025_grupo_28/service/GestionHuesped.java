@@ -5,25 +5,31 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.dao.DuplicateKeyException;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.*;
 
-import tp.tp_disenio_2025_grupo_28.repository.HuespedRepository;
+import tp.tp_disenio_2025_grupo_28.repository.*;
 import tp.tp_disenio_2025_grupo_28.model.*;
 import java.util.*;
 
 
 @Service
+@Transactional
 public class GestionHuesped {
 
     @Autowired
     private HuespedRepository huespedRepository;
+    @Autowired
+    private PersonaFisicaRepository personaFisicaRepository;
 
     public Huesped registrarHuesped(Huesped nuevoHuesped) {
-        
+
+        // Validaciones
         List<String> errores = validarCampos(nuevoHuesped);
         if (!errores.isEmpty()) {
             throw new IllegalArgumentException("Errores: " + String.join(", ", errores));
         }
 
+        // Verificar duplicados
         Optional<Huesped> existente = huespedRepository.findByTipoDocumentoAndDocumento(
                 nuevoHuesped.getTipoDocumento(),
                 nuevoHuesped.getDocumento()
