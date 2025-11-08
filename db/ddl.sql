@@ -39,7 +39,7 @@ CREATE TABLE localidad (
 CREATE TABLE direccion (
     id SERIAL PRIMARY KEY,
     direccion VARCHAR(50),
-    numero VARCHAR(10),
+    numero INT,
     depto VARCHAR(10),
     piso VARCHAR(10),
     nacionalidad VARCHAR(50),
