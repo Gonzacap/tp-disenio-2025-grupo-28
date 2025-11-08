@@ -3,36 +3,35 @@ package tp.tp_disenio_2025_grupo_28.model;
 import jakarta.persistence.*;
 import java.util.Date;
 
-// import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
-
+import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 
 @Entity
-@Table(name = "personafisica")
+@Table(name = "persona_fisica")
 public class PersonaFisica extends ResponsablePago {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Integer id;
 
     protected String nombre;
     protected String apellido;
-    // protected TipoDocumento tipoDocumento;
-    protected String tipoDocumento;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_documento")
+    protected TipoDocumento tipoDocumento;
     protected String documento;
+
+    @Temporal(TemporalType.DATE)
     protected Date fechaNacimiento;
 
     public PersonaFisica() {
     }
 
     public PersonaFisica(String cuit, String razonSocial, Integer telefono, Direccion direccion,
-            String nombre, String apellido, String tipoDocumento,
+            String nombre, String apellido, TipoDocumento tipoDocumento,
             String documento, Date fechaNacimiento) {
         super(cuit, razonSocial, telefono, direccion);
         this.nombre = nombre;
         this.apellido = apellido;
         this.tipoDocumento = tipoDocumento;
         this.documento = documento;
-        // this.fechaNacimiento = fechaNacimiento;
+        this.fechaNacimiento = fechaNacimiento;
     }
 
     public boolean esMayorDeEdad() {
@@ -59,19 +58,11 @@ public class PersonaFisica extends ResponsablePago {
         this.apellido = apellido;
     }
 
-    // public TipoDocumento getTipoDocumento() {
-    //     return tipoDocumento;
-    // }
-
-    public String getTipoDocumento() {
+    public TipoDocumento getTipoDocumento() {
         return tipoDocumento;
     }
 
-    // public void setTipoDocumento(TipoDocumento tipoDocumento) {
-    //     this.tipoDocumento = tipoDocumento;
-    // }
-
-    public void setTipoDocumento(String tipoDocumento) {
+    public void setTipoDocumento(TipoDocumento tipoDocumento) {
         this.tipoDocumento = tipoDocumento;
     }
 
@@ -83,20 +74,11 @@ public class PersonaFisica extends ResponsablePago {
         this.documento = documento;
     }
 
-    // public Date getFechaNacimiento() {
-    //     return fechaNacimiento;
-    // }
-
-    // public void setFechaNacimiento(Date fechaNacimiento) {
-    //     this.fechaNacimiento = fechaNacimiento;
-    // }
-
-    public Integer getId() {
-        return id;
+    public Date getFechaNacimiento() {
+        return fechaNacimiento;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setFechaNacimiento(Date fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
     }
-
 }
