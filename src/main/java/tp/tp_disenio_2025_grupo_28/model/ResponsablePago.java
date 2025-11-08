@@ -9,16 +9,16 @@ public abstract class ResponsablePago {
 
     @Id
     @Column(length = 20)
-    private String cuit;
+    protected String cuit;
 
     @Column(name = "razon_social", length = 100)
-    private String razonSocial;
+    protected String razonSocial;
 
-    private Integer telefono;
+    protected Integer telefono;
 
     @ManyToOne
     @JoinColumn(name = "direccion_id")
-    private Direccion direccion;
+    protected Direccion direccion;
 
     public ResponsablePago() {}
 
