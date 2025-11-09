@@ -83,16 +83,6 @@ public class HuespedWebController {
             BindingResult bindingResult,
             Model model) {
 
-        // si hay errores de binding vuelvo al form mostrando errores
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("tiposDocumento", TipoDocumento.values());
-            model.addAttribute("paises", paisRepository.findAll());
-            model.addAttribute("provincias", provinciaRepository.findAll());
-            model.addAttribute("localidades", localidadRepository.findAll());
-            model.addAttribute("error", "Errores de validación en el formulario.");
-            return "huesped/huesped-form";
-        }
-
         try {
             // llamo a la lógica que ya funciona
             gestionHuesped.registrarHuesped(huesped);

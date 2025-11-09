@@ -3,7 +3,6 @@ package tp.tp_disenio_2025_grupo_28.model;
 import jakarta.persistence.*;
 import java.util.*;
 
-
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 
 @Entity
@@ -25,9 +24,9 @@ public class Huesped extends PersonaFisica {
     }
 
     public Huesped(String cuit, String razonSocial, Integer telefono, Direccion direccion,
-                   String nombre, String apellido, TipoDocumento tipoDocumento,
-                   String documento, Date fechaNacimiento,
-                   String posicionFrenteAlIva, String email, String ocupacion) {
+            String nombre, String apellido, TipoDocumento tipoDocumento,
+            String documento, Date fechaNacimiento,
+            String posicionFrenteAlIva, String email, String ocupacion) {
 
         super(cuit, razonSocial, telefono, direccion, nombre, apellido, tipoDocumento, documento, fechaNacimiento);
 
@@ -37,34 +36,33 @@ public class Huesped extends PersonaFisica {
     }
 
     // --- Getters y Setters ---
-
     public String getPosicionFrenteAlIva() {
         return this.posicionFrenteAlIva;
     }
 
-	public void setPosicionFrenteAlIva(String posicionFrenteAlIva) {
-		this.posicionFrenteAlIva = posicionFrenteAlIva;
-	}
+    public void setPosicionFrenteAlIva(String posicionFrenteAlIva) {
+        this.posicionFrenteAlIva = posicionFrenteAlIva;
+    }
 
-	public Integer getTelefono() {
-		return this.telefono;
-	}
+    public Integer getTelefono() {
+        return this.telefono;
+    }
 
-	public void setTelefono(Integer telefono) {
-		this.telefono = telefono;
-	}
+    public void setTelefono(Integer telefono) {
+        this.telefono = telefono;
+    }
 
-	public String getEmail() {
-		return this.email;
-	}
+    public String getEmail() {
+        return this.email;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public String getOcupacion() {
-		return this.ocupacion;
-	}
+    public String getOcupacion() {
+        return this.ocupacion;
+    }
 
     public void setOcupacion(String ocupacion) {
         this.ocupacion = ocupacion;
