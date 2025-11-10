@@ -82,7 +82,6 @@ CREATE TABLE persona_juridica (
 CREATE TABLE huesped (
     cuit VARCHAR(20) PRIMARY KEY REFERENCES persona_fisica(cuit) ON DELETE CASCADE,
     posicion_frente_al_iva VARCHAR(50),
-    telefono INTEGER,
     email VARCHAR(100),
     ocupacion VARCHAR(100)
 );
