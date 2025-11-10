@@ -142,6 +142,7 @@ public class GestionHuesped {
         if (paisExistente.isPresent()) {
             pais = paisExistente.get(); // usamos el país que ya existe
         } else {
+            paisHuesped.setId(null);
             pais = paisRepository.save(paisHuesped); // lo guardamos si no existía
         }
 
