@@ -67,9 +67,18 @@ public class HuespedTestWebController {
     /**
      * Simple success page controller.
      */
-    @GetMapping("/success")
-    public String showSuccess(String name, Model model) {
-        model.addAttribute("huespedName", name);
-        return "huespedSuccess";
+   @GetMapping("/success")
+    public String showSuccess(@RequestParam String name, Model model) {
+        String msg = "El huésped " + name + " ha sido satisfactoriamente cargado.";
+        model.addAttribute("successMessage", msg);
+        return "huesped/index";
+    }
+
+    /**
+     * Simple success page controller.
+     */
+    @GetMapping()
+    public String main(String name, RedirectAttributes redirectAttributes) {
+        return "huesped/index";
     }
 }

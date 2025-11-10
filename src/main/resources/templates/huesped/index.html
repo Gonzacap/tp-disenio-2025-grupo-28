@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/Base :: head('Hotel Premier - Gestion Huésped')"></head>
+
+<body>
+  <div class="container-md my-5">
+    <h1 class="text-center mb-4">Hotel Premier - Gestion Huésped</h1>
+
+    <!-- Mensaje de error -->
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+      <p th:text="${errorMessage}">Validation Error Message</p>
+    </div>
+
+    <!-- Mensaje de éxito -->
+    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <p th:text="${successMessage}">Success Message</p>
+    </div>
+
+  </div>
+
+    <div th:replace="fragments/Base :: scripts"></div>
+</body>
+
+</html>
