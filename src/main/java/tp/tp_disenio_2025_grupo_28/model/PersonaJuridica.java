@@ -9,7 +9,7 @@ public class PersonaJuridica extends ResponsablePago {
     public PersonaJuridica() {
     }
 
-    public PersonaJuridica(String cuit, String razonSocial, Integer telefono, Direccion direccion) {
+    public PersonaJuridica(String cuit, String razonSocial, String telefono, Direccion direccion) {
         super(cuit, razonSocial, telefono, direccion);
     }
 }

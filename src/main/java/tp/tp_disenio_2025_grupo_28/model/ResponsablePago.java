@@ -14,7 +14,7 @@ public abstract class ResponsablePago {
     @Column(name = "razon_social", length = 100)
     protected String razonSocial;
 
-    protected Integer telefono;
+    protected String telefono;
 
     @ManyToOne
     @JoinColumn(name = "direccion_id")
@@ -22,7 +22,7 @@ public abstract class ResponsablePago {
 
     public ResponsablePago() {}
 
-    public ResponsablePago(String cuit, String razonSocial, Integer telefono, Direccion direccion) {
+    public ResponsablePago(String cuit, String razonSocial, String telefono, Direccion direccion) {
         this.cuit = cuit;
         this.razonSocial = razonSocial;
         this.telefono = telefono;
@@ -46,11 +46,11 @@ public abstract class ResponsablePago {
         this.razonSocial = razonSocial;
     }
 
-    public Integer getTelefono() {
+    public String getTelefono() {
         return telefono;
     }
 
-    public void setTelefono(Integer telefono) {
+    public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
 

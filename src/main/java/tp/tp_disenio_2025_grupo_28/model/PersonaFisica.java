@@ -32,7 +32,7 @@ public class PersonaFisica extends ResponsablePago {
     public PersonaFisica() {
     }
 
-    public PersonaFisica(String cuit, String razonSocial, Integer telefono, Direccion direccion,
+    public PersonaFisica(String cuit, String razonSocial, String telefono, Direccion direccion,
             String nombre, String apellido, TipoDocumento tipoDocumento,
             String documento, Date fechaNacimiento) {
         super(cuit, razonSocial, telefono, direccion);
