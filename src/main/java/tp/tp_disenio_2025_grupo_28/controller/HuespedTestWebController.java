@@ -50,16 +50,16 @@ public class HuespedTestWebController {
      * Delegates saving to the service and handles exceptions.
      */
     @PostMapping("/new")
-    public String saveHuesped(@ModelAttribute("huesped") HuespedDTO huespedDTO,
+    public String saveHuesped(@ModelAttribute("huesped") Huesped huesped,
                               RedirectAttributes redirectAttributes) {
         try {
-            HuespedDTO nuevoHuesped = gestionHuesped.registrarNuevoHuesped(huespedDTO);
+            HuespedDTO nuevoHuesped = gestionHuesped.registrarNuevoHuesped(huesped);
 
             String fullName = nuevoHuesped.getNombre() + " " + nuevoHuesped.getApellido();
             return "redirect:/huesped/success?name=" + fullName;
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            redirectAttributes.addFlashAttribute("huesped", huespedDTO);
+            redirectAttributes.addFlashAttribute("huesped", huesped);
             return "redirect:/huesped/new";
         }
     }

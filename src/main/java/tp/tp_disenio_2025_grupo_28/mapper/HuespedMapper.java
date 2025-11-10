@@ -22,7 +22,7 @@ public class HuespedMapper {
         // Navegamos las relaciones con null-safety
         Direccion d = h.getDireccion();
         if (d != null) {
-            dto.setDireccion(d.getCalle());
+            dto.setDireccion(d.getDireccion());
             Localidad loc = d.getLocalidad();
             if (loc != null) {
                 dto.setLocalidad(loc.getNombre());

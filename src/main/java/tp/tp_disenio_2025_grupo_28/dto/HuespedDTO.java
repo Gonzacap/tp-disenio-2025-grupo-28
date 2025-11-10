@@ -11,7 +11,6 @@ public class HuespedDTO {
     private Date fechaNacimiento;
     private String cuit;
     private String posicionFrenteAlIva;
-    private Date fechaNacimiento;
     private String telefono;
     private String email;
     private String ocupacion;
