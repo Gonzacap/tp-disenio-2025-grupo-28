@@ -13,12 +13,13 @@ import java.util.*;
 
 import tp.tp_disenio_2025_grupo_28.model.Huesped;
 import tp.tp_disenio_2025_grupo_28.service.GestionHuesped;
+import tp.tp_disenio_2025_grupo_28.dto.HuespedDTO;
+import tp.tp_disenio_2025_grupo_28.mapper.HuespedMapper;
 
 @Controller
 @RequestMapping("/huesped")
 public class HuespedTestWebController {
 
-    // Inject the service layer that contains the core business logic (registrarHuesped)
     private final GestionHuesped gestionHuesped;
 
     @Autowired
@@ -49,27 +50,16 @@ public class HuespedTestWebController {
      * Delegates saving to the service and handles exceptions.
      */
     @PostMapping("/new")
-    public String saveHuesped(@ModelAttribute("huesped") Huesped huesped,
-                              RedirectAttributes redirectAttributes,
-                              Model model) {
+    public String saveHuesped(@ModelAttribute("huesped") HuespedDTO huespedDTO,
+                              RedirectAttributes redirectAttributes) {
         try {
-            // 1. Call the service layer method (the same one used by your API controller)
-            Huesped nuevoHuesped = gestionHuesped.registrarHuesped(huesped);
+            HuespedDTO nuevoHuesped = gestionHuesped.registrarNuevoHuesped(huespedDTO);
 
-            // 2. Redirect on success, including the full name for the confirmation message
             String fullName = nuevoHuesped.getNombre() + " " + nuevoHuesped.getApellido();
             return "redirect:/huesped/success?name=" + fullName;
-
-        } catch (IllegalArgumentException | DuplicateKeyException e) {
-            // 3. Handle validation/business errors
-            
-            // Add the error message to the flash attributes for one-time display
+        } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            
-            // Add the current huesped object back so the user doesn't lose their input
-            redirectAttributes.addFlashAttribute("huesped", huesped);
-            
-            // Redirect back to the GET /huesped/new mapping
+            redirectAttributes.addFlashAttribute("huesped", huespedDTO);
             return "redirect:/huesped/new";
         }
     }
