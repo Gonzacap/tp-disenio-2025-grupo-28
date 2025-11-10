@@ -75,7 +75,7 @@ public class HuespedWebController {
         binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 
         // Enteros (telefono, numero) — permite null
-        binder.registerCustomEditor(Integer.class, new CustomNumberEditor(Integer.class, true));
+        // binder.registerCustomEditor(Integer.class, new CustomNumberEditor(Integer.class, true));
     }
 
     @PostMapping("/guardar")

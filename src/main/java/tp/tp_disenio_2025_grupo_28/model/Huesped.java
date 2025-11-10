@@ -23,7 +23,7 @@ public class Huesped extends PersonaFisica {
     public Huesped() {
     }
 
-    public Huesped(String cuit, String razonSocial, Integer telefono, Direccion direccion,
+    public Huesped(String cuit, String razonSocial, String telefono, Direccion direccion,
             String nombre, String apellido, TipoDocumento tipoDocumento,
             String documento, Date fechaNacimiento,
             String posicionFrenteAlIva, String email, String ocupacion) {
@@ -44,11 +44,11 @@ public class Huesped extends PersonaFisica {
         this.posicionFrenteAlIva = posicionFrenteAlIva;
     }
 
-    public Integer getTelefono() {
+    public String getTelefono() {
         return this.telefono;
     }
 
-    public void setTelefono(Integer telefono) {
+    public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
 
