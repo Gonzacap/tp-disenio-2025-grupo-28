@@ -14,6 +14,9 @@
  - copy the .env.example file and rename to .env
  - replace the DB_PASSWORD value
 
+### install the project
+> mvn clean install -DskipTests
+
 ### start the project
 
 > mvn spring-boot:run
