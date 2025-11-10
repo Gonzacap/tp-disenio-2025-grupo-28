@@ -1,8 +1,7 @@
 package tp.tp_disenio_2025_grupo_28.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -20,6 +19,8 @@ import tp.tp_disenio_2025_grupo_28.repository.LocalidadRepository;
 import tp.tp_disenio_2025_grupo_28.repository.PaisRepository;
 import tp.tp_disenio_2025_grupo_28.repository.PersonaFisicaRepository;
 import tp.tp_disenio_2025_grupo_28.repository.ProvinciaRepository;
+
+import tp.tp_disenio_2025_grupo_28.model.enums.*;
 
 @Service
 @Transactional
@@ -121,5 +122,11 @@ public class GestionHuesped {
         }
 
         return errores;
+    }
+
+    public List<String> listarTipoDocumento() {
+        return Arrays.stream(TipoDocumento.values())
+                     .map(Enum::name)
+                     .collect(Collectors.toList());
     }
 }
