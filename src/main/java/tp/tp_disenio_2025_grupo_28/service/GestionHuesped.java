@@ -22,6 +22,9 @@ import tp.tp_disenio_2025_grupo_28.repository.ProvinciaRepository;
 
 import tp.tp_disenio_2025_grupo_28.model.enums.*;
 
+import tp.tp_disenio_2025_grupo_28.dto.HuespedDTO;
+import tp.tp_disenio_2025_grupo_28.mapper.HuespedMapper;
+
 @Service
 @Transactional
 public class GestionHuesped {
@@ -128,5 +131,68 @@ public class GestionHuesped {
         return Arrays.stream(TipoDocumento.values())
                      .map(Enum::name)
                      .collect(Collectors.toList());
+    }
+
+    private Direccion addDireccionToHuesped(Direccion direccion){
+
+        Pais paisHuesped = direccion.getLocalidad().getProvincia().getPais();
+        Optional<Pais> paisExistente = paisRepository.findByNombre(paisHuesped.getNombre());
+
+        Pais pais;
+        if (paisExistente.isPresent()) {
+            pais = paisExistente.get(); // usamos el país que ya existe
+        } else {
+            pais = paisRepository.save(paisHuesped); // lo guardamos si no existía
+        }
+
+        Provincia provinciaHuesped = direccion.getLocalidad().getProvincia();
+        Optional<Provincia> provinciaExistente = provinciaRepository.findByNombre(provinciaHuesped.getNombre());
+
+        Provincia provincia;
+        if (provinciaExistente.isPresent()) {
+            provincia = provinciaExistente.get(); // usamos el país que ya existe
+        } else {
+            provinciaHuesped.setPais(pais);
+            provincia = provinciaRepository.save(provinciaHuesped); // lo guardamos si no existía
+        }
+
+        Localidad localidadHuesped = direccion.getLocalidad();
+        Optional<Localidad> localidadExistente = localidadRepository.findByNombre(localidadHuesped.getNombre());
+
+        Localidad localidad;
+        if (localidadExistente.isPresent()) {
+            localidad = localidadExistente.get(); // usamos el país que ya existe
+        } else {
+            localidadHuesped.setProvincia(provincia);
+            localidad = localidadRepository.save(localidadHuesped); // lo guardamos si no existía
+        }
+
+        direccion.setLocalidad(localidad);
+        return direccionRepository.save(direccion);
+    }
+
+    public HuespedDTO registrarNuevoHuesped(Huesped nuevoHuesped) {
+
+        // Validaciones
+        List<String> errores = validarCampos(nuevoHuesped);
+        if (!errores.isEmpty()) {
+            throw new IllegalArgumentException("Errores: " + String.join(", ", errores));
+        }
+
+        // Verificar duplicados
+        Optional<Huesped> existente = huespedRepository.findByTipoDocumentoAndDocumento(
+                nuevoHuesped.getTipoDocumento(),
+                nuevoHuesped.getDocumento()
+        );
+
+        if (existente.isPresent()) {
+            throw new DuplicateKeyException("El huésped con ese documento ya existe");
+        }
+
+        Direccion direccionGuardada = addDireccionToHuesped(nuevoHuesped.getDireccion());
+        nuevoHuesped.setDireccion(direccionGuardada);
+
+        Huesped guardado = huespedRepository.save(nuevoHuesped);
+        return HuespedMapper.toDTO(guardado);
     }
 }
