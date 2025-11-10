@@ -5,7 +5,6 @@ import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import tp.tp_disenio_2025_grupo_28.model.Direccion;
 import tp.tp_disenio_2025_grupo_28.model.Huesped;
@@ -64,6 +64,7 @@ public class HuespedWebController {
         model.addAttribute("provincias", provinciaRepository.findAll());
         model.addAttribute("localidades", localidadRepository.findAll());
 
+        //  return "huesped/huesped-form";
         return "huesped/huesped-form";
     }
 
@@ -78,6 +79,11 @@ public class HuespedWebController {
         // binder.registerCustomEditor(Integer.class, new CustomNumberEditor(Integer.class, true));
     }
 
+    @GetMapping()
+    public String main(String name, RedirectAttributes redirectAttributes) {
+        return "huesped/index";
+    }
+
     @PostMapping("/guardar")
     public String guardarHuesped(@ModelAttribute("huesped") Huesped huesped,
             BindingResult bindingResult,
@@ -87,7 +93,8 @@ public class HuespedWebController {
             // llamo a la lógica que ya funciona
             gestionHuesped.registrarHuesped(huesped);
 
-            model.addAttribute("mensaje", "El huésped " + huesped.getNombre() + " " + huesped.getApellido() + " ha sido registrado correctamente.");
+            model.addAttribute("mensaje", "El huésped " + huesped.getNombre() + " " + huesped.getApellido() + " ha sido registrado correctamente. ¿Desea cargar otro?");
+
             // limpiar formulario: nuevo Huesped con nested objects
             Huesped hnew = new Huesped();
             Direccion d = new Direccion();
@@ -103,7 +110,9 @@ public class HuespedWebController {
 
         } catch (DuplicateKeyException dk) {
             model.addAttribute("error", "¡CUIDADO! El tipo y número de documento ya existen en el sistema.");
-            model.addAttribute("huesped", huesped);
+            model.addAttribute("huespedDuplicado", huesped);
+            return "huesped/huesped-duplicado";
+
         } catch (IllegalArgumentException iae) {
             model.addAttribute("error", "Faltan datos obligatorios: " + iae.getMessage());
             model.addAttribute("huesped", huesped);
@@ -117,6 +126,6 @@ public class HuespedWebController {
         model.addAttribute("provincias", provinciaRepository.findAll());
         model.addAttribute("localidades", localidadRepository.findAll());
 
-        return "huesped/huesped-form";
+        return "huesped/huesped-confirmacion";
     }
 }

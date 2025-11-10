@@ -13,7 +13,7 @@
     label .req { color: red; }
     input, select { width: 95%; padding: 6px; font-size: 14px; }
 
-    /* ✅ NUEVO: visualmente todos los textos se muestran en mayúsculas */
+    /* NUEVO: visualmente todos los textos se muestran en mayúsculas */
     input[type="text"], input[type="email"], textarea {
       text-transform: uppercase;
     }
@@ -116,21 +116,30 @@
     <div class="botones">
       <button type="submit">Siguiente</button>
       <button type="reset">Borrar</button>
-      <button type="button" onclick="window.history.back()">Cancelar</button>
-    </div>
-  </form>
+            <button type="button" onclick="confirmarCancelacion()">Cancelar</button>
+    </div>
+  </form>
 
-  <!-- ✅ NUEVO: garantiza que el texto se convierta realmente a mayúsculas -->
-  <script>
+
+<script>
+    function confirmarCancelacion() {
+        const confirmar = confirm("¿Desea cancelar el alta del huésped?");        if (confirmar) {
+           
+            window.location.href = "/huespedes/nuevo"; 
+        } 
+       
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
-      document.querySelectorAll('input[type="text"], input[type="email"], textarea')
+       document.querySelectorAll('input[type="text"], input[type="email"], textarea')
         .forEach(input => {
           input.addEventListener("input", function() {
             this.value = this.value.toUpperCase();
           });
         });
     });
-  </script>
+</script>
+
 
 </body>
 </html>
