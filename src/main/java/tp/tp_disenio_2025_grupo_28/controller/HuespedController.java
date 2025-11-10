@@ -33,10 +33,6 @@ public class HuespedController {
         return repo.findAll();
     }
 
-    // @PostMapping
-    // public Huesped crearHuesped(@RequestBody Huesped huesped) {
-    //     return repo.save(huesped);
-    // }
     @PostMapping
     public ResponseEntity<?> crearHuesped(@RequestBody Huesped huesped) {
         try {
