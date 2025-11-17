@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Error</title>
+  <link rel="stylesheet" href="/css/emergentes.css"/>
+</head>
+<body>
+<div class="caja">
+    <h2>Error</h2>
+    <p th:text="${mensaje}"></p>
+    <div class="botones">
+        <button type="button" onclick="history.back()">Volver</button>
+    </div>
+</div>
+</body>
+</html>

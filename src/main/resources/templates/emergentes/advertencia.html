@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title th:text="${titulo}">Advertencia</title>
+  <link rel="stylesheet" href="/css/emergentes.css"/>
+</head>
+<body>
+
+<div class="caja">
+    <h2 th:text="${titulo}">¡CUIDADO!</h2>
+    <p th:text="${mensaje}"></p>
+
+    <form th:action="${accionAceptar}" method="post" th:object="${objeto}">
+        <input type="hidden" name="forzar" value="true"/>
+        <div class="botones">
+            <button type="submit">Aceptar igualmente</button>
+            <button type="button" th:onclick="'window.location.href=\'' + ${accionCancelar} + '\';'">Corregir</button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

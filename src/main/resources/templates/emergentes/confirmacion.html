@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title th:text="${titulo}">Confirmación</title>
+  <link rel="stylesheet" href="/css/emergentes.css"/>
+</head>
+<body>
+<div class="caja">
+    <h2 th:text="${titulo}">Confirmación</h2>
+    <p th:text="${mensaje}"></p>
+
+    <div class="botones">
+        <a th:href="${accionAceptar}"><button>SI</button></a>
+        <a th:href="${accionCancelar}"><button>NO</button></a>
+    </div>
+</div>
+</body>
+</html>
