@@ -1,23 +1,44 @@
 package tp.tp_disenio_2025_grupo_28.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoHabitacion;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
+import javax.persistence.*;
+import java.math.BigDecimal;
 
+@Entity
+@Table(name = "habitacion")
 public class Habitacion {
 
-    private Integer id;
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "numero_habitacion")
     private Integer numeroHabitacion;
+
     @Enumerated(EnumType.STRING)
-    private EstadoHabitacion estado;
-    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TipoHabitacion tipo;
-    private Integer numCamasDobles;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false)
+    private EstadoHabitacion estado;
+
+     @Column(name = "numCamasSimples")
     private Integer numCamasSimples;
+
+    @Column(name = "numCamasDobles")
+    private Integer numCamasDobles;
+
     private Integer capacidad;
-    private Double descuentoPorEstadiaLarga;
+
+    @Column(name = "descuentoPorEstadiaLarga")
+    private BigDecimal descuentoPorEstadiaLarga;
+
 
     public Habitacion() {
     }
