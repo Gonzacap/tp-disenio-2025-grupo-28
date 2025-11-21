@@ -2,7 +2,14 @@
 -- Enums
 -- ---------------------
 CREATE TYPE tipo_documento AS ENUM ('DNI', 'LE', 'LC', 'Pasaporte');
-
+CREATE TYPE TipoEstadia AS ENUM ('COMPLETA', 'MEDIA_DIARIA', 'EXTENDIDA');
+CREATE TYPE EstadoCheque AS ENUM ('enCartera', 'cobrado', 'rechazado');
+CREATE TYPE EstadoEstadia AS ENUM ('reservada', 'enCurso', 'extendida', 'finalizada', 'cancelada');
+CREATE TYPE EstadoHabitacion AS ENUM ('disponible', 'ocupada', 'reservada', 'mantenimiento');
+CREATE TYPE EstadoReserva AS ENUM ('generada', 'confirmada', 'cumplida', 'cancelada');
+CREATE TYPE TipoHabitacion AS ENUM ('dobleSuperior', 'superiorFamilyPlan', 'suiteDoble', 'individualEstandar', 'dobleEstandar');
+CREATE TYPE TipoServicio AS ENUM ('disponible', 'ocupada', 'reservada', 'mantenimiento');
+CREATE TYPE EstadoFactura AS ENUM ('pendiente', 'pagada', 'anuladaConNota', 'noCobrable', 'borrador');
 
 -- ---------------------
 -- Tabla Pais
@@ -95,6 +102,7 @@ CREATE TABLE Estadia (
     horaCheckOut TIME,
     fechaCheckIn DATE,
     fechaCheckOut DATE,
+    estadoEstadia EstadoEstadia,
     idResponsablePago INT NOT NULL,
     FOREIGN KEY (idResponsablePago) REFERENCES ResponsablePago(idResponsablePago)
 );
@@ -104,7 +112,7 @@ CREATE TABLE Estadia (
 -- ---------------------
 CREATE TABLE Servicio (
     idServicio SERIAL PRIMARY KEY,
-    tipo VARCHAR(50),
+    tipo TipoServicio,
     costo NUMERIC(10,2)
 );
 
@@ -123,7 +131,7 @@ CREATE TABLE Estadia_Servicio (
 CREATE TABLE Factura (
     idFactura SERIAL PRIMARY KEY,
     fechaEmision DATE,
-    estado VARCHAR(50),
+    estado EstadoFactura,
     idEstadia INT NOT NULL,
     idTipoPago INT,
     FOREIGN KEY (idEstadia) REFERENCES Estadia(idEstadia)
@@ -169,7 +177,7 @@ CREATE TABLE NotaCredito (
 -- ---------------------
 CREATE TABLE Reserva (
     idReserva SERIAL PRIMARY KEY,
-    estado VARCHAR(50),
+    estado EstadoReserva,
     nombre VARCHAR(100),
     apellido VARCHAR(100),
     telefono VARCHAR(20),
@@ -181,8 +189,8 @@ CREATE TABLE Reserva (
 -- ---------------------
 CREATE TABLE Habitacion (
     numeroHabitacion SERIAL PRIMARY KEY,
-    tipo VARCHAR(50),
-    estado VARCHAR(50),
+    tipo TipoHabitacion,
+    estado EstadoHabitacion,
     numCamasSimples INT,
     numCamasDobles INT,
     capacidad INT,
@@ -254,6 +262,14 @@ CREATE TABLE Cheque (
     fechaEmision DATE,
     fechaPago DATE,
     aceptado BOOLEAN,
-    estado VARCHAR(50),
+    estado EstadoCheque,
     numero VARCHAR(50)
+);
+CREATE TABLE EstadoHabitacionPeriodo (
+    idEstadoHabitacionPeriodo SERIAL PRIMARY KEY,
+    estado EstadoHabitacion NOT NULL,
+    fechaDesde DATE NOT NULL,
+    fechaHasta DATE NOT NULL,
+    numeroHabitacion INT NOT NULL,
+    FOREIGN KEY (numeroHabitacion) REFERENCES Habitacion(numeroHabitacion)
 );

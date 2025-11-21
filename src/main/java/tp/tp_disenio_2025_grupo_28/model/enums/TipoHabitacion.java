@@ -1,5 +1,8 @@
 package tp.tp_disenio_2025_grupo_28.model.enums;
 
 public enum TipoHabitacion {
-    dobleSuperior, superiorFamilyPlan, suiteDoble, individualEstandar, dobleEstandar
+    dobleSuperior, superiorFamilyPlan,
+    suiteDoble,
+    individualEstandar,
+    dobleEstandar
 }

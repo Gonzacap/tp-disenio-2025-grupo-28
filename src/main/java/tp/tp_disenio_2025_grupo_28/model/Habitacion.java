@@ -1,15 +1,17 @@
 package tp.tp_disenio_2025_grupo_28.model;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoHabitacion;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
-import javax.persistence.*;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "habitacion")
@@ -28,7 +30,7 @@ public class Habitacion {
     @Column(name = "estado", nullable = false)
     private EstadoHabitacion estado;
 
-     @Column(name = "numCamasSimples")
+    @Column(name = "numCamasSimples")
     private Integer numCamasSimples;
 
     @Column(name = "numCamasDobles")
@@ -39,16 +41,18 @@ public class Habitacion {
     @Column(name = "descuentoPorEstadiaLarga")
     private BigDecimal descuentoPorEstadiaLarga;
 
-
     public Habitacion() {
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
+    public Habitacion(Integer numeroHabitacion, TipoHabitacion tipo, EstadoHabitacion estado, Integer numCamasSimples,
+            Integer numCamasDobles, Integer capacidad, BigDecimal descuentoPorEstadiaLarga) {
+        this.numeroHabitacion = numeroHabitacion;
+        this.tipo = tipo;
+        this.estado = estado;
+        this.numCamasSimples = numCamasSimples;
+        this.numCamasDobles = numCamasDobles;
+        this.capacidad = capacidad;
+        this.descuentoPorEstadiaLarga = descuentoPorEstadiaLarga;
     }
 
     public Integer getNumeroHabitacion() {
@@ -59,14 +63,6 @@ public class Habitacion {
         this.numeroHabitacion = numeroHabitacion;
     }
 
-    public EstadoHabitacion getEstado() {
-        return estado;
-    }
-
-    public void setEstado(EstadoHabitacion estado) {
-        this.estado = estado;
-    }
-
     public TipoHabitacion getTipo() {
         return tipo;
     }
@@ -75,12 +71,12 @@ public class Habitacion {
         this.tipo = tipo;
     }
 
-    public Integer getNumCamasDobles() {
-        return numCamasDobles;
+    public EstadoHabitacion getEstado() {
+        return estado;
     }
 
-    public void setNumCamasDobles(Integer numCamasDobles) {
-        this.numCamasDobles = numCamasDobles;
+    public void setEstado(EstadoHabitacion estado) {
+        this.estado = estado;
     }
 
     public Integer getNumCamasSimples() {
@@ -91,6 +87,14 @@ public class Habitacion {
         this.numCamasSimples = numCamasSimples;
     }
 
+    public Integer getNumCamasDobles() {
+        return numCamasDobles;
+    }
+
+    public void setNumCamasDobles(Integer numCamasDobles) {
+        this.numCamasDobles = numCamasDobles;
+    }
+
     public Integer getCapacidad() {
         return capacidad;
     }
@@ -99,11 +103,11 @@ public class Habitacion {
         this.capacidad = capacidad;
     }
 
-    public Double getDescuentoPorEstadiaLarga() {
+    public BigDecimal getDescuentoPorEstadiaLarga() {
         return descuentoPorEstadiaLarga;
     }
 
-    public void setDescuentoPorEstadiaLarga(Double descuentoPorEstadiaLarga) {
+    public void setDescuentoPorEstadiaLarga(BigDecimal descuentoPorEstadiaLarga) {
         this.descuentoPorEstadiaLarga = descuentoPorEstadiaLarga;
     }
 

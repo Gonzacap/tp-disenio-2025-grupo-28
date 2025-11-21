@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Nueva Reserva</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 20px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #ccc;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .panel h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        label {
+            display: inline-block;
+            width: 120px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input {
+            padding: 6px;
+            width: 250px;
+        }
+
+        .botones {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .botones button,
+        .botones a button {
+            padding: 6px 18px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>CU04 – Reservar Habitación</h2>
+
+<form th:action="@{/reserva/crear}" th:object="${reservaRequestDTO}" method="post">
+
+    <!-- PANEL 1: RESERVA SOLICITADA -->
+    <div class="panel">
+        <h3>Reserva Solicitada</h3>
+
+        <p>✔ Tipo de Habitación: (placeholder)</p>
+        <p>Ingreso: (placeholder fechaDesde)</p>
+        <p>Egreso: (placeholder fechaHasta)</p>
+
+        <div class="botones">
+            <button type="button">Aceptar</button>
+            <button type="button">Rechazar</button>
+        </div>
+    </div>
+
+    <!-- PANEL 2: DATOS DE LA RESERVA -->
+    <div class="panel">
+        <h3>Datos de la Reserva</h3>
+
+        <div>
+            <label>Fecha desde:</label>
+            <input type="date" th:field="*{fechaDesde}" required>
+        </div>
+
+        <div>
+            <label>Fecha hasta:</label>
+            <input type="date" th:field="*{fechaHasta}" required>
+        </div>
+
+        <div>
+            <label>Habitaciones:</label>
+            <input type="text" name="habitacionesTexto" placeholder="101,102,103">
+        </div>
+
+        <input type="hidden" id="habitaciones-hidden" name="habitaciones">
+
+        <script>
+            function parseRooms() {
+                const txt = document.querySelector("input[name='habitacionesTexto']").value;
+                let arr = txt.split(",").map(x => parseInt(x.trim()));
+                document.getElementById("habitaciones-hidden").value = JSON.stringify(arr);
+            }
+        </script>
+
+        <hr>
+
+        <div>
+            <label>Apellido (*):</label>
+            <input type="text" th:field="*{apellido}" required>
+        </div>
+
+        <div>
+            <label>Nombre (*):</label>
+            <input type="text" th:field="*{nombre}" required>
+        </div>
+
+        <div>
+            <label>Teléfono (*):</label>
+            <input type="text" th:field="*{telefono}" required>
+        </div>
+
+        <div class="botones">
+            <button type="submit" onclick="parseRooms()">Aceptar</button>
+            <button type="button" onclick="window.location.href='/'">Cancelar</button>
+        </div>
+    </div>
+
+</form>
+
+</body>
+</html>

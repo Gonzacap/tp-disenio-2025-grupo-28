@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Reserva Confirmada</title>
+</head>
+<body>
+
+<h2>Reserva Confirmada</h2>
+
+<div th:if="${successMessage}">
+    <p style="color:green" th:text="${successMessage}"></p>
+</div>
+
+<p>ID Reserva: <span th:text="${reserva.idReserva}"></span></p>
+<p>Estado: <span th:text="${reserva.estado}"></span></p>
+
+<h4>Habitaciones reservadas:</h4>
+<ul>
+    <li th:each="h : ${reserva.habitacionesReservadas}" th:text="${h}"></li>
+</ul>
+
+<a href="/">Volver al inicio</a>
+
+</body>
+</html>
