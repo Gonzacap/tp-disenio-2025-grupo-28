@@ -11,10 +11,42 @@
     <p th:text="${mensaje}"></p>
 
     <form th:action="${accionAceptar}" method="post" th:object="${objeto}">
-        <input type="hidden" name="forzar" value="true"/>
+
+   <!-- CAMPOS DEL HUESPED -->
+<input type="hidden" th:field="*{nombre}">
+<input type="hidden" th:field="*{apellido}">
+<input type="hidden" th:field="*{tipoDocumento}">
+<input type="hidden" th:field="*{documento}">
+<input type="hidden" th:field="*{cuit}">
+<input type="hidden" th:field="*{fechaNacimiento}">
+<input type="hidden" th:field="*{telefono}">
+<input type="hidden" th:field="*{email}">
+<input type="hidden" th:field="*{posicionFrenteAlIva}">
+<input type="hidden" th:field="*{ocupacion}">
+
+<!-- CAMPOS DE DIRECCION -->
+<input type="hidden" th:field="*{direccion.direccion}">
+<input type="hidden" th:field="*{direccion.numero}">
+<input type="hidden" th:field="*{direccion.depto}">
+<input type="hidden" th:field="*{direccion.piso}">
+<input type="hidden" th:field="*{direccion.nacionalidad}">
+
+<!-- LOCALIDAD -->
+<input type="hidden" th:field="*{direccion.localidad.nombre}">
+<input type="hidden" th:field="*{direccion.localidad.codigoPostal}">
+<input type="hidden" th:field="*{direccion.localidad.provincia.nombre}">
+
+      
+        <input type="hidden" th:field="*{direccion.localidad.provincia.pais.id}">
+        <input type="hidden" th:field="*{direccion.localidad.provincia.pais.nombre}">
+
+
+
         <div class="botones">
             <button type="submit">Aceptar igualmente</button>
-            <button type="button" th:onclick="'window.location.href=\'' + ${accionCancelar} + '\';'">Corregir</button>
+
+         <button type="submit" th:formaction="@{/huespedes/corregir}">Corregir</button>
+
         </div>
     </form>
 </div>
