@@ -21,9 +21,11 @@ public class Reserva {
     @Enumerated(EnumType.STRING)
     private EstadoReserva estado;
 
+    @Temporal(TemporalType.DATE)
     @Column(name = "fecha_desde", nullable = false)
     private Date fechaDesde;
 
+    @Temporal(TemporalType.DATE)
     @Column(name = "fecha_hasta", nullable = false)
     private Date fechaHasta;
 

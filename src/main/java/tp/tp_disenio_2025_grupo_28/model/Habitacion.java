@@ -28,6 +28,7 @@ public class Habitacion {
     @Column(name = "num_camas_dobles")
     private Integer numCamasDobles;
 
+    @Column(name = "capacidad")
     private Integer capacidad;
 
     @Column(name = "descuento_por_estadia_larga", precision = 10, scale = 2)

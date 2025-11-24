@@ -177,7 +177,7 @@ CREATE TABLE NotaCredito (
 -- ---------------------
 CREATE TABLE Reserva (
     id_reserva SERIAL PRIMARY KEY,
-    estado EstadoReserva,
+    estado EstadoReserva NOT NULL,
     nombre VARCHAR(100),
     apellido VARCHAR(100),
     telefono VARCHAR(20),
