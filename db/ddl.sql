@@ -176,12 +176,15 @@ CREATE TABLE NotaCredito (
 -- Tabla Reserva
 -- ---------------------
 CREATE TABLE Reserva (
-    idReserva SERIAL PRIMARY KEY,
+    id_reserva SERIAL PRIMARY KEY,
     estado EstadoReserva,
     nombre VARCHAR(100),
     apellido VARCHAR(100),
     telefono VARCHAR(20),
-    idHabitacion INT
+    fecha_desde DATE NOT NULL,
+    fecha_hasta DATE NOT NULL,
+    numero_habitacion INT NOT NULL,
+    FOREIGN KEY (numero_habitacion) REFERENCES Habitacion(numero_habitacion)
 );
 
 -- ---------------------
