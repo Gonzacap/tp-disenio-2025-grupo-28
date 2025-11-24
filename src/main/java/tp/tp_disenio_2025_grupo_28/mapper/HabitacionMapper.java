@@ -32,8 +32,6 @@ public class HabitacionMapper {
         h.setCapacidad(dto.getCapacidad());
         h.setDescuentoPorEstadiaLarga(dto.getDescuentoPorEstadiaLarga());
 
-        // direccion (Pais, Provincia, etc.), se setea en el service
-
         return h;
     }
 }
