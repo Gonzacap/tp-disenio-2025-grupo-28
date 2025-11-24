@@ -102,12 +102,27 @@ public class Reserva {
         this.habitaciones = habitaciones;
     }
 
-    public List<PersonaFisica> getAcompanantes() {
-        return acompanantes;
+    public Date getFechaDesde() {
+        return this.fechaDesde;
     }
 
-    public void setAcompanantes(List<PersonaFisica> acompanantes) {
-        this.acompanantes = acompanantes;
+    public void setFechaDesde(Date fechaDesde) {
+        this.fechaDesde = fechaDesde;
     }
+
+    public Date getFechaHasta() {
+        return this.fechaHasta;
+    }
+
+    public void setFechaHasta(Date fechaHasta) {
+        this.fechaHasta = fechaHasta;
+    }
+
+    // public List<PersonaFisica> getAcompanantes() {
+    //     return acompanantes;
+    // }
+    // public void setAcompanantes(List<PersonaFisica> acompanantes) {
+    //     this.acompanantes = acompanantes;
+    // }
 
 }
