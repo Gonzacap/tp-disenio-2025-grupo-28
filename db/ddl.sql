@@ -182,9 +182,7 @@ CREATE TABLE Reserva (
     apellido VARCHAR(100),
     telefono VARCHAR(20),
     fecha_desde DATE NOT NULL,
-    fecha_hasta DATE NOT NULL,
-    numero_habitacion INT NOT NULL,
-    FOREIGN KEY (numero_habitacion) REFERENCES Habitacion(numero_habitacion)
+    fecha_hasta DATE NOT NULL
 );
 
 -- ---------------------
@@ -198,6 +196,21 @@ CREATE TABLE Habitacion (
     num_camas_dobles INT,
     capacidad INT,
     descuento_por_estadia_larga NUMERIC(10,2)
+);
+
+-- ---------------------
+-- Tabla Reserva_Habitacion
+-- ---------------------
+CREATE TABLE Reserva_Habitacion (
+    id_reserva INT NOT NULL,
+    numero_habitacion INT NOT NULL,
+    CONSTRAINT pk_reserva_habitacion PRIMARY KEY (id_reserva, numero_habitacion),
+    CONSTRAINT fk_rh_reserva FOREIGN KEY (id_reserva)
+        REFERENCES Reserva(id_reserva)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_rh_habitacion FOREIGN KEY (numero_habitacion)
+        REFERENCES Habitacion(numero_habitacion)
+        ON DELETE RESTRICT
 );
 
 -- ---------------------
