@@ -188,13 +188,13 @@ CREATE TABLE Reserva (
 -- Tabla Habitacion
 -- ---------------------
 CREATE TABLE Habitacion (
-    numeroHabitacion SERIAL PRIMARY KEY,
+    numero_habitacion SERIAL PRIMARY KEY,
     tipo TipoHabitacion,
     estado EstadoHabitacion,
-    numCamasSimples INT,
-    numCamasDobles INT,
+    num_camas_simples INT,
+    num_camas_dobles INT,
     capacidad INT,
-    descuentoPorEstadiaLarga NUMERIC(5,2)
+    descuento_por_estadia_larga NUMERIC(7,2)
 );
 
 -- ---------------------
