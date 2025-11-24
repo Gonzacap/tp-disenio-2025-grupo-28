@@ -2,16 +2,8 @@ package tp.tp_disenio_2025_grupo_28.model;
 
 import java.math.BigDecimal;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import tp.tp_disenio_2025_grupo_28.model.enums.EstadoHabitacion;
-import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
+import jakarta.persistence.*;
+import tp.tp_disenio_2025_grupo_28.model.enums.*;
 
 @Entity
 @Table(name = "habitacion")
@@ -22,23 +14,23 @@ public class Habitacion {
     @Column(name = "numero_habitacion")
     private Integer numeroHabitacion;
 
+    @Column(name = "tipo", nullable = false)
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private TipoHabitacion tipo;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false)
+    @Enumerated(EnumType.STRING)
     private EstadoHabitacion estado;
 
-    @Column(name = "numCamasSimples")
+    @Column(name = "num_camas_simples")
     private Integer numCamasSimples;
 
-    @Column(name = "numCamasDobles")
+    @Column(name = "num_camas_dobles")
     private Integer numCamasDobles;
 
     private Integer capacidad;
 
-    @Column(name = "descuentoPorEstadiaLarga")
+    @Column(name = "descuento_por_estadia_larga", precision = 10, scale = 2)
     private BigDecimal descuentoPorEstadiaLarga;
 
     public Habitacion() {
