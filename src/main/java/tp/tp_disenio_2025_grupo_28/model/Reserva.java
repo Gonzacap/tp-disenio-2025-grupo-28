@@ -1,31 +1,19 @@
 package tp.tp_disenio_2025_grupo_28.model;
 
-import java.util.List;
+import jakarta.persistence.*;
+import java.util.*;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import tp.tp_disenio_2025_grupo_28.model.enums.EstadoReserva;
+import tp.tp_disenio_2025_grupo_28.model.enums.*;
 
 @Entity
-@Table(name = "Reserva")
-@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = "reserva")
 public class Reserva {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_reserva")
     private Integer idReserva;
+
     private String nombre;
     private String apellido;
     private String telefono;
@@ -33,32 +21,37 @@ public class Reserva {
     @Enumerated(EnumType.STRING)
     private EstadoReserva estado;
 
-    // relacion con habitaciones: una reserva puede tener varias habitaciones
+    @Column(name = "fecha_desde", nullable = false)
+    private Date fechaDesde;
+
+    @Column(name = "fecha_hasta", nullable = false)
+    private Date fechaHasta;
+
     @ManyToMany
     @JoinTable(
             name = "reserva_habitacion",
             joinColumns = @JoinColumn(name = "id_reserva"),
             inverseJoinColumns = @JoinColumn(name = "numero_habitacion")
     )
-    private List<Habitacion> habitaciones;
+    private List<Habitacion> habitaciones = new ArrayList<>();
 
-    // acompañantes (solo datos básicos)
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_reserva")
-    private List<PersonaFisica> acompanantes;
-
-    public Reserva(Integer idReserva, String nombre, String apellido, String telefono, EstadoReserva estado, List<Habitacion> habitaciones, List<PersonaFisica> acompanantes) {
-        this.acompanantes = acompanantes;
-        this.apellido = apellido;
-        this.estado = estado;
-        this.habitaciones = habitaciones;
-        this.idReserva = idReserva;
-        this.nombre = nombre;
-        this.telefono = telefono;
-    }
+    // @OneToMany(cascade = CascadeType.ALL)
+    // @JoinColumn(name = "id_reserva")
+    // private List<PersonaFisica> acompanantes;
 
     public Reserva() {
+    }
 
+    public Reserva(String nombre, String apellido, String telefono, Date fechaDesde, Date fechaHasta, List<Habitacion> habitaciones/*, List<PersonaFisica> acompanantes*/) {
+
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.telefono = telefono;
+        this.fechaDesde = fechaDesde;
+        this.fechaHasta = fechaHasta;
+        this.estado = EstadoReserva.generada; // según tu enum
+        this.habitaciones = habitaciones != null ? habitaciones : new ArrayList<>();
+        // this.acompanantes = acompanantes != null ? acompanantes : new ArrayList<>();
     }
 
     public Integer getIdReserva() {
