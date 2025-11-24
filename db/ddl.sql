@@ -194,7 +194,7 @@ CREATE TABLE Habitacion (
     num_camas_simples INT,
     num_camas_dobles INT,
     capacidad INT,
-    descuento_por_estadia_larga NUMERIC(7,2)
+    descuento_por_estadia_larga NUMERIC(10,2)
 );
 
 -- ---------------------
