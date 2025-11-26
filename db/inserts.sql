@@ -15,10 +15,10 @@ VALUES
 -- ---------------------
 INSERT INTO Habitacion (tipo, estado, num_camas_simples, num_camas_dobles, capacidad, descuento_por_estadia_larga)
 VALUES
-    ('simple', 'disponible', 1, 0, 1, 0),
-    ('doble', 'disponible', 0, 1, 2, 10.00),
-    ('suite', 'mantenimiento', 1, 1, 3, 15.50),
-    ('doble', 'ocupada', 0, 1, 2, 5.00);
+    ('individualEstandar', 'disponible', 1, 0, 1, 0),
+    ('dobleEstandar', 'disponible', 0, 1, 2, 10.00),
+    ('suiteDoble', 'mantenimiento', 1, 1, 3, 15.50),
+    ('dobleEstandar', 'ocupada', 0, 1, 2, 5.00);
 
 -- ---------------------
 -- Reservas
