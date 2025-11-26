@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/Base :: head('Dar de Alta Huésped')"></head>
+
+<body>
+  <div class="container-md my-5">
+    <h1 class="text-center mb-4">Hotel Premier - Dar de Alta Huésped</h1>
+
+    <!-- Mensaje de error -->
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+      <p th:text="${errorMessage}">Validation Error Message</p>
+    </div>
+
+    <!-- Formulario -->
+    <form th:action="@{/habitacion/ver-estado}" th:object="${}" method="post" class="needs-validation mx-5" novalidate>
+      <div class="row g-4">
+            <div class="col-auto">
+                <label for="fechaDesde">Start</label>
+                <input id="fechaDesde" class="form-control" type="date" />
+            </div>        
+            <div class="col-auto">
+                <label for="fechaHasta">Start</label>
+                <input id="fechaHasta" class="form-control" type="date" />
+            </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-primary me-2">Siguiente</button>
+        <button type="reset" class="btn btn-warning me-2">Borrar</button>
+        <button type="button" class="btn btn-secondary" onclick="window.history.back()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+
+    <div th:replace="fragments/Base :: scripts"></div>
+
+      <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      document.querySelectorAll('input[type="text"], input[type="email"], textarea')
+        .forEach(input => {
+          input.addEventListener("input", function() {
+            this.value = this.value.toUpperCase();
+          });
+        });
+    });
+  </script>
+</body>
+
+</html>
