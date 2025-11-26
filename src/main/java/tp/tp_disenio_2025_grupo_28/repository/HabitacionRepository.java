@@ -19,4 +19,6 @@ public interface HabitacionRepository extends JpaRepository<Habitacion, Integer>
        )
     """)
     List<Habitacion> buscarHabitacionesDisponibles(LocalDate desde, LocalDate hasta);
+
+    List<Habitacion> findAllByOrderByTipoAscNumeroHabitacionAsc();
 }
