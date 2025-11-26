@@ -48,42 +48,41 @@
         <table class="table table-bordered text-center align-middle">
           <!-- Encabezado dinámico -->
           <thead class="table-light">
+            <!-- FILA 1: Tipos de habitación -->
             <tr>
               <th>Fecha</th>
 
-              <!-- Itera por tipos de habitación -->
               <th
-                th:each="tipo : ${tiposHabitacion}"
-                th:colspan="${tipo.cantidad}"
-                th:text="${tipo.nombre}"
+                th:each="entry : ${habitacionesPorTipo.entrySet()}"
+                th:colspan="${entry.value.size()}"
+                th:text="${entry.key.nombre}"
               ></th>
             </tr>
 
+            <!-- FILA 2: Número de habitaciones -->
             <tr>
               <th></th>
-
-              <!-- Números o identificadores de habitaciones -->
               <th
-                th:each="habitacion : ${habitaciones}"
-                th:text="${habitacion.numeroHabitacion}"
+                th:each="entry : ${habitacionesPorTipo.entrySet()}"
+                th:each="hab : ${entry.value}"
+                th:text="${hab.numeroHabitacion}"
               ></th>
             </tr>
           </thead>
 
-          <!-- Filas por día -->
+          <!-- FILAS DE DÍAS -->
           <tbody>
             <tr th:each="dia : ${dias}">
-              <!-- Columna Fecha -->
               <td class="fw-bold" th:text="${dia.fecha}"></td>
 
-              <!-- Estado por habitación -->
+              <!-- Estados (ya vienen ordenados en la grilla) -->
               <td
                 th:each="estado : ${dia.estados}"
-                th:class="${  estado == 'DISPONIBLE' ? 'bg-success'
-                        : estado == 'RESERVADA' ? 'bg-warning'
-                        : estado == 'OCUPADA' ? 'bg-danger'
-                        : estado == 'FUERA_SERVICIO' ? 'bg-secondary'
-                        : '' }"
+                th:class="${estado == 'DISPONIBLE' ? 'bg-success'
+                             : estado == 'RESERVADA' ? 'bg-warning'
+                             : estado == 'OCUPADA' ? 'bg-danger'
+                             : estado == 'FUERA_SERVICIO' ? 'bg-secondary'
+                             : ''}"
                 class="text-white"
               >
                 <span th:text="${estado}"></span>
