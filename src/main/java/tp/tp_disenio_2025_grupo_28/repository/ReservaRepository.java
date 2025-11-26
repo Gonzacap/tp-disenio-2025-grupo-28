@@ -6,8 +6,12 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import tp.tp_disenio_2025_grupo_28.model.Reserva;
+import tp.tp_disenio_2025_grupo_28.model.enums.EstadoReserva;
 
 public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
 
     List<Reserva> findByFechaDesdeLessThanEqualAndFechaHastaGreaterThanEqual(Date fechaHasta, Date fechaDesde);
+
+    List<Reserva> findByEstadoNot(EstadoReserva estado);
+
 }

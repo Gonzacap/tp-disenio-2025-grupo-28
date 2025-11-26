@@ -1,17 +1,24 @@
 package tp.tp_disenio_2025_grupo_28.service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import tp.tp_disenio_2025_grupo_28.dto.*;
-import tp.tp_disenio_2025_grupo_28.mapper.*;
-// import tp.tp_disenio_2025_grupo_28.model.*;
-// import tp.tp_disenio_2025_grupo_28.model.enums.*;
-import tp.tp_disenio_2025_grupo_28.repository.*;
+import tp.tp_disenio_2025_grupo_28.model.Habitacion;
+import tp.tp_disenio_2025_grupo_28.model.Reserva;
+import tp.tp_disenio_2025_grupo_28.model.enums.EstadoReserva;
+import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
+import tp.tp_disenio_2025_grupo_28.repository.HabitacionRepository;
+import tp.tp_disenio_2025_grupo_28.repository.ReservaRepository;
 
 @Service
 @Transactional
@@ -34,31 +41,39 @@ public class GestionHabitacion {
         }
     }
 
-    public List<Map<String, Object>> obtenerTiposHabitacion() {
-        List<Map<String, Object>> lista = new ArrayList<>();
-
-        lista.add(Map.of("nombre", "Individual Estándar", "cantidad", 10));
-        lista.add(Map.of("nombre", "Doble Estándar", "cantidad", 12));
-        lista.add(Map.of("nombre", "Doble Superior", "cantidad", 8));
-        lista.add(Map.of("nombre", "Family Plan", "cantidad", 5));
-        lista.add(Map.of("nombre", "Suite", "cantidad", 3));
-
-        return lista;
+    public List<Map<String, Object>> obtenerHabitacionPorTipoMockup() {
+        return Arrays.stream(TipoHabitacion.values())
+                .map(tipo -> Map.of(
+                "nombre", tipo.getNombre(),
+                "habitaciones", List.of()
+        )).collect(Collectors.toList());
     }
 
-    public List<HabitacionDTO> obtenerHabitacionesOrdenadas() {
+    public List<Habitacion> obtenerHabitaciones() {
+
+        // Traemos las habitaciones directamente como entidades
         return habitacionRepository
-                .findAllByOrderByTipoAscNumeroHabitacionAsc()
-                .stream()
-                .map(HabitacionMapper::toDTO)
-                .toList();
+                .findAllByOrderByTipoAscNumeroHabitacionAsc();
     }
 
-    public List<ReservaDTO> obtenerReservasEntre(Date desde, Date hasta) {
-        return reservaRepository.findByFechaDesdeLessThanEqualAndFechaHastaGreaterThanEqual(desde, hasta)
-                .stream()
-                .map(ReservaMapper2::toDTO)
-                .toList();
+    public List<Map<String, Object>> obtenerHabitacionPorTipo(List<Habitacion> habitaciones) {
+
+        return Arrays.stream(TipoHabitacion.values())
+                .map(tipo -> {
+
+                    // Filtramos habitaciones del tipo actual
+                    List<Integer> nums = habitaciones.stream()
+                            .filter(h -> h.getTipo().equals(tipo))
+                            .map(Habitacion::getNumeroHabitacion)
+                            .toList();
+
+                    // Creamos el Map para este tipo
+                    return Map.<String, Object>of(
+                            "nombre", tipo.getNombre(),
+                            "habitaciones", nums
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     public List<Date> generarDiasEntre(Date desde, Date hasta) {
@@ -75,45 +90,85 @@ public class GestionHabitacion {
         return dias;
     }
 
-    public List<Map<String, Object>> construirGrillaEstados(
-            List<HabitacionDTO> habitaciones,
-            List<ReservaDTO> reservas,
+    public List<Map<String, Object>> grilla(
+            List<Map<String, Object>> habitacionesPorTipo,
+            List<Habitacion> habitaciones,
             List<Date> dias
     ) {
+
+        // Traemos reservas que afectan a las habitaciones del hotel
+        List<Reserva> reservas = reservaRepository.findByEstadoNot(EstadoReserva.cancelada);
+
+        // Preprocesamos reservas para buscar rápido
+        Map<Integer, List<Reserva>> reservasPorHabitacion = new HashMap<>();
+
+        for (Reserva r : reservas) {
+            for (Habitacion h : r.getHabitaciones()) {
+                reservasPorHabitacion
+                        .computeIfAbsent(h.getNumeroHabitacion(), x -> new ArrayList<>())
+                        .add(r);
+            }
+        }
 
         List<Map<String, Object>> salida = new ArrayList<>();
 
         for (Date dia : dias) {
 
-            Map<String, Object> row = new HashMap<>();
-            row.put("fecha", dia);
+            Map<String, Object> fila = new HashMap<>();
+            fila.put("fecha", dia);
 
-            List<String> estados = new ArrayList<>();
+            List<Map<String, Object>> estadosPorTipo = new ArrayList<>();
 
-            for (HabitacionDTO hab : habitaciones) {
+            // Iteramos por tipo de habitación (Individual, Doble, etc)
+            for (Map<String, Object> tipoHab : habitacionesPorTipo) {
 
-                String estado = "DISPONIBLE";
+                String nombreTipo = (String) tipoHab.get("nombre");
+                List<Integer> numeros = (List<Integer>) tipoHab.get("habitaciones");
 
-                for (ReservaDTO r : reservas) {
+                List<String> estados = new ArrayList<>();
 
-                    boolean afecta
-                            = r.getHabitaciones()
-                                    .stream()
-                                    .anyMatch(h -> h.getNumeroHabitacion().equals(hab.getNumeroHabitacion()))
-                            && !dia.before(r.getFechaDesde())
-                            && !dia.after(r.getFechaHasta());
+                for (Integer numero : numeros) {
 
-                    if (afecta) {
-                        estado = r.getEstado().toString();
-                        break;
+                    // Buscamos la entidad Habitacion para ese número
+                    Habitacion h = habitaciones.stream()
+                            .filter(x -> x.getNumeroHabitacion().equals(numero))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (h == null) {
+                        estados.add("FUERA_SERVICIO");
+                        continue;
                     }
+
+                    // Estado por defecto
+                    String estado = "DISPONIBLE";
+
+                    // Verificamos reservas que afecten este día
+                    List<Reserva> reservasDeEstaHab
+                            = reservasPorHabitacion.getOrDefault(h.getNumeroHabitacion(), List.of());
+
+                    for (Reserva r : reservasDeEstaHab) {
+                        boolean afecta = !dia.before(r.getFechaDesde())
+                                && !dia.after(r.getFechaHasta());
+
+                        if (afecta) {
+                            estado = r.getEstado().name(); // OCUPADA / RESERVADA / etc
+                            break;
+                        }
+                    }
+
+                    estados.add(estado);
                 }
 
-                estados.add(estado);
+                Map<String, Object> bloqueTipo = new HashMap<>();
+                bloqueTipo.put("tipo", nombreTipo);
+                bloqueTipo.put("estados", estados);
+
+                estadosPorTipo.add(bloqueTipo);
             }
 
-            row.put("estados", estados);
-            salida.add(row);
+            fila.put("estadosPorTipo", estadosPorTipo);
+            salida.add(fila);
         }
 
         return salida;

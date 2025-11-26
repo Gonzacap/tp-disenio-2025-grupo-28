@@ -41,50 +41,51 @@
 
       <hr class="my-4" />
 
-      <!-- Grilla Habitaciones -->
+      <!-- Tabla Habitaciones -->
       <div class="table-responsive mt-4">
-
         <h4 class="mb-3">Disponibilidad de Habitaciones</h4>
 
         <table class="table table-bordered text-center align-middle">
+          <!-- Encabezado dinámico -->
+          <thead class="table-light">
+            <!-- FILA 1: Tipos de habitación -->
+            <tr>
+              <th>Fecha</th>
 
-        <!-- ENCABEZADO -->
-        <thead class="table-light">
-        <tr>
-            <th>Fecha</th>
+              <th
+                th:each="entry : ${habitacionesPorTipo.entrySet()}"
+                th:colspan="${entry.value.size()}"
+                th:text="${entry.key.nombre}"
+              ></th>
+            </tr>
 
-            <!-- Iteramos tipos de habitación -->
-            <th th:each="tipo : ${habitacionesPorTipo}">
-                <div class="fw-bold" th:text="${tipo.nombre}"></div>
+            <!-- FILA 2: Número de habitaciones -->
+            <tr>
+              <th></th>
 
-                <!-- Debajo: número de habitaciones -->
-                <div class="small text-muted" th:each="num : ${tipo.habitaciones}">
-                    <span th:text="'Hab ' + ${num}"></span>
-                </div>
-            </th>
-        </tr>
-        </thead>
+            </tr>
+          </thead>
 
-        <!-- CUERPO: filas por fecha -->
-        <tbody>
-        <tr th:each="row, rowStat : ${grilla}">
-            <!-- Fecha -->
-            <td th:text="${#dates.format(row.fecha, 'dd/MM/yyyy')}" class="fw-bold"></td>
+          <!-- FILAS DE DÍAS -->
+          <tbody>
+            <tr th:each="dia : ${dias}">
+              <td class="fw-bold" th:text="${dia.fecha}"></td>
 
-            <!-- Estados por habitación -->
-            <td th:each="estado : ${row['estados']}">
-                <div th:class="${estado == 'DISPONIBLE'  ? 'bg-success text-white p-2 rounded' :
-                               estado == 'RESERVADA'   ? 'bg-warning text-dark p-2 rounded' :
-                               estado == 'OCUPADA'     ? 'bg-danger text-white p-2 rounded' :
-                               estado == 'FUERA'       ? 'bg-secondary text-white p-2 rounded' :
-                                                          'bg-light'}"
-                     th:text="${estado}">
-                </div>
-            </td>
-        </tr>
-        </tbody>
-
-    </table>
+              <!-- Estados (ya vienen ordenados en la grilla) -->
+              <td
+                th:each="estado : ${dia.estados}"
+                th:class="${estado == 'DISPONIBLE' ? 'bg-success'
+                             : estado == 'RESERVADA' ? 'bg-warning'
+                             : estado == 'OCUPADA' ? 'bg-danger'
+                             : estado == 'FUERA_SERVICIO' ? 'bg-secondary'
+                             : ''}"
+                class="text-white"
+              >
+                <span th:text="${estado}"></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <!-- Leyenda -->
