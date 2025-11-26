@@ -2,6 +2,7 @@ package tp.tp_disenio_2025_grupo_28.controller;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,7 +38,8 @@ public class HabitacionWebController {
     public String mostrarPagina(Model model) {
 
         model.addAttribute("tiposHabitacion", gestionHabitacion.obtenerTiposHabitacion());
-        model.addAttribute("habitaciones", new ArrayList<>());
+        // model.addAttribute("habitaciones", new ArrayList<>());
+        model.addAttribute("habitacionesPorTipo", new HashMap<TipoHabitacion, List<HabitacionDTO>>());
         model.addAttribute("dias", new ArrayList<>());
 
         return "habitacion/GestionHabitacion";
