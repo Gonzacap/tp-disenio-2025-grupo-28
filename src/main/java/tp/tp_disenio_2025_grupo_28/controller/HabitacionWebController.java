@@ -40,7 +40,7 @@ public class HabitacionWebController {
     }
 
     @PostMapping("/validar-fecha")
-    public String mostrarEstadoHabitaciones(
+    public String solicitarEstadoHabitaciones(
             @RequestParam("fechaDesde") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
             @RequestParam("fechaHasta") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
             RedirectAttributes redirectAttributes,
