@@ -32,12 +32,24 @@
       >
         <div class="col-md-4">
           <label class="form-label fw-bold">Fecha Desde</label>
-          <input type="date" name="fechaDesde" class="form-control" required />
+          <input
+            type="date"
+            name="fechaDesde"
+            class="form-control"
+            th:value="${fechaDesde}"
+            required
+          />
         </div>
 
         <div class="col-md-4">
           <label class="form-label fw-bold">Fecha Hasta</label>
-          <input type="date" name="fechaHasta" class="form-control" required />
+          <input
+            type="date"
+            name="fechaHasta"
+            class="form-control"
+            th:value="${fechaHasta}"
+            required
+          />
         </div>
 
         <div class="col-md-4 d-flex align-items-end">
