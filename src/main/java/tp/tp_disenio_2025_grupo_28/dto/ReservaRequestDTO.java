@@ -3,6 +3,8 @@ package tp.tp_disenio_2025_grupo_28.dto;
 import java.time.LocalDate;
 import java.util.List;
 
+import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
+
 //esto es para los pasos 8-9 del cu 04
 public class ReservaRequestDTO {
 
@@ -12,14 +14,22 @@ public class ReservaRequestDTO {
     private List<Integer> habitaciones; // numeroHabitacion
     private LocalDate fechaDesde;
     private LocalDate fechaHasta;
+    private TipoHabitacion tipoHabitacion;
 
-    public ReservaRequestDTO(String nombre, String apellido, String telefono, LocalDate fechaDesde, LocalDate fechaHasta, List<Integer> habitaciones) {
+    public ReservaRequestDTO() {
+
+    }
+
+    public ReservaRequestDTO(String nombre, String apellido, String telefono,
+            LocalDate fechaDesde, LocalDate fechaHasta,
+            List<Integer> habitaciones, TipoHabitacion tipoHabitacion) {
         this.apellido = apellido;
         this.fechaDesde = fechaDesde;
         this.fechaHasta = fechaHasta;
         this.habitaciones = habitaciones;
         this.nombre = nombre;
         this.telefono = telefono;
+        this.tipoHabitacion = tipoHabitacion;
     }
 
     public String getNombre() {
@@ -68,6 +78,14 @@ public class ReservaRequestDTO {
 
     public void setFechaHasta(LocalDate fechaHasta) {
         this.fechaHasta = fechaHasta;
+    }
+
+    public TipoHabitacion getTipoHabitacion() {
+        return tipoHabitacion;
+    }
+
+    public void setTipoHabitacion(TipoHabitacion tipoHabitacion) {
+        this.tipoHabitacion = tipoHabitacion;
     }
 
 }

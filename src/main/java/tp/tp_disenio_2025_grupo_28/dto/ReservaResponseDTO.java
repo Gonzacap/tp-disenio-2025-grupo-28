@@ -8,6 +8,7 @@ public class ReservaResponseDTO {
     private Integer idReserva;
     private String estado;
     private List<Integer> habitacionesReservadas;
+    private List<String> tiposHabitacion;
 
     public ReservaResponseDTO() {
     }
@@ -40,6 +41,14 @@ public class ReservaResponseDTO {
 
     public void setHabitacionesReservadas(List<Integer> habitacionesReservadas) {
         this.habitacionesReservadas = habitacionesReservadas;
+    }
+
+    public List<String> getTiposHabitacion() {
+        return tiposHabitacion;
+    }
+
+    public void setTiposHabitacion(List<String> tiposHabitacion) {
+        this.tiposHabitacion = tiposHabitacion;
     }
 
 }

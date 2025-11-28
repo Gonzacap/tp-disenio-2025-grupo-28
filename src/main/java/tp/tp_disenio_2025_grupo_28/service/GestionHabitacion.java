@@ -156,17 +156,14 @@ public class GestionHabitacion {
                             break;
                         }
                     }
-
                     estados.add(estado);
                 }
-
                 Map<String, Object> bloqueTipo = new HashMap<>();
                 bloqueTipo.put("tipo", nombreTipo);
                 bloqueTipo.put("estados", estados);
-
+                bloqueTipo.put("habitaciones", numeros);  //PRUEBA: BORRAR SI NO FUNCIONA
                 estadosPorTipo.add(bloqueTipo);
             }
-
             fila.put("estadosPorTipo", estadosPorTipo);
             salida.add(fila);
         }
@@ -174,4 +171,7 @@ public class GestionHabitacion {
         return salida;
     }
 
+    public Habitacion buscarPorNumero(Integer numero) {
+        return habitacionRepository.findById(numero).orElse(null);
+    }
 }
