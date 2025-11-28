@@ -1,6 +1,6 @@
 package tp.tp_disenio_2025_grupo_28.repository;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,7 +18,7 @@ public interface HabitacionRepository extends JpaRepository<Habitacion, Integer>
              WHERE (e.fechaDesde <= :hasta AND e.fechaHasta >= :desde)
        )
     """)
-    List<Habitacion> buscarHabitacionesDisponibles(LocalDate desde, LocalDate hasta);
+    List<Habitacion> buscarHabitacionesDisponibles(Date desde, Date hasta);
 
     List<Habitacion> findAllByOrderByTipoAscNumeroHabitacionAsc();
 }

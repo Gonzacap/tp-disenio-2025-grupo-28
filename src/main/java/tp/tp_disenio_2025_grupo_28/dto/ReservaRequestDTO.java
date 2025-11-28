@@ -1,7 +1,9 @@
 package tp.tp_disenio_2025_grupo_28.dto;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
 
@@ -12,8 +14,11 @@ public class ReservaRequestDTO {
     private String apellido;
     private String telefono;
     private List<Integer> habitaciones; // numeroHabitacion
-    private LocalDate fechaDesde;
-    private LocalDate fechaHasta;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date fechaDesde;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date fechaHasta;
     private TipoHabitacion tipoHabitacion;
 
     public ReservaRequestDTO() {
@@ -21,7 +26,7 @@ public class ReservaRequestDTO {
     }
 
     public ReservaRequestDTO(String nombre, String apellido, String telefono,
-            LocalDate fechaDesde, LocalDate fechaHasta,
+            Date fechaDesde, Date fechaHasta,
             List<Integer> habitaciones, TipoHabitacion tipoHabitacion) {
         this.apellido = apellido;
         this.fechaDesde = fechaDesde;
@@ -64,19 +69,19 @@ public class ReservaRequestDTO {
         this.habitaciones = habitaciones;
     }
 
-    public LocalDate getFechaDesde() {
+    public Date getFechaDesde() {
         return fechaDesde;
     }
 
-    public void setFechaDesde(LocalDate fechaDesde) {
+    public void setFechaDesde(Date fechaDesde) {
         this.fechaDesde = fechaDesde;
     }
 
-    public LocalDate getFechaHasta() {
+    public Date getFechaHasta() {
         return fechaHasta;
     }
 
-    public void setFechaHasta(LocalDate fechaHasta) {
+    public void setFechaHasta(Date fechaHasta) {
         this.fechaHasta = fechaHasta;
     }
 

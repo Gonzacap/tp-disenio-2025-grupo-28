@@ -1,6 +1,6 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -32,8 +32,8 @@ public class ReservaController {
     @GetMapping("/nueva")
 
     public String mostrarFormulario(
-            @RequestParam(name = "fechaDesde", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fechaDesde,
-            @RequestParam(name = "fechaHasta", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fechaHasta,
+            @RequestParam(name = "fechaDesde", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
+            @RequestParam(name = "fechaHasta", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
             Model model) {
         ReservaRequestDTO dto = new ReservaRequestDTO(null, null, null, fechaDesde, fechaHasta, null, null);
         model.addAttribute("reservaRequestDTO", dto);
@@ -53,6 +53,7 @@ public class ReservaController {
         }
         try {
             ReservaResponseDTO respuesta = reservaService.reservar(dto, usuario);
+            model.addAttribute("titulo", "RESERVA CREADA CON EXITO");
             model.addAttribute("mensaje", "Reserva creada con ID: " + respuesta.getIdReserva());
             model.addAttribute("accionAceptar", "/");
             return "emergentes/exito";

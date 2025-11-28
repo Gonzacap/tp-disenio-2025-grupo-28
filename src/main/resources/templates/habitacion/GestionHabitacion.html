@@ -8,6 +8,19 @@
         background-color: orange !important;
         color: white !important;
       }
+
+      /* ESTILO FINAL QUE USAMOS */
+      .celda-seleccionada {
+        background-color: #0d6efd !important;
+        color: white !important;
+        border: 2px solid black !important;
+        border-radius: 4px;
+        padding: 2px 6px;
+      }
+
+      .estado-disponible {
+        cursor: pointer;
+      }
     </style>
 
     <div class="container-md my-5">
@@ -100,31 +113,35 @@
                 <!-- ESTADOS EN HORIZONTAL -->
                 <div class="d-flex justify-content-center gap-2">
                   <span
-                      th:each="estado, i : ${tipo.estados}"
-                      th:data-habitacion="${tipo.habitaciones[i.index]}"
-                      th:data-estado="${estado}"
-                      th:class="${estado == 'DISPONIBLE' ? 'badge bg-success estado-disponible' :
+                    th:each="estado, i : ${tipo.estados}"
+                    th:data-habitacion="${tipo.habitaciones[i.index]}"
+                    th:data-estado="${estado}"
+                    th:class="${estado == 'DISPONIBLE' ? 'badge bg-success estado-disponible' :
                                   estado == 'RESERVADA' || estado == 'confirmada' ? 'badge bg-orange text-dark' :
                                   estado == 'OCUPADA' ? 'badge bg-danger' :
                                   estado == 'FUERA_SERVICIO' ? 'badge bg-warning' : 'badge bg-secondary'}"
-                      th:text="${estado}">
-                  </span>
+                    th:text="${estado}"
+                  ></span>
                 </div>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
+
       <!-- BOTONES CU05 -->
       <div class="mt-3 text-end">
-          <form th:action="@{/habitacion/reservar}" method="post">
-              <input type="hidden" name="fechaDesde" th:value="${fechaDesde != null ? #dates.format(fechaDesde,'yyyy-MM-dd') : ''}">
-              <input type="hidden" name="fechaHasta" th:value="${fechaHasta != null ? #dates.format(fechaHasta,'yyyy-MM-dd') : ''}">
-              <input type="hidden" id="habitacionesInput" name="habitaciones">
-        <!--Reserva: va al caso de uso 4-->
-              <button type="submit" class="btn btn-success">Reservar</button>
-        <!--Debe volver al index-->
-              <a th:href="@{/}" class="btn btn-secondary">Cancelar</a>
+        <form th:action="@{/habitacion/reservar}" method="post">
+          <input type="hidden" name="fechaDesde" th:value="${fechaDesde != null ? #dates.format(fechaDesde,'yyyy-MM-dd') : ''}">
+          <input type="hidden" name="fechaHasta" th:value="${fechaHasta != null ? #dates.format(fechaHasta,'yyyy-MM-dd') : ''}">
+          
+          <!-- ESTE ES EL QUE USAMOS -->
+          <input type="hidden" id="habitacionesInput" name="habitaciones">
+
+          <!-- Reserva -->
+          <button type="submit" class="btn btn-success">Reservar</button>
+          <!-- Volver -->
+          <a th:href="@{/}" class="btn btn-secondary">Cancelar</a>
         </form>
       </div>
 
@@ -142,33 +159,30 @@
 
     <div th:replace="fragments/Base :: scripts"></div>
 
+    <!-- SCRIPT FINAL CORRECTO -->
     <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const seleccionadas = new Set();
+    document.addEventListener("DOMContentLoaded", () => {
+        const seleccionadas = new Set();
 
-    document.querySelectorAll(".estado-disponible").forEach(cell => {
-        cell.style.cursor = "pointer";
+        document.querySelectorAll(".estado-disponible").forEach(cell => {
 
-        cell.addEventListener("click", () => {
-            const hab = cell.dataset.habitacion;
+            cell.addEventListener("click", () => {
+                const hab = cell.dataset.habitacion;
 
-            if (cell.classList.contains("seleccionada")) {
-                cell.classList.remove("seleccionada");
-                cell.style.border = "";
-                seleccionadas.delete(hab);
-            } else {
-                cell.classList.add("seleccionada");
-                cell.style.border = "3px solid black";
-                seleccionadas.add(hab);
-            }
+                if (cell.classList.contains("celda-seleccionada")) {
+                    cell.classList.remove("celda-seleccionada");
+                    seleccionadas.delete(hab);
+                } else {
+                    cell.classList.add("celda-seleccionada");
+                    seleccionadas.add(hab);
+                }
 
-            // actualizar input oculto del form
-            document.getElementById("habitacionesInput").value =
-                Array.from(seleccionadas).join(",");
+                document.getElementById("habitacionesInput").value =
+                    Array.from(seleccionadas).join(",");
+            });
         });
     });
-});
-</script>
+    </script>
 
   </body>
 </html>

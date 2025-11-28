@@ -32,11 +32,16 @@ public class ReservaService {
     @Autowired
     private ReservaMapper mapper;
 
+    @Autowired
+    private GestionHabitacion gestionHabitacion;
+
     public ReservaResponseDTO reservar(ReservaRequestDTO dto, Usuario usuario) {
         //Evaluamos la precondicion del cu
         /*(usuario == NULL){
             throw new RuntimeException("Debe estar autenticado");
         }*/
+
+        validarDisponibilidadReserva(dto);
         //buscamos disponibilidad cu 05
         List<Habitacion> disponibles = habitacionRepo.buscarHabitacionesDisponibles(dto.getFechaDesde(), dto.getFechaHasta());
         //validamos que esten todas disponibles
@@ -65,4 +70,20 @@ public class ReservaService {
         }
         return mapper.toDTO(reserva);
     }
+
+    public void validarDisponibilidadReserva(ReservaRequestDTO dto) {
+        for (Integer nroHab : dto.getHabitaciones()) {
+            boolean disponible = gestionHabitacion.estaDisponible(
+                    nroHab,
+                    dto.getFechaDesde(),
+                    dto.getFechaHasta()
+            );
+            if (!disponible) {
+                throw new RuntimeException(
+                        "La habitación " + nroHab + " no está disponible en las fechas seleccionadas."
+                );
+            }
+        }
+    }
+
 }

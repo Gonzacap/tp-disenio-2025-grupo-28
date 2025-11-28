@@ -1,9 +1,23 @@
 package tp.tp_disenio_2025_grupo_28.model;
 
-import jakarta.persistence.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import tp.tp_disenio_2025_grupo_28.model.enums.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import tp.tp_disenio_2025_grupo_28.model.enums.EstadoReserva;
 
 @Entity
 @Table(name = "reserva")
@@ -40,7 +54,6 @@ public class Reserva {
     // @OneToMany(cascade = CascadeType.ALL)
     // @JoinColumn(name = "id_reserva")
     // private List<PersonaFisica> acompanantes;
-
     public Reserva() {
     }
 
@@ -126,5 +139,4 @@ public class Reserva {
     // public void setAcompanantes(List<PersonaFisica> acompanantes) {
     //     this.acompanantes = acompanantes;
     // }
-
 }

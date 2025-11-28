@@ -22,6 +22,9 @@ public class ReservaMapper {
         r.setTelefono(dto.getTelefono());
         r.setHabitaciones(habitaciones);
         r.setEstado(EstadoReserva.generada);
+        r.setFechaDesde(dto.getFechaDesde());
+        r.setFechaHasta(dto.getFechaHasta());
+
         return r;
     }
 

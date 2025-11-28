@@ -1,6 +1,6 @@
 package tp.tp_disenio_2025_grupo_28.model;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,8 +25,8 @@ public class EstadoHabitacionPeriodo {
 
     @Column(name = "numeroHabitacion")
     private Integer numeroHabitacion;
-    private LocalDate fechaDesde;
-    private LocalDate fechaHasta;
+    private Date fechaDesde;
+    private Date fechaHasta;
 
     public EstadoHabitacionPeriodo() {
     }
@@ -55,19 +55,19 @@ public class EstadoHabitacionPeriodo {
         this.numeroHabitacion = numeroHabitacion;
     }
 
-    public LocalDate getFechaDesde() {
+    public Date getFechaDesde() {
         return fechaDesde;
     }
 
-    public void setFechaDesde(LocalDate fechaDesde) {
+    public void setFechaDesde(Date fechaDesde) {
         this.fechaDesde = fechaDesde;
     }
 
-    public LocalDate getFechaHasta() {
+    public Date getFechaHasta() {
         return fechaHasta;
     }
 
-    public void setFechaHasta(LocalDate fechaHasta) {
+    public void setFechaHasta(Date fechaHasta) {
         this.fechaHasta = fechaHasta;
     }
 

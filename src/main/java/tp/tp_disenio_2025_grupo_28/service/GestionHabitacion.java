@@ -174,4 +174,46 @@ public class GestionHabitacion {
     public Habitacion buscarPorNumero(Integer numero) {
         return habitacionRepository.findById(numero).orElse(null);
     }
+
+    public boolean estaDisponible(Integer nroHabitacion, Date desde, Date hasta) {
+        List<Reserva> reservas = reservaRepository.findByHabitacion(nroHabitacion);
+        if (reservas == null || reservas.isEmpty()) {
+            return true;
+        }
+        for (Reserva r : reservas) {
+
+            Date rDesde = r.getFechaDesde();
+            Date rHasta = r.getFechaHasta();
+            //Si las habitaciones se solapan no estan disponibles
+            boolean seSolapa = !(hasta.before(rDesde) || desde.after(rHasta));
+            if (seSolapa) {
+                return false;
+            }
+        }
+        return true; //ningun choque, esta disponible
+
+    }
+
+    public boolean existeHabitacion(Integer numero) {
+        return habitacionRepository.existsById(numero);
+    }
+
+    public List<Integer> habitacionesInexistentes(List<Integer> numeros) {
+        return numeros.stream()
+                .filter(n -> !habitacionRepository.existsById(n))
+                .toList();
+    }
+
+    public List<Integer> habitacionesNoDisponibles(List<Integer> numeros, Date desde, Date hasta) {
+
+        List<Integer> noDisp = new ArrayList<>();
+
+        for (Integer n : numeros) {
+            if (!estaDisponible(n, desde, hasta)) {
+                noDisp.add(n);
+            }
+        }
+        return noDisp;
+    }
+
 }
