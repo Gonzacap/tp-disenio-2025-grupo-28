@@ -1,5 +1,6 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,6 +34,13 @@ public class HabitacionWebController {
 
     @GetMapping()
     public String mostrarPagina(Model model) {
+        if (!model.containsAttribute("errorMessage")) {
+            model.addAttribute("errorMessage", null);
+        }
+
+        if (!model.containsAttribute("successMessage")) {
+            model.addAttribute("successMessage", null);
+        }
 
         // 1. Cargamos tipos de habitación (encabezados de la tabla)
         model.addAttribute("habitacionesPorTipo", gestionHabitacion.obtenerHabitacionPorTipoMockup());
@@ -147,4 +155,43 @@ public class HabitacionWebController {
 
         return "reserva/nueva-reserva";
     }
+
+    @PostMapping("/ocupar")
+    public String ocuparDesdeGrilla(
+            @RequestParam("fechaDesde") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
+            @RequestParam("fechaHasta") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
+            @RequestParam("habitaciones") String habitacionesCSV,
+            RedirectAttributes redirectAttributes) {
+
+        List<Integer> habitacionesSel = new ArrayList<>();
+        if (habitacionesCSV != null && !habitacionesCSV.isEmpty()) {
+            for (String h : habitacionesCSV.split(",")) {
+                try {
+                    habitacionesSel.add(Integer.parseInt(h.trim()));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+
+        if (habitacionesSel.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Debe seleccionar una habitación para ocupar.");
+            return "redirect:/habitacion";
+        }
+
+        List<Integer> inexistentes = gestionHabitacion.habitacionesInexistentes(habitacionesSel);
+        if (!inexistentes.isEmpty()) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage", "Habitación inexistente: " + inexistentes);
+            return "redirect:/habitacion";
+        }
+
+        Integer numeroHab = habitacionesSel.get(0);
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+        return "redirect:/ocupacion/buscar?numero_habitacion=" + numeroHab
+                + "&fechaDesde=" + df.format(fechaDesde)
+                + "&fechaHasta=" + df.format(fechaHasta);
+    }
+
 }

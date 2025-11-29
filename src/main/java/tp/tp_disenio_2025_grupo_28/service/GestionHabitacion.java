@@ -18,9 +18,11 @@ import tp.tp_disenio_2025_grupo_28.dto.OcupacionRequestDTO;
 import tp.tp_disenio_2025_grupo_28.mapper.OcupacionMapper;
 import tp.tp_disenio_2025_grupo_28.model.EstadoHabitacionPeriodo;
 import tp.tp_disenio_2025_grupo_28.model.Habitacion;
+import tp.tp_disenio_2025_grupo_28.model.PersonaFisica;
 import tp.tp_disenio_2025_grupo_28.model.Reserva;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoHabitacion;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoReserva;
+import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
 import tp.tp_disenio_2025_grupo_28.repository.EstadoHabitacionPeriodoRepository;
 import tp.tp_disenio_2025_grupo_28.repository.HabitacionRepository;
@@ -40,6 +42,7 @@ public class GestionHabitacion {
 
     @Autowired
     private EstadoHabitacionPeriodoService estadoPeriodoService;
+    private Map<String, List<PersonaFisica>> ocupantesAsignados = new HashMap<>();
 
     public void validarFecha(Date fechaDesde, Date fechaHasta) {
 
@@ -231,29 +234,157 @@ public class GestionHabitacion {
     public void ocuparHabitacion(Integer idReserva, OcupacionRequestDTO request, OcupacionHuespedDTO huespedes) {
 
         validarFecha(request.getFechaDesde(), request.getFechaHasta());
-        Reserva reserva = reservaRepository.findById(idReserva).orElseThrow(() -> new IllegalArgumentException("No existe la reserva con ID " + idReserva));
+        Reserva reserva = reservaRepository.findById(idReserva)
+                .orElseThrow(() -> new IllegalArgumentException("No existe la reserva con ID " + idReserva));
 
         boolean habitacionPertenece = reserva.getHabitaciones().stream()
                 .anyMatch(h -> h.getNumeroHabitacion().equals(request.getNumeroHabitacion()));
 
         if (!habitacionPertenece) {
-            throw new IllegalArgumentException("La habitación " + request.getNumeroHabitacion()
-                    + " no está asociada a esta reserva.");
+            throw new IllegalArgumentException("La habitación "
+                    + request.getNumeroHabitacion() + " no está asociada a esta reserva.");
         }
 
-        boolean disponible = estadoPeriodoService.estaDisponible(request.getNumeroHabitacion(), request.getFechaDesde(), request.getFechaHasta());
+        boolean disponible = estadoPeriodoService.estaDisponible(
+                request.getNumeroHabitacion(),
+                request.getFechaDesde(),
+                request.getFechaHasta()
+        );
 
         if (!disponible) {
             throw new IllegalStateException("La habitación ya está ocupada/reservada en ese periodo.");
         }
+
+        // Crear periodo de ocupación
         EstadoHabitacionPeriodo periodo = OcupacionMapper.toPeriodo(request);
         estadoPeriodoRepository.save(periodo);
 
-        if (reserva.getEstado() == EstadoReserva.confirmada) {
-            reserva.setEstado(EstadoReserva.cumplida); // o enCurso según modelo
-            reservaRepository.save(reserva);
+        //GUARDAR LOS OCUPANTES SELECCIONADOS
+        List<PersonaFisica> ocupantes = new ArrayList<>();
+
+        PersonaFisica responsable = reservaRepository.buscarPersonaFisicaPorId(huespedes.getIdHuesped());
+        ocupantes.add(responsable);
+
+        if (huespedes.getIdAcompanantes() != null) {
+            for (Integer idAcomp : huespedes.getIdAcompanantes()) {
+                PersonaFisica acomp = reservaRepository.buscarPersonaFisicaPorId(idAcomp);
+                ocupantes.add(acomp);
+            }
         }
 
+        String key = idReserva + "_" + request.getNumeroHabitacion();
+        ocupantesAsignados.put(key, ocupantes);
+
+        // Cambiar estado de la reserva
+        if (reserva.getEstado() == EstadoReserva.confirmada) {
+            reserva.setEstado(EstadoReserva.cumplida);
+            reservaRepository.save(reserva);
+        }
+    }
+
+    public List<EstadoHabitacionPeriodo> buscarOcupacionesPorHabitacionYFecha(Integer numeroHabitacion, Date fecha) {
+
+        return estadoPeriodoRepository.findByNumeroHabitacion(numeroHabitacion)
+                .stream()
+                .filter(p -> !fecha.before(p.getFechaDesde()) && !fecha.after(p.getFechaHasta())).toList();
+    }
+
+    public List<EstadoHabitacionPeriodo> buscarOcupacionesPorRango(Integer numeroHabitacion, Date desde, Date hasta) {
+
+        return estadoPeriodoRepository.findByNumeroHabitacion(numeroHabitacion).stream()
+                .filter(p -> {
+                    boolean solapa = !(hasta.before(p.getFechaDesde()) || desde.after(p.getFechaHasta()));
+                    return solapa && p.getEstado() != EstadoHabitacion.disponible;
+                }).toList();
+    }
+
+    //Grilla
+    public EstadoHabitacion obtenerEstadoEnFecha(Integer numeroHabitacion, Date fecha) {
+
+        List<EstadoHabitacionPeriodo> periodos = buscarOcupacionesPorHabitacionYFecha(numeroHabitacion, fecha);
+
+        if (periodos.isEmpty()) {
+            return EstadoHabitacion.disponible;
+        }
+
+        // Si hay varios, nos quedamos con el más "restrictivo"
+        return periodos.stream()
+                .map(EstadoHabitacionPeriodo::getEstado)
+                .filter(e -> e != EstadoHabitacion.disponible)
+                .findFirst()
+                .orElse(EstadoHabitacion.disponible);
+    }
+
+    public EstadoHabitacionPeriodo obtenerOcupacionActual(Integer numeroHabitacion) {
+        Date hoy = new Date();
+
+        return buscarOcupacionesPorHabitacionYFecha(numeroHabitacion, hoy)
+                .stream()
+                .filter(p -> p.getEstado() == EstadoHabitacion.ocupada)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public boolean existeOcupacionEnRango(Integer numeroHabitacion, Date desde, Date hasta) {
+        return !buscarOcupacionesPorRango(numeroHabitacion, desde, hasta).isEmpty();
+    }
+
+    public void liberarHabitacion(Integer numeroHabitacion, Date fecha) {
+
+        EstadoHabitacionPeriodo periodo = obtenerOcupacionActual(numeroHabitacion);
+
+        if (periodo == null) {
+            throw new IllegalStateException("La habitación no está ocupada actualmente.");
+        }
+
+        periodo.setFechaHasta(fecha);
+        estadoPeriodoRepository.save(periodo);
+
+        Habitacion h = habitacionRepository.findById(numeroHabitacion)
+                .orElseThrow(() -> new IllegalArgumentException("Habitación inexistente."));
+
+        h.setEstado(EstadoHabitacion.disponible);
+        habitacionRepository.save(h);
+    }
+
+    public List<PersonaFisica> buscarOcupantes(String nombre, String apellido, TipoDocumento tipoDocumento, Integer numeroDocumento) {
+
+        List<PersonaFisica> todos = reservaRepository.buscarTodasLasPersonasFisicas();
+
+        return todos.stream()
+                .filter(p -> nombre == null || p.getNombre().equalsIgnoreCase(nombre))
+                .filter(p -> apellido == null || p.getApellido().equalsIgnoreCase(apellido))
+                .filter(p -> tipoDocumento == null || p.getTipoDocumento() == tipoDocumento)
+                .filter(p -> numeroDocumento == null || p.getDocumento().equals(numeroDocumento))
+                .toList();
+    }
+
+    public List<PersonaFisica> obtenerOcupantesAsignados(Integer reservaId, Integer numeroHabitacion) {
+        String key = reservaId + "_" + numeroHabitacion;
+        return ocupantesAsignados.getOrDefault(key, new ArrayList<>());
+    }
+
+    public Integer calcularLugaresDisponibles(Integer numeroHabitacion, Integer reservaId) {
+        Habitacion h = habitacionRepository.findById(numeroHabitacion)
+                .orElseThrow(() -> new IllegalArgumentException("Habitación no existe"));
+
+        int capacidad = h.getCapacidad();
+
+        List<PersonaFisica> asignados = obtenerOcupantesAsignados(reservaId, numeroHabitacion);
+
+        return capacidad - asignados.size();
+    }
+
+    public Map<String, String> obtenerResponsableReserva(Integer reservaId) {
+        Reserva r = reservaRepository.findById(reservaId)
+                .orElseThrow(() -> new IllegalArgumentException("Reserva inexistente"));
+
+        Map<String, String> datos = new HashMap<>();
+        datos.put("nombre", r.getNombre());
+        datos.put("apellido", r.getApellido());
+        datos.put("telefono", r.getTelefono());
+
+        return datos;
     }
 
 }

@@ -5,8 +5,10 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import tp.tp_disenio_2025_grupo_28.model.PersonaFisica;
 import tp.tp_disenio_2025_grupo_28.model.Reserva;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoReserva;
 
@@ -22,6 +24,10 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             + "WHERE h.numeroHabitacion = :nro")
     List<Reserva> findByHabitacion(Integer nro);
 
-    public List<Reserva> findReservasSuperpuestas(Integer numero, Date desde, Date hasta);
+    @Query("SELECT p FROM PersonaFisica p WHERE p.cuit = :id")
+    PersonaFisica buscarPersonaFisicaPorId(@Param("id") Integer id);
+
+    @Query("SELECT p FROM PersonaFisica p")
+    List<PersonaFisica> buscarTodasLasPersonasFisicas();
 
 }

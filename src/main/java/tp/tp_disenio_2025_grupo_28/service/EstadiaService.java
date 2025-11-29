@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import tp.tp_disenio_2025_grupo_28.model.Estadia;
+import tp.tp_disenio_2025_grupo_28.model.Habitacion;
 import tp.tp_disenio_2025_grupo_28.model.Reserva;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoEstadia;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoEstadia;
@@ -19,6 +20,8 @@ public class EstadiaService {
 
     @Autowired
     private EstadiaRepository estadiaRepository;
+    @Autowired
+    private GestionHabitacion gestionHabitacion;
 
     //Crear una estadía desde una reserva (cuando el huésped llega).    
     public Estadia crearDesdeReserva(Reserva reserva, TipoEstadia tipo) {
@@ -78,6 +81,10 @@ public class EstadiaService {
 
     public Estadia obtenerPorIdReserva(Integer idReserva) {
         return estadiaRepository.findByReserva_IdReserva(idReserva);
+    }
+
+    public boolean estaDisponible(Habitacion habitacion, Date fechaDesde, Date fechaHasta) {
+        return gestionHabitacion.estaDisponible(habitacion.getNumeroHabitacion(), fechaDesde, fechaHasta);
     }
 
 }
