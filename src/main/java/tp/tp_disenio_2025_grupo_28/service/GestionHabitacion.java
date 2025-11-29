@@ -13,10 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import tp.tp_disenio_2025_grupo_28.dto.OcupacionHuespedDTO;
+import tp.tp_disenio_2025_grupo_28.dto.OcupacionRequestDTO;
+import tp.tp_disenio_2025_grupo_28.mapper.OcupacionMapper;
+import tp.tp_disenio_2025_grupo_28.model.EstadoHabitacionPeriodo;
 import tp.tp_disenio_2025_grupo_28.model.Habitacion;
 import tp.tp_disenio_2025_grupo_28.model.Reserva;
+import tp.tp_disenio_2025_grupo_28.model.enums.EstadoHabitacion;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoReserva;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
+import tp.tp_disenio_2025_grupo_28.repository.EstadoHabitacionPeriodoRepository;
 import tp.tp_disenio_2025_grupo_28.repository.HabitacionRepository;
 import tp.tp_disenio_2025_grupo_28.repository.ReservaRepository;
 
@@ -29,6 +35,11 @@ public class GestionHabitacion {
 
     @Autowired
     private ReservaRepository reservaRepository;
+    @Autowired
+    private EstadoHabitacionPeriodoRepository estadoPeriodoRepository;
+
+    @Autowired
+    private EstadoHabitacionPeriodoService estadoPeriodoService;
 
     public void validarFecha(Date fechaDesde, Date fechaHasta) {
 
@@ -214,6 +225,35 @@ public class GestionHabitacion {
             }
         }
         return noDisp;
+    }
+
+    //funciones del caso de uso 15
+    public void ocuparHabitacion(Integer idReserva, OcupacionRequestDTO request, OcupacionHuespedDTO huespedes) {
+
+        validarFecha(request.getFechaDesde(), request.getFechaHasta());
+        Reserva reserva = reservaRepository.findById(idReserva).orElseThrow(() -> new IllegalArgumentException("No existe la reserva con ID " + idReserva));
+
+        boolean habitacionPertenece = reserva.getHabitaciones().stream()
+                .anyMatch(h -> h.getNumeroHabitacion().equals(request.getNumeroHabitacion()));
+
+        if (!habitacionPertenece) {
+            throw new IllegalArgumentException("La habitación " + request.getNumeroHabitacion()
+                    + " no está asociada a esta reserva.");
+        }
+
+        boolean disponible = estadoPeriodoService.estaDisponible(request.getNumeroHabitacion(), request.getFechaDesde(), request.getFechaHasta());
+
+        if (!disponible) {
+            throw new IllegalStateException("La habitación ya está ocupada/reservada en ese periodo.");
+        }
+        EstadoHabitacionPeriodo periodo = OcupacionMapper.toPeriodo(request);
+        estadoPeriodoRepository.save(periodo);
+
+        if (reserva.getEstado() == EstadoReserva.confirmada) {
+            reserva.setEstado(EstadoReserva.cumplida); // o enCurso según modelo
+            reservaRepository.save(reserva);
+        }
+
     }
 
 }

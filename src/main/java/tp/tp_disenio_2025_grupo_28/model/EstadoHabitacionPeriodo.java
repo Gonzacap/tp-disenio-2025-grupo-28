@@ -31,6 +31,14 @@ public class EstadoHabitacionPeriodo {
     public EstadoHabitacionPeriodo() {
     }
 
+    public EstadoHabitacionPeriodo(EstadoHabitacion estado, Date fechaDesde, Date fechaHasta, Integer numeroHabitacion) {
+        this.estado = estado;
+        this.fechaDesde = fechaDesde;
+        this.fechaHasta = fechaHasta;
+
+        this.numeroHabitacion = numeroHabitacion;
+    }
+
     public Integer getIdEstadoHabitacionPeriodo() {
         return idEstadoHabitacionPeriodo;
     }

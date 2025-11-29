@@ -19,4 +19,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
     @Query("SELECT r FROM Reserva r JOIN r.habitaciones h "
             + "WHERE h.numeroHabitacion = :nro")
     List<Reserva> findByHabitacion(Integer nro);
+
+    public List<Reserva> findReservasSuperpuestas(Integer numero, Date desde, Date hasta);
 }
