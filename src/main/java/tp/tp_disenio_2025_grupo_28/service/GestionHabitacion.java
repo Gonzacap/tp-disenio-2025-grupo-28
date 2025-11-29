@@ -26,6 +26,7 @@ import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
 import tp.tp_disenio_2025_grupo_28.repository.EstadoHabitacionPeriodoRepository;
 import tp.tp_disenio_2025_grupo_28.repository.HabitacionRepository;
+import tp.tp_disenio_2025_grupo_28.repository.HuespedRepository;
 import tp.tp_disenio_2025_grupo_28.repository.ReservaRepository;
 
 @Service
@@ -34,14 +35,15 @@ public class GestionHabitacion {
 
     @Autowired
     private HabitacionRepository habitacionRepository;
-
     @Autowired
     private ReservaRepository reservaRepository;
     @Autowired
     private EstadoHabitacionPeriodoRepository estadoPeriodoRepository;
-
     @Autowired
     private EstadoHabitacionPeriodoService estadoPeriodoService;
+    @Autowired
+    private HuespedRepository huespedRepository;
+
     private Map<String, List<PersonaFisica>> ocupantesAsignados = new HashMap<>();
 
     public void validarFecha(Date fechaDesde, Date fechaHasta) {
@@ -347,18 +349,6 @@ public class GestionHabitacion {
         habitacionRepository.save(h);
     }
 
-    public List<PersonaFisica> buscarOcupantes(String nombre, String apellido, TipoDocumento tipoDocumento, Integer numeroDocumento) {
-
-        List<PersonaFisica> todos = reservaRepository.buscarTodasLasPersonasFisicas();
-
-        return todos.stream()
-                .filter(p -> nombre == null || p.getNombre().equalsIgnoreCase(nombre))
-                .filter(p -> apellido == null || p.getApellido().equalsIgnoreCase(apellido))
-                .filter(p -> tipoDocumento == null || p.getTipoDocumento() == tipoDocumento)
-                .filter(p -> numeroDocumento == null || p.getDocumento().equals(numeroDocumento))
-                .toList();
-    }
-
     public List<PersonaFisica> obtenerOcupantesAsignados(Integer reservaId, Integer numeroHabitacion) {
         String key = reservaId + "_" + numeroHabitacion;
         return ocupantesAsignados.getOrDefault(key, new ArrayList<>());
@@ -387,4 +377,7 @@ public class GestionHabitacion {
         return datos;
     }
 
+    public List<PersonaFisica> buscarOcupantes(String nombre, String apellido, TipoDocumento tipoDocumento, String numeroDocumento) {
+        return huespedRepository.buscarHuespedes(nombre, apellido, tipoDocumento, numeroDocumento);
+    }
 }
