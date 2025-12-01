@@ -374,9 +374,13 @@ public class GestionHabitacion {
         return datos;
     }
 
-    public List<PersonaFisica> buscarOcupantes(String nombre, String apellido, TipoDocumento tipoDocumento,
-            String numeroDocumento) {
-        return huespedRepository.buscarHuespedes(nombre, apellido, tipoDocumento, numeroDocumento);
-    }
+    /*
+     * public List<PersonaFisica> buscarOcupantes(String nombre, String apellido,
+     * TipoDocumento tipoDocumento,
+     * String numeroDocumento) {
+     * return huespedRepository.buscarHuespedes(nombre, apellido, tipoDocumento,
+     * numeroDocumento);
+     * }
+     */
 
 }

@@ -30,12 +30,17 @@ public interface HuespedRepository extends JpaRepository<Huesped, Integer> {
          * AND (:tipoDocumento IS NULL OR pf.tipoDocumento = :tipoDocumento)
          * AND (:numeroDocumento IS NULL OR pf.documento = :numeroDocumento)
          * """)
+         * 
+         * List<PersonaFisica> buscarHuespedes(
+         * 
+         * @Param("nombre") String nombre,
+         * 
+         * @Param("apellido") String apellido,
+         * 
+         * @Param("tipoDocumento") TipoDocumento tipoDocumento,
+         * 
+         * @Param("numeroDocumento") String numeroDocumento);
          */
-        List<PersonaFisica> buscarHuespedes(
-                        @Param("nombre") String nombre,
-                        @Param("apellido") String apellido,
-                        @Param("tipoDocumento") TipoDocumento tipoDocumento,
-                        @Param("numeroDocumento") String numeroDocumento);
 
         List<Huesped> findAllByTipoDocumentoAndDocumento(TipoDocumento tipoDocumento, String documento);
 
