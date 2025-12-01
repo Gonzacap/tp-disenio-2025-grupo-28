@@ -168,6 +168,38 @@
             });
         });
     });
+    /* --- SHIFT + TAB retrocede campo --- */
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Tab" && event.shiftKey) {
+        event.preventDefault();
+
+        const focusables = Array.from(
+            document.querySelectorAll("input, button, select, textarea, a")
+        ).filter(el => !el.disabled && el.offsetParent !== null);
+
+        const index = focusables.indexOf(document.activeElement);
+
+        if (index > 0) {
+            focusables[index - 1].focus();
+        }
+    }
+});
+
+/* --- Ingreso SIEMPRE en MAYÚSCULAS --- */
+document.addEventListener("input", function(event) {
+    const target = event.target;
+
+    if (target.tagName === "INPUT" && 
+        (target.type === "text" || target.type === "search" || target.type === "email")) {
+        const start = target.selectionStart;
+        const end = target.selectionEnd;
+        target.value = target.value.toUpperCase();
+        target.setSelectionRange(start, end);
+    }
+});
+
+
+
 </script>
 
 </body>

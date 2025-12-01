@@ -34,8 +34,16 @@
   <h2>Hotel Premier - Dar de Alta Huésped</h2>
 
   <!-- MENSAJES DE CONFIRMACIÓN O ERROR -->
-  <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
-  <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+<!-- Mensajes de error en lista -->
+<div th:if="${errorList}" class="alert alert-danger">
+  <strong>ERROR!</strong>
+  <ul>
+    <li th:each="err : ${errorList}" th:text="${err}"></li>
+  </ul>
+</div>
+
+<!-- Mensajes de éxito -->
+<div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
 
   <!-- FORMULARIO PRINCIPAL -->
   <form th:action="@{/huespedes/guardar}" method="post" th:object="${huesped}">
@@ -116,19 +124,15 @@
     <div class="botones">
       <button type="submit">Siguiente</button>
       <button type="reset">Borrar</button>
-            <button type="button" onclick="confirmarCancelacion()">Cancelar</button>
+      <form th:action="@{/huespedes/cancelar}" method="get" style="display:inline">
+          <button type="submit">Cancelar</button>
+      </form>
     </div>
   </form>
 
 
 <script>
-    function confirmarCancelacion() {
-        const confirmar = confirm("¿Desea cancelar el alta del huésped?");        if (confirmar) {
-           
-            window.location.href = "/huespedes/nuevo"; 
-        } 
-       
-    }
+
 
     document.addEventListener("DOMContentLoaded", function() {
        document.querySelectorAll('input[type="text"], input[type="email"], textarea')
@@ -138,6 +142,14 @@
           });
         });
     });
+</script>
+<script th:inline="javascript">
+  var focusField = /*[[${focusField} != null ? '${focusField}' : ''] ]*/ '';
+  if (focusField) {
+    // campo nombre en el form - ajusta selector según name en el modelo
+    var el = document.querySelector('[name="' + focusField + '"]');
+    if (el) el.focus();
+  }
 </script>
 
 

@@ -1,6 +1,8 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpSession;
 import tp.tp_disenio_2025_grupo_28.dto.ReservaRequestDTO;
-import tp.tp_disenio_2025_grupo_28.dto.ReservaResponseDTO;
 import tp.tp_disenio_2025_grupo_28.model.Usuario;
 import tp.tp_disenio_2025_grupo_28.repository.HabitacionRepository;
 import tp.tp_disenio_2025_grupo_28.service.ReservaService;
@@ -45,23 +46,39 @@ public class ReservaController {
     // Paso 8-10 del CU: recibir datos y registrar la reserva
     @PostMapping("/crear")
     public String crearReserva(@ModelAttribute ReservaRequestDTO dto, HttpSession session, Model model) {
-        Usuario usuario = (Usuario) session.getAttribute("usuario");
-        if (usuario == null) {
-            // PANTALLA EMERGENTE
-            model.addAttribute("mensaje", "Debe iniciar sesión antes de reservar.");
-            return "emergentes/error";
+        // Usuario usuario = (Usuario) session.getAttribute("usuario");
+        List<String> errores = new ArrayList<>();
+
+        if (dto.getApellido() == null || dto.getApellido().isBlank()) {
+            errores.add("Debe ingresar el Apellido.");
+        }
+
+        if (dto.getNombre() == null || dto.getNombre().isBlank()) {
+            errores.add("Debe ingresar el Nombre.");
+        }
+
+        if (dto.getTelefono() == null || dto.getTelefono().isBlank()) {
+            errores.add("Debe ingresar el Teléfono.");
+        }
+        // Si hay errores → volver al formulario
+        if (!errores.isEmpty()) {
+            model.addAttribute("errores", errores);
+            model.addAttribute("dto", dto); // Mantiene datos cargados
+            return "reserva/nueva-reserva"; // Vuelve al punto 8 del CU
         }
         try {
-            ReservaResponseDTO respuesta = reservaService.reservar(dto, usuario);
-            model.addAttribute("titulo", "RESERVA CREADA CON EXITO");
-            model.addAttribute("mensaje", "Reserva creada con ID: " + respuesta.getIdReserva());
-            model.addAttribute("accionAceptar", "/");
-            return "emergentes/exito";
-        } catch (RuntimeException ex) {
-            model.addAttribute("mensaje", ex.getMessage());
-            model.addAttribute("accionAceptar", "/reserva/nueva");
-            return "emergentes/error"; // Emergente genérica
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
+            reservaService.reservar(dto, usuario);
 
+            model.addAttribute("titulo", "Reserva exitosa");
+            model.addAttribute("mensaje", "La reserva fue creada correctamente.");
+            model.addAttribute("redirect", "/habitacion");
+
+            return "emergentes/exito";
+        } catch (RuntimeException e) {
+            model.addAttribute("mensaje", e.getMessage());
+            model.addAttribute("redirect", "/habitacion");
+            return "emergentes/error";
         }
 
     }

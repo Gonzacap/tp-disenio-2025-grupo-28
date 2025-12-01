@@ -1,7 +1,10 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -108,15 +111,25 @@ public class HuespedWebController {
         }
 
         // regla del CU
-        if ("RESPONSABLE_INSCRIPTO".equals(huesped.getPosicionFrenteAlIva())
-                && esVacio(huesped.getCuit())) {
+        if (huesped.getPosicionFrenteAlIva() != null && huesped.getPosicionFrenteAlIva().toString().equals("RESPONSABLE_INSCRIPTO") && esVacio(huesped.getCuit())) {
             errores.append("Debe ingresar CUIT porque es Responsable Inscripto.\n");
         }
 
-        // Si hay errores → emergente ERROR
+        // Si hay errores S
         if (errores.length() > 0) {
-            model.addAttribute("mensaje", errores.toString());
-            return "emergentes/error";
+
+            List<String> listaErrores = Arrays.stream(errores.toString().split("\\r?\\n"))
+                    .filter(s -> !s.isBlank())
+                    .collect(Collectors.toList());
+
+            model.addAttribute("errorList", listaErrores);
+            model.addAttribute("huesped", huesped);
+            model.addAttribute("tiposDocumento", TipoDocumento.values());
+            model.addAttribute("paises", paisRepository.findAll());
+            model.addAttribute("provincias", provinciaRepository.findAll());
+            model.addAttribute("localidades", localidadRepository.findAll());
+
+            return "huesped/huesped-form";   // ← volver al formulario
         }
         // 2.B – CHEQUEAR DUPLICADO (se hace aparte)
 
@@ -137,9 +150,9 @@ public class HuespedWebController {
             model.addAttribute("titulo", "¡CUIDADO!");
             model.addAttribute("mensaje", "El tipo y número de documento ya existen en el sistema.");
             model.addAttribute("accionAceptar", "/huespedes/forzar-guardar");
-            model.addAttribute("accionCancelar", "/huespedes/nuevo");
-
+            model.addAttribute("accionCorregir", "/huespedes/corregir");      // corregir → POST que devuelve form
             model.addAttribute("objeto", huesped);
+            model.addAttribute("focusField", "tipoDocumento");
 
             return "emergentes/advertencia";
         }
@@ -171,7 +184,6 @@ public class HuespedWebController {
             return "emergentes/exito";
         } catch (Exception e) {
             model.addAttribute("mensaje", "Ocurrió un error: " + e.getMessage());
-            // opcional: loggear stacktrace en consola
             e.printStackTrace();
             return "emergentes/error";
         }
@@ -203,7 +215,7 @@ public class HuespedWebController {
         model.addAttribute("paises", paisRepository.findAll());
         model.addAttribute("provincias", provinciaRepository.findAll());
         model.addAttribute("localidades", localidadRepository.findAll());
-
+        model.addAttribute("focusField", "tipoDocumento");
         return "huesped/huesped-form";
     }
 
