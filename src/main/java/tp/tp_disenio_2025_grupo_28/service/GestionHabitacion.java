@@ -60,9 +60,9 @@ public class GestionHabitacion {
     public List<Map<String, Object>> obtenerHabitacionPorTipoMockup() {
         return Arrays.stream(TipoHabitacion.values())
                 .map(tipo -> Map.of(
-                "nombre", tipo.getNombre(),
-                "habitaciones", List.of()
-        )).collect(Collectors.toList());
+                        "nombre", tipo.getNombre(),
+                        "habitaciones", List.of()))
+                .collect(Collectors.toList());
     }
 
     public List<Habitacion> obtenerHabitaciones() {
@@ -86,8 +86,7 @@ public class GestionHabitacion {
                     // Creamos el Map para este tipo
                     return Map.<String, Object>of(
                             "nombre", tipo.getNombre(),
-                            "habitaciones", nums
-                    );
+                            "habitaciones", nums);
                 })
                 .collect(Collectors.toList());
     }
@@ -109,8 +108,7 @@ public class GestionHabitacion {
     public List<Map<String, Object>> grilla(
             List<Map<String, Object>> habitacionesPorTipo,
             List<Habitacion> habitaciones,
-            List<Date> dias
-    ) {
+            List<Date> dias) {
 
         // Traemos reservas que afectan a las habitaciones del hotel
         List<Reserva> reservas = reservaRepository.findByEstadoNot(EstadoReserva.cancelada);
@@ -160,8 +158,8 @@ public class GestionHabitacion {
                     String estado = "DISPONIBLE";
 
                     // Verificamos reservas que afecten este día
-                    List<Reserva> reservasDeEstaHab
-                            = reservasPorHabitacion.getOrDefault(h.getNumeroHabitacion(), List.of());
+                    List<Reserva> reservasDeEstaHab = reservasPorHabitacion.getOrDefault(h.getNumeroHabitacion(),
+                            List.of());
 
                     for (Reserva r : reservasDeEstaHab) {
                         boolean afecta = !dia.before(r.getFechaDesde())
@@ -177,7 +175,7 @@ public class GestionHabitacion {
                 Map<String, Object> bloqueTipo = new HashMap<>();
                 bloqueTipo.put("tipo", nombreTipo);
                 bloqueTipo.put("estados", estados);
-                bloqueTipo.put("habitaciones", numeros);  //PRUEBA: BORRAR SI NO FUNCIONA
+                bloqueTipo.put("habitaciones", numeros); // PRUEBA: BORRAR SI NO FUNCIONA
                 estadosPorTipo.add(bloqueTipo);
             }
             fila.put("estadosPorTipo", estadosPorTipo);
@@ -200,13 +198,13 @@ public class GestionHabitacion {
 
             Date rDesde = r.getFechaDesde();
             Date rHasta = r.getFechaHasta();
-            //Si las habitaciones se solapan no estan disponibles
+            // Si las habitaciones se solapan no estan disponibles
             boolean seSolapa = !(hasta.before(rDesde) || desde.after(rHasta));
             if (seSolapa) {
                 return false;
             }
         }
-        return true; //ningun choque, esta disponible
+        return true; // ningun choque, esta disponible
 
     }
 
@@ -232,7 +230,7 @@ public class GestionHabitacion {
         return noDisp;
     }
 
-    //funciones del caso de uso 15
+    // funciones del caso de uso 15
     public void ocuparHabitacion(Integer idReserva, OcupacionRequestDTO request, OcupacionHuespedDTO huespedes) {
 
         validarFecha(request.getFechaDesde(), request.getFechaHasta());
@@ -250,8 +248,7 @@ public class GestionHabitacion {
         boolean disponible = estadoPeriodoService.estaDisponible(
                 request.getNumeroHabitacion(),
                 request.getFechaDesde(),
-                request.getFechaHasta()
-        );
+                request.getFechaHasta());
 
         if (!disponible) {
             throw new IllegalStateException("La habitación ya está ocupada/reservada en ese periodo.");
@@ -261,7 +258,7 @@ public class GestionHabitacion {
         EstadoHabitacionPeriodo periodo = OcupacionMapper.toPeriodo(request);
         estadoPeriodoRepository.save(periodo);
 
-        //GUARDAR LOS OCUPANTES SELECCIONADOS
+        // GUARDAR LOS OCUPANTES SELECCIONADOS
         List<PersonaFisica> ocupantes = new ArrayList<>();
 
         PersonaFisica responsable = reservaRepository.buscarPersonaFisicaPorId(huespedes.getIdHuesped());
@@ -300,7 +297,7 @@ public class GestionHabitacion {
                 }).toList();
     }
 
-    //Grilla
+    // Grilla
     public EstadoHabitacion obtenerEstadoEnFecha(Integer numeroHabitacion, Date fecha) {
 
         List<EstadoHabitacionPeriodo> periodos = buscarOcupacionesPorHabitacionYFecha(numeroHabitacion, fecha);
@@ -377,7 +374,9 @@ public class GestionHabitacion {
         return datos;
     }
 
-    public List<PersonaFisica> buscarOcupantes(String nombre, String apellido, TipoDocumento tipoDocumento, String numeroDocumento) {
+    public List<PersonaFisica> buscarOcupantes(String nombre, String apellido, TipoDocumento tipoDocumento,
+            String numeroDocumento) {
         return huespedRepository.buscarHuespedes(nombre, apellido, tipoDocumento, numeroDocumento);
     }
+
 }

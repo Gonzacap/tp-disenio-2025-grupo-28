@@ -2,8 +2,10 @@ package tp.tp_disenio_2025_grupo_28.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,14 +56,14 @@ public class GestionHuesped {
         // Verificar duplicados
         Optional<Huesped> existente = huespedRepository.findByTipoDocumentoAndDocumento(
                 nuevoHuesped.getTipoDocumento(),
-                nuevoHuesped.getDocumento()
-        );
+                nuevoHuesped.getDocumento());
 
         if (existente.isPresent()) {
             throw new DuplicateKeyException("El huésped con ese documento ya existe");
         }
 
-        // Pais pais = paisRepository.save(nuevoHuesped.getDireccion().getLocalidad().getProvincia().getPais());
+        // Pais pais =
+        // paisRepository.save(nuevoHuesped.getDireccion().getLocalidad().getProvincia().getPais());
         Pais paisHuesped = nuevoHuesped.getDireccion().getLocalidad().getProvincia().getPais();
         Optional<Pais> paisExistente = paisRepository.findByNombre(paisHuesped.getNombre());
 
@@ -184,8 +186,7 @@ public class GestionHuesped {
         // Verificar duplicados
         Optional<Huesped> existente = huespedRepository.findByTipoDocumentoAndDocumento(
                 nuevoHuesped.getTipoDocumento(),
-                nuevoHuesped.getDocumento()
-        );
+                nuevoHuesped.getDocumento());
 
         if (existente.isPresent()) {
             throw new DuplicateKeyException("El huésped con ese documento ya existe");
@@ -208,4 +209,60 @@ public class GestionHuesped {
         huespedRepository.save(h);
     }
 
+    // cu 2
+
+    public List<Huesped> buscarHuespedFinal(
+            String apellido,
+            String nombre,
+            TipoDocumento tipoDocumento,
+            String documento) {
+
+        List<Huesped> candidatos = new ArrayList<>();
+
+        if (documento != null && !documento.isBlank()) {
+
+            if (tipoDocumento != null) {
+                candidatos.addAll(
+                        huespedRepository.findAllByTipoDocumentoAndDocumento(tipoDocumento, documento));
+            } else {
+                Huesped h = huespedRepository.findFirstByDocumento(documento);
+                if (h != null)
+                    candidatos.add(h);
+            }
+
+        } else {
+
+            if (apellido != null && !apellido.isBlank()) {
+                candidatos.addAll(huespedRepository.findByApellidoContainingIgnoreCase(apellido));
+            }
+
+            if (nombre != null && !nombre.isBlank()) {
+                candidatos.addAll(huespedRepository.findByNombreContainingIgnoreCase(nombre));
+            }
+
+            if (tipoDocumento != null) {
+                candidatos.addAll(huespedRepository.findAllByTipoDocumento(tipoDocumento));
+            }
+        }
+
+        if (candidatos.isEmpty()) {
+            return candidatos;
+        }
+
+        return candidatos.stream()
+                .filter(h -> apellido == null || apellido.isBlank()
+                        || h.getApellido().toLowerCase().contains(apellido.toLowerCase()))
+                .filter(h -> nombre == null || nombre.isBlank()
+                        || h.getNombre().toLowerCase().contains(nombre.toLowerCase()))
+                .filter(h -> tipoDocumento == null
+                        || h.getTipoDocumento() == tipoDocumento)
+                .filter(h -> documento == null || documento.isBlank()
+                        || h.getDocumento().equals(documento))
+                .distinct()
+                .toList();
+    }
+
+    public Huesped buscarUnicoPorDocumento(String documento) {
+        return huespedRepository.findFirstByDocumento(documento);
+    }
 }

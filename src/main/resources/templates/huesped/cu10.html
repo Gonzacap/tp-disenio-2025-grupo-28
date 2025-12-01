@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Modificar Huésped (CU10)</title>
+</head>
+<body>
+    <h1>CU10 – Modificar Huésped</h1>
+
+    <p>Aquí se ejecutaría el caso de uso 10: Modificar huésped.</p>
+
+    <h3>Datos seleccionados:</h3>
+    <ul>
+        <li><strong>Nombre:</strong> <span th:text="${huesped.nombre}"></span></li>
+        <li><strong>Apellido:</strong> <span th:text="${huesped.apellido}"></span></li>
+        <li><strong>Documento:</strong> <span th:text="${huesped.documento}"></span></li>
+        <li><strong>Tipo Documento:</strong> <span th:text="${huesped.tipoDocumento}"></span></li>
+    </ul>
+
+    <a href="/">Volver al inicio</a>
+</body>
+</html>

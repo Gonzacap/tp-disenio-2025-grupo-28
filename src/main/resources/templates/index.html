@@ -101,6 +101,7 @@
 </head>
 <body>
 
+
 <div class="container">
     <h1>Hotel Premier</h1>
 
@@ -141,7 +142,7 @@
         <!-- SECCION HUESPED -->
         <div class="section-box">
             <h3>Huéspedes</h3>
-            <a href="/huespedes/buscar"> <button>BUSCAR HUESPED </button>  </a>
+           <a href="/huespedes/buscar"><button>BUSCAR HUESPED</button></a>
             <a href="/huespedes/nuevo"><button>DAR ALTA HUESPED</button></a>
         </div>
 
@@ -152,6 +153,16 @@
             <button onclick="maintenance()">INGRESAR NOTA CRÉDITO</button>
             <button onclick="maintenance()">INGRESAR PAGO</button> 
         </div>
+    </div> 
+
+
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+      <p th:text="${errorMessage}">Validation Error Message</p>
+    </div>
+
+
+    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <p th:text="${successMessage}">Success Message</p>
 
     </div>
 </div>
@@ -176,3 +187,5 @@
 
 </body>
 </html>
+
+

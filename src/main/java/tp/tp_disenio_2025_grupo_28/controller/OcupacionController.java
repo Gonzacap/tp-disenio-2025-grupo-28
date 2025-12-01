@@ -63,11 +63,13 @@ public class OcupacionController {
                     model.addAttribute("error", "Tipo de documento inválido.");
                 }
             }
-            List<PersonaFisica> resultados
-                    = gestionHabitacion.buscarOcupantes(nombre, apellido, tipoDocEnum,
-                            numeroDocumento != null && !numeroDocumento.isBlank()
-                            ? Integer.parseInt(numeroDocumento) : null);
-            model.addAttribute("resultados", resultados);
+            /*
+             * List<PersonaFisica> resultados
+             * = gestionHabitacion.buscarOcupantes(nombre, apellido, tipoDocEnum,
+             * numeroDocumento != null && !numeroDocumento.isBlank()
+             * ? Integer.parseInt(numeroDocumento) : null);
+             * model.addAttribute("resultados", resultados);
+             */
         }
 
         return "ocuparHabitacion/buscar";
@@ -147,10 +149,9 @@ public class OcupacionController {
             return "ocuparHabitacion/resumen";
         }
 
-        //Recuperamos datos desde GestionHabitacion
+        // Recuperamos datos desde GestionHabitacion
         Object responsable = gestionHabitacion.obtenerResponsableReserva(reservaId);
-        List<PersonaFisica> ocupantes
-                = gestionHabitacion.obtenerOcupantesAsignados(reservaId, numeroHabitacion);
+        List<PersonaFisica> ocupantes = gestionHabitacion.obtenerOcupantesAsignados(reservaId, numeroHabitacion);
 
         Integer lugares = gestionHabitacion.calcularLugaresDisponibles(numeroHabitacion, reservaId);
 

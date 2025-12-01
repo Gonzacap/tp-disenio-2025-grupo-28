@@ -15,22 +15,40 @@ import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 @Repository
 public interface HuespedRepository extends JpaRepository<Huesped, Integer> {
 
-    Optional<Huesped> findByTipoDocumentoAndDocumento(TipoDocumento tipo, String documento);
+        Optional<Huesped> findByTipoDocumentoAndDocumento(TipoDocumento tipo, String documento);
 
-    // NUEVO: búsqueda dinámica para CU15
-    @Query("""
-        SELECT pf 
-        FROM PersonaFisica pf
-        JOIN Huesped h ON h.personaFisica.id = pf.id
-        WHERE (:nombre IS NULL OR LOWER(pf.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')))
-          AND (:apellido IS NULL OR LOWER(pf.apellido) LIKE LOWER(CONCAT('%', :apellido, '%')))
-          AND (:tipoDocumento IS NULL OR pf.tipoDocumento = :tipoDocumento)
-          AND (:numeroDocumento IS NULL OR pf.documento = :numeroDocumento)
-    """)
-    List<PersonaFisica> buscarHuespedes(
-            @Param("nombre") String nombre,
-            @Param("apellido") String apellido,
-            @Param("tipoDocumento") TipoDocumento tipoDocumento,
-            @Param("numeroDocumento") String numeroDocumento
-    );
+        // NUEVO: búsqueda dinámica para CU15
+        /*
+         * @Query("""
+         * SELECT pf
+         * FROM PersonaFisica pf
+         * JOIN Huesped h ON h.personaFisica.id = pf.id
+         * WHERE (:nombre IS NULL OR LOWER(pf.nombre) LIKE LOWER(CONCAT('%', :nombre,
+         * '%')))
+         * AND (:apellido IS NULL OR LOWER(pf.apellido) LIKE LOWER(CONCAT('%',
+         * :apellido, '%')))
+         * AND (:tipoDocumento IS NULL OR pf.tipoDocumento = :tipoDocumento)
+         * AND (:numeroDocumento IS NULL OR pf.documento = :numeroDocumento)
+         * """)
+         */
+        List<PersonaFisica> buscarHuespedes(
+                        @Param("nombre") String nombre,
+                        @Param("apellido") String apellido,
+                        @Param("tipoDocumento") TipoDocumento tipoDocumento,
+                        @Param("numeroDocumento") String numeroDocumento);
+
+        List<Huesped> findAllByTipoDocumentoAndDocumento(TipoDocumento tipoDocumento, String documento);
+
+        List<Huesped> findByApellidoContainingIgnoreCase(String apellido);
+
+        List<Huesped> findByNombreContainingIgnoreCase(String nombre);
+
+        List<Huesped> findByDocumento(String documento);
+
+        List<Huesped> findByEmailContainingIgnoreCase(String email);
+
+        Huesped findFirstByDocumento(String documento);
+
+        List<Huesped> findAllByTipoDocumento(TipoDocumento tipoDocumento);
+
 }
