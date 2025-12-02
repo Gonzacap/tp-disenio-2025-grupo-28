@@ -39,7 +39,8 @@
                 <td th:text="${p.nombre}">Nombre</td>
                 <td th:text="${p.apellido}">Apellido</td>
                 <td th:text="${p.tipoDocumento}">DNI</td>
-                <td th:text="${p.numeroDocumento}">00000000</td>
+                <td th:text="${p.documento}">00000000</td>
+
               </tr>
               <tr th:if="${ocupantes == null || #lists.isEmpty(ocupantes)}">
                 <td colspan="4">No hay ocupantes asignados.</td>

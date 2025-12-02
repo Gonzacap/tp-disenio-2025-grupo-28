@@ -89,15 +89,18 @@
             </thead>
 
             <tbody>
-            <tr th:each="p : ${resultados}">
-                <!--<td><input type="checkbox" name="seleccionados" th:value="${p.id}"/></td>-->
-                <td <input type="checkbox" name="seleccionados" th:value="${p.cuit}"/> </td>
-                <td th:text="${p.nombre}">Nombre</td>
-                <td th:text="${p.apellido}">Apellido</td>
-                <td th:text="${p.tipoDocumento}">DNI</td>
-                <td th:text="${p.numeroDocumento}">00000000</td>
-                <td th:text="${p.tipoRelacion}">HUESPED/ACOMP</td>
-            </tr>
+<tr th:each="p : ${resultados}">
+    <td>
+        <input type="checkbox" name="seleccionados" th:value="${p.cuit}"/>
+    </td>
+
+    <td th:text="${p.nombre}">Nombre</td>
+    <td th:text="${p.apellido}">Apellido</td>
+    <td th:text="${p.tipoDocumento}">DNI</td>
+    <td th:text="${p.documento}">00000000</td>
+    <td>HUESPED</td>
+</tr>
+
 
             <tr th:if="${resultados == null || #lists.isEmpty(resultados)}">
                 <td colspan="6">No se encontraron resultados.</td>

@@ -268,7 +268,7 @@ public class GestionHabitacion {
 
         // 5) CREAR ESTADÍA REAL (check-in)
         Time horaAhora = new Time(System.currentTimeMillis());
-        Estadia estadia = estadiaService.crearDesdeReserva(reserva, request.getFechaDesde(),horaAhora);
+        Estadia estadia = estadiaService.crearDesdeReserva(reserva, request.getFechaDesde(), horaAhora);
         // 6) Registrar ocupantes en memoria (para resumen)
         String key = idReserva + "_" + request.getNumeroHabitacion();
         List<PersonaFisica> lista = new ArrayList<>();
@@ -279,7 +279,7 @@ public class GestionHabitacion {
         lista.add(responsable);
 
         if (huespedes.getIdAcompanantes() != null) {
-            for (Integer idAc : huespedes.getIdAcompanantes()) {
+            for (String idAc : huespedes.getIdAcompanantes()) {
                 PersonaFisica acomp = personaFisicaRepository
                         .findById(idAc)
                         .orElseThrow(() -> new IllegalArgumentException("Acompañante no encontrado"));
@@ -310,20 +310,17 @@ public class GestionHabitacion {
                 });
     }
 
-public Integer buscarReservaParaOcupar(Integer numeroHabitacion, Date desde, Date hasta) {
+    public Integer buscarReservaParaOcupar(Integer numeroHabitacion, Date desde, Date hasta) {
 
-    List<Reserva> reservas = reservaRepository.findByHabitacion(numeroHabitacion);
+        List<Reserva> reservas = reservaRepository.findByHabitacion(numeroHabitacion);
 
-    for (Reserva r : reservas) {
-        boolean solapa = !(hasta.before(r.getFechaDesde()) || desde.after(r.getFechaHasta()));
-        if (solapa) {
-            return r.getIdReserva();   // ← ← ← id_reserva real
+        for (Reserva r : reservas) {
+            boolean solapa = !(hasta.before(r.getFechaDesde()) || desde.after(r.getFechaHasta()));
+            if (solapa) {
+                return r.getIdReserva();   // ← ← ← id_reserva real
+            }
         }
+        return null; // no hay reserva → ocupar sin reserva
     }
-    return null; // no hay reserva → ocupar sin reserva
-}
-
-
-
 
 }

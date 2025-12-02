@@ -33,7 +33,7 @@ public class OcupacionController {
     private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
     // 1) MOSTRAR BUSCADOR CU02
-    @GetMapping("/buscar")
+    /*  @GetMapping("/buscar")
     public String mostrarBuscar(
             @RequestParam Integer numero_habitacion,
             @RequestParam Integer reservaId,
@@ -46,6 +46,30 @@ public class OcupacionController {
         model.addAttribute("fechaDesde", fechaDesde);
         model.addAttribute("fechaHasta", fechaHasta);
         model.addAttribute("tiposDocumento", TipoDocumento.values());
+
+        return "ocuparHabitacion/buscar";
+    }*/
+    @GetMapping("/buscar")
+    public String mostrarBuscar(
+            @RequestParam Integer numero_habitacion,
+            @RequestParam Integer reservaId,
+            @RequestParam String fechaDesde,
+            @RequestParam String fechaHasta,
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String apellido,
+            @RequestParam(required = false) String tipoDocumento,
+            @RequestParam(required = false) String numeroDocumento,
+            Model model) {
+
+        model.addAttribute("numero_habitacion", numero_habitacion);
+        model.addAttribute("reservaId", reservaId);
+        model.addAttribute("fechaDesde", fechaDesde);
+        model.addAttribute("fechaHasta", fechaHasta);
+
+        model.addAttribute("nombre", nombre);
+        model.addAttribute("apellido", apellido);
+        model.addAttribute("tipoDocumento", tipoDocumento);
+        model.addAttribute("numeroDocumento", numeroDocumento);
 
         return "ocuparHabitacion/buscar";
     }
@@ -67,7 +91,11 @@ public class OcupacionController {
         if (tipoDocumento != null && !tipoDocumento.isEmpty()) {
             try {
                 tipoDocEnum = TipoDocumento.valueOf(tipoDocumento);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+
+                model.addAttribute("mensaje", "Ocurrió un error: " + e.getMessage());
+                e.printStackTrace();
+                return "emergentes/error";
             }
         }
 
@@ -126,7 +154,7 @@ public class OcupacionController {
     // 3) SELECCIONAR RESPONSABLE + ACOMPAÑANTES
     @PostMapping("/seleccionar")
     public String seleccionarOcupantes(
-            @RequestParam(required = false) List<Integer> seleccionados,
+            @RequestParam(required = false) List<String> seleccionados,
             @RequestParam Integer numero_habitacion,
             @RequestParam Integer reservaId,
             @RequestParam String fechaDesde,
@@ -148,12 +176,9 @@ public class OcupacionController {
         }
 
         OcupacionHuespedDTO dto = new OcupacionHuespedDTO();
-        dto.setIdHuesped(seleccionados.get(0));                 // Responsable
-        dto.setIdAcompanantes(
-                seleccionados.size() > 1
-                ? seleccionados.subList(1, seleccionados.size())
-                : List.of()
-        );
+
+        dto.setIdHuesped(seleccionados.get(0));
+        dto.setIdAcompanantes(seleccionados.subList(1, seleccionados.size()));
 
         // REQUEST DTO
         OcupacionRequestDTO req = new OcupacionRequestDTO();
