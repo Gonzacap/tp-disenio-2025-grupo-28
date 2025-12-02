@@ -115,6 +115,53 @@
 </div>
 
 <div style="margin-top:10px;color:red;" th:if="${error}" th:text="${error}"></div>
+<!-- MODAL DE SOLAPAMIENTO -->
+<div id="modal-maintenance">
+    <div id="modal-box">
+        <div class="modal-content">
+
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">⚠ Reserva Solapada</h5>
+            </div>
+
+            <div class="modal-body">
+                <p style="font-size:16px;" th:text="${error}">Ya existe una reserva en ese rango de fechas</p>
+            </div>
+
+            <div class="modal-footer">
+                <!-- CANCELAR -->
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <!-- OCUPAR IGUAL -->
+                <form action="/ocupacion/forzar" method="post">
+                    <input type="hidden" name="numero_habitacion" th:value="${numero_habitacion}">
+                    <input type="hidden" name="reservaId" th:value="${reservaId}">
+                    <input type="hidden" name="fechaDesde" th:value="${fechaDesde}">
+                    <input type="hidden" name="fechaHasta" th:value="${fechaHasta}">
+                    <button type="submit" class="btn btn-danger">Ocupar Igualmente</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Script para abrir el modal automáticamente -->
+
+<script th:if="${error}">
+     var modal = new bootstrap.Modal(document.getElementById('modalSolapamiento'));
+    modal.show();
+    function maintenance() {
+        document.getElementById("modal-maintenance").style.display = "flex";
+    }
+    function closeModal() {
+        document.getElementById("modal-maintenance").style.display = "none";
+    }
+</script>
+
+
 
 </body>
 </html>

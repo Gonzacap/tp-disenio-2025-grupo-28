@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import tp.tp_disenio_2025_grupo_28.dto.OcupacionHuespedDTO;
 import tp.tp_disenio_2025_grupo_28.dto.OcupacionRequestDTO;
@@ -159,28 +158,26 @@ public class OcupacionController {
             @RequestParam Integer reservaId,
             @RequestParam String fechaDesde,
             @RequestParam String fechaHasta,
-            RedirectAttributes redirectAttributes) {
+            Model model) {
 
-        // Validación CU15 punto 8.A
+        // --- CU15 8.A: Validación de selección ---
         if (seleccionados == null || seleccionados.isEmpty()) {
-            redirectAttributes.addFlashAttribute(
-                    "error",
-                    "Debe seleccionar al menos un huésped (CU15 paso 8.A)"
-            );
+            model.addAttribute("error", "Debe seleccionar al menos un huésped (CU15 paso 8.A)");
 
-            return "redirect:/ocupacion/buscar?numero_habitacion="
-                    + numero_habitacion
-                    + "&reservaId=" + reservaId
-                    + "&fechaDesde=" + fechaDesde
-                    + "&fechaHasta=" + fechaHasta;
+            // Para que los filtros, fechas y resultados sigan estando visibles:
+            model.addAttribute("numero_habitacion", numero_habitacion);
+            model.addAttribute("reservaId", reservaId);
+            model.addAttribute("fechaDesde", fechaDesde);
+            model.addAttribute("fechaHasta", fechaHasta);
+
+            return "ocuparHabitacion/buscar";
         }
 
+        // Construir DTO
         OcupacionHuespedDTO dto = new OcupacionHuespedDTO();
-
         dto.setIdHuesped(seleccionados.get(0));
         dto.setIdAcompanantes(seleccionados.subList(1, seleccionados.size()));
 
-        // REQUEST DTO
         OcupacionRequestDTO req = new OcupacionRequestDTO();
         req.setNumeroHabitacion(numero_habitacion);
 
@@ -188,26 +185,32 @@ public class OcupacionController {
             req.setFechaDesde(df.parse(fechaDesde));
             req.setFechaHasta(df.parse(fechaHasta));
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Fecha inválida.");
-            return "redirect:/ocupacion/buscar";
+            model.addAttribute("error", "Fecha inválida.");
+            return "ocuparHabitacion/buscar";
         }
 
         try {
             gestionHabitacion.ocuparHabitacion(reservaId, req, dto);
-        } catch (Exception ex) {
-            redirectAttributes.addFlashAttribute("error", ex.getMessage());
-            return "redirect:/ocupacion/buscar?numero_habitacion="
+
+            // Si no explota → no había solapamiento
+            return "redirect:/ocupacion/resumen?numero_habitacion="
                     + numero_habitacion
                     + "&reservaId=" + reservaId
                     + "&fechaDesde=" + fechaDesde
                     + "&fechaHasta=" + fechaHasta;
-        }
 
-        return "redirect:/ocupacion/resumen?numero_habitacion="
-                + numero_habitacion
-                + "&reservaId=" + reservaId
-                + "&fechaDesde=" + fechaDesde
-                + "&fechaHasta=" + fechaHasta;
+        } catch (Exception ex) {
+
+            // --- CU15 8.B → RESERVA SOLAPADA → MOSTRAR MODAL ---
+            model.addAttribute("error", ex.getMessage());
+
+            model.addAttribute("numero_habitacion", numero_habitacion);
+            model.addAttribute("reservaId", reservaId);
+            model.addAttribute("fechaDesde", fechaDesde);
+            model.addAttribute("fechaHasta", fechaHasta);
+
+            return "ocuparHabitacion/buscar"; // <-- NO redirect
+        }
     }
 
     // 4) RESUMEN FINAL
@@ -230,4 +233,31 @@ public class OcupacionController {
 
         return "ocuparHabitacion/resumen";
     }
+
+    @PostMapping("/ocupacion/forzar")
+    public String ocuparIgualmente(
+            @RequestParam Integer numero_habitacion,
+            @RequestParam Integer reservaId,
+            @RequestParam String fechaDesde,
+            @RequestParam String fechaHasta) {
+
+        OcupacionRequestDTO req = new OcupacionRequestDTO();
+        req.setNumeroHabitacion(numero_habitacion);
+
+        try {
+            req.setFechaDesde(df.parse(fechaDesde));
+            req.setFechaHasta(df.parse(fechaHasta));
+        } catch (Exception e) {
+            return "redirect:/ocupacion/buscar?numero_habitacion=" + numero_habitacion;
+        }
+
+        gestionHabitacion.ocuparHabitacion(reservaId, req, null);
+
+        return "redirect:/ocupacion/resumen?numero_habitacion="
+                + numero_habitacion
+                + "&reservaId=" + reservaId
+                + "&fechaDesde=" + fechaDesde
+                + "&fechaHasta=" + fechaHasta;
+    }
+
 }

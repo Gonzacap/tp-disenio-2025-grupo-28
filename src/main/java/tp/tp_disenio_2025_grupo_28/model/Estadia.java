@@ -1,9 +1,23 @@
 package tp.tp_disenio_2025_grupo_28.model;
 
 import java.sql.Time;
-import java.util.*;
+import java.util.Date;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoEstadia;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoEstadia;
 
@@ -33,7 +47,8 @@ public class Estadia {
 
     // ----- Estado -----
     @Enumerated(EnumType.STRING)
-    @Column(name = "estadoEstadia")
+    //@Column(name = "estadoEstadia")
+    @Column(name = "estado_estadia")
     private EstadoEstadia estado;
 
     @Enumerated(EnumType.STRING)

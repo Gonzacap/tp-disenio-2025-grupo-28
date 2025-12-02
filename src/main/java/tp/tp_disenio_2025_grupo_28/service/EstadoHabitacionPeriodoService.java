@@ -16,8 +16,8 @@ import tp.tp_disenio_2025_grupo_28.repository.EstadoHabitacionPeriodoRepository;
 @Transactional
 public class EstadoHabitacionPeriodoService {
 
-    
     private final EstadoHabitacionPeriodoRepository repo;
+
     @Autowired
     public EstadoHabitacionPeriodoService(EstadoHabitacionPeriodoRepository repo) {
         this.repo = repo;
@@ -28,7 +28,7 @@ public class EstadoHabitacionPeriodoService {
         repo.save(p);
     }
 
-    public boolean estaDisponible(Integer numeroHabitacion, Date desde, Date hasta) {
+    /*     public boolean estaDisponible(Integer numeroHabitacion, Date desde, Date hasta) {
 
         List<EstadoHabitacionPeriodo> periodos = repo.findByNumeroHabitacion(numeroHabitacion);
 
@@ -41,9 +41,30 @@ public class EstadoHabitacionPeriodoService {
             }
         }
         return true;
-    }
-//registrar como ocupada
+    }*/
+    public boolean estaDisponible(Integer nroHab, Date desde, Date hasta) {
 
+        List<EstadoHabitacionPeriodo> periodos = repo.findByNumeroHabitacion(nroHab);
+
+        for (EstadoHabitacionPeriodo p : periodos) {
+
+            boolean solapa = !(hasta.before(p.getFechaDesde()) || desde.after(p.getFechaHasta()));
+
+            if (solapa) {
+
+                if (p.getEstado() == EstadoHabitacion.ocupada) {
+                    return false; // ocupada → NO disponible
+                }
+
+                if (p.getEstado() == EstadoHabitacion.reservada) {
+                    return true; // reservada → disponible para ocupar
+                }
+            }
+        }
+        return true;
+    }
+
+//registrar como ocupada
     public EstadoHabitacionPeriodo ocupar(Integer numeroHabitacion, Date desde, Date hasta) {
         EstadoHabitacionPeriodo p = new EstadoHabitacionPeriodo();
         p.setNumeroHabitacion(numeroHabitacion);
