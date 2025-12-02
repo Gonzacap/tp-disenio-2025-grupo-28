@@ -16,9 +16,9 @@ import tp.tp_disenio_2025_grupo_28.repository.EstadoHabitacionPeriodoRepository;
 @Transactional
 public class EstadoHabitacionPeriodoService {
 
-    @Autowired
+    
     private final EstadoHabitacionPeriodoRepository repo;
-
+    @Autowired
     public EstadoHabitacionPeriodoService(EstadoHabitacionPeriodoRepository repo) {
         this.repo = repo;
     }

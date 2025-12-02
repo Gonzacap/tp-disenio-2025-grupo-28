@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Seleccionar Ocupantes - Buscar</title>
+
     <style>
-        /* estilos mínimos para aproximar maqueta */
         body { font-family: Arial, sans-serif; padding: 20px; }
         .panel { border: 1px solid #ccc; padding: 18px; border-radius: 4px; }
         .form-row { display:flex; gap:12px; align-items:center; margin-bottom:10px; }
@@ -17,87 +17,101 @@
         .btn { padding:6px 12px; border:1px solid #999; background:#eee; cursor:pointer; }
     </style>
 </head>
+
 <body>
-    <h1>Seleccionar Ocupantes - Habitación N° <span th:text="${numero_habitacion}">--</span></h1>
 
-    <div class="panel">
-        <h3>Buscar Huésped</h3>
-        <form th:action="@{/ocupacion/buscar}" method="get">
-            <input type="hidden" name="reservaId" th:value="${reservaId}"/>
-            <input type="hidden" name="numero_habitacion" th:value="${numero_habitacion}"/>
-            <input type="hidden" name="fechaDesde" th:value="${fechaDesde}"/>
-            <input type="hidden" name="fechaHasta" th:value="${fechaHasta}"/>
+<h1>Seleccionar Ocupantes - Habitación N° <span th:text="${numero_habitacion}">--</span></h1>
 
-            <div class="form-row">
-                <label>Nombre</label>
-                <input type="text" name="nombre" placeholder="NOMBRE" th:value="${nombre}"/>
-                <label>Apellido</label>
-                <input type="text" name="apellido" placeholder="APELLIDO" th:value="${apellido}"/>
-            </div>
+<div class="panel">
+    <h3>Buscar Huésped</h3>
 
-            <div class="form-row">
-                <label>Tipo Documento</label>
-                <select name="tipo_documento">
-                    <option th:selected="${tipo_documento == null}" value="">--</option>
-                    <option value="DNI" th:selected="${tipo_documento=='DNI'}">DNI</option>
-                    <option value="PAS" th:selected="${tipo_documento=='PAS'}">PAS</option>
-                    <!-- agregar más tipos si hace falta -->
-                </select>
+    <!-- FORMULARIO DE BÚSQUEDA -->
+    <form th:action="@{/ocupacion/buscar}" method="post">
 
-                <label>Número Documento</label>
-                <input type="text" name="numero_documento" placeholder="00000000" th:value="${numero_documento}"/>
-            </div>
+        <!-- DATOS OCULTOS NECESARIOS -->
+        <input type="hidden" name="reservaId" th:value="${reservaId}"/>
+        <input type="hidden" name="numero_habitacion" th:value="${numero_habitacion}"/>
+        <input type="hidden" name="fechaDesde" th:value="${fechaDesde}"/>
+        <input type="hidden" name="fechaHasta" th:value="${fechaHasta}"/>
 
-            <div class="actions">
-                <button class="btn" type="submit">Buscar</button>
-                <a th:href="@{/}" class="btn">Cancelar</a>
-            </div>
-        </form>
-    </div>
+        <div class="form-row">
+            <label>Nombre</label>
+            <input type="text" name="nombre" placeholder="NOMBRE" th:value="${nombre}"/>
 
-    <div style="height:18px;"></div>
+            <label>Apellido</label>
+            <input type="text" name="apellido" placeholder="APELLIDO" th:value="${apellido}"/>
+        </div>
 
-    <div class="panel">
-        <h3>Resultado de la búsqueda</h3>
+        <div class="form-row">
+            <label>Tipo Documento</label>
+            <select name="tipoDocumento">
+                <option value="" th:selected="${tipoDocumento == null}">--</option>
+                <option value="DNI" th:selected="${tipoDocumento=='DNI'}">DNI</option>
+                <option value="LE" th:selected="${tipoDocumento=='LE'}">LE</option>
+                <option value="LC" th:selected="${tipoDocumento=='LC'}">LC</option>
+                <option value="Pasaporte" th:selected="${tipoDocumento=='Pasaporte'}">Pasaporte</option>
+            </select>
 
-        <form th:action="@{/ocupacion/seleccionar}" method="post">
-            <input type="hidden" name="reservaId" th:value="${reservaId}"/>
-            <input type="hidden" name="numero_habitacion" th:value="${numero_habitacion}"/>
-            <input type="hidden" name="fechaDesde" th:value="${fechaDesde}"/>
-            <input type="hidden" name="fechaHasta" th:value="${fechaHasta}"/>
+            <label>N° Documento</label>
+            <input type="text" name="numeroDocumento" placeholder="00000000" th:value="${numeroDocumento}"/>
+        </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width:40px;"></th>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
-                        <th>Tipo de documento</th>
-                        <th>Número de documento</th>
-                        <th>Tipo</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="p : ${resultados}">
-                        <td><input type="checkbox" name="seleccionados" th:value="${p.id}"/></td>
-                        <td th:text="${p.nombre}">Nombre</td>
-                        <td th:text="${p.apellido}">Apellido</td>
-                        <td th:text="${p.tipoDocumento}">DNI</td>
-                        <td th:text="${p.numeroDocumento}">00000000</td>
-                        <td th:text="${p.tipoRelacion}">HUESPED/ACOMP</td>
-                    </tr>
-                    <tr th:if="${resultados == null || #lists.isEmpty(resultados)}">
-                        <td colspan="6">No se encontraron resultados.</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="actions">
+            <button class="btn" type="submit">Buscar</button>
+            <a th:href="@{/}" class="btn">Cancelar</a>
+        </div>
+    </form>
+</div>
 
-            <div class="actions" style="margin-top:10px;">
-                <button class="btn" type="submit">Aceptar</button>
-            </div>
-        </form>
-    </div>
+<div style="height:18px;"></div>
 
-    <div style="margin-top:10px;color:red;" th:if="${error}" th:text="${error}"></div>
+<div class="panel">
+    <h3>Resultado de la búsqueda</h3>
+
+    <form th:action="@{/ocupacion/seleccionar}" method="post">
+
+        <!-- CAMPOS OCULTOS NECESARIOS PARA EL PASO SIGUIENTE -->
+        <input type="hidden" name="reservaId" th:value="${reservaId}"/>
+        <input type="hidden" name="numero_habitacion" th:value="${numero_habitacion}"/>
+        <input type="hidden" name="fechaDesde" th:value="${fechaDesde}"/>
+        <input type="hidden" name="fechaHasta" th:value="${fechaHasta}"/>
+
+        <table>
+            <thead>
+            <tr>
+                <th style="width:40px;"></th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Tipo Documento</th>
+                <th>Número Documento</th>
+                <th>Tipo</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="p : ${resultados}">
+                <!--<td><input type="checkbox" name="seleccionados" th:value="${p.id}"/></td>-->
+                <td <input type="checkbox" name="seleccionados" th:value="${p.cuit}"/> </td>
+                <td th:text="${p.nombre}">Nombre</td>
+                <td th:text="${p.apellido}">Apellido</td>
+                <td th:text="${p.tipoDocumento}">DNI</td>
+                <td th:text="${p.numeroDocumento}">00000000</td>
+                <td th:text="${p.tipoRelacion}">HUESPED/ACOMP</td>
+            </tr>
+
+            <tr th:if="${resultados == null || #lists.isEmpty(resultados)}">
+                <td colspan="6">No se encontraron resultados.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="actions" style="margin-top:10px;">
+            <button class="btn" type="submit">Aceptar</button>
+        </div>
+    </form>
+</div>
+
+<div style="margin-top:10px;color:red;" th:if="${error}" th:text="${error}"></div>
+
 </body>
 </html>

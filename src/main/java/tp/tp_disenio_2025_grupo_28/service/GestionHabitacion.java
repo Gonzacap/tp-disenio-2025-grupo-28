@@ -268,7 +268,7 @@ public class GestionHabitacion {
 
         // 5) CREAR ESTADÍA REAL (check-in)
         Time horaAhora = new Time(System.currentTimeMillis());
-        Estadia estadia = estadiaService.crearDesdeReserva( reserva, request.getFechaDesde(),horaAhora);
+        Estadia estadia = estadiaService.crearDesdeReserva(reserva, request.getFechaDesde(),horaAhora);
         // 6) Registrar ocupantes en memoria (para resumen)
         String key = idReserva + "_" + request.getNumeroHabitacion();
         List<PersonaFisica> lista = new ArrayList<>();
@@ -309,4 +309,21 @@ public class GestionHabitacion {
                     return solapa && p.getEstado() != EstadoHabitacion.disponible;
                 });
     }
+
+public Integer buscarReservaParaOcupar(Integer numeroHabitacion, Date desde, Date hasta) {
+
+    List<Reserva> reservas = reservaRepository.findByHabitacion(numeroHabitacion);
+
+    for (Reserva r : reservas) {
+        boolean solapa = !(hasta.before(r.getFechaDesde()) || desde.after(r.getFechaHasta()));
+        if (solapa) {
+            return r.getIdReserva();   // ← ← ← id_reserva real
+        }
+    }
+    return null; // no hay reserva → ocupar sin reserva
+}
+
+
+
+
 }
