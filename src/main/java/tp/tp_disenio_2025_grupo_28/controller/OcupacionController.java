@@ -31,23 +31,7 @@ public class OcupacionController {
 
     private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
-    // 1) MOSTRAR BUSCADOR CU02
-    /*  @GetMapping("/buscar")
-    public String mostrarBuscar(
-            @RequestParam Integer numero_habitacion,
-            @RequestParam Integer reservaId,
-            @RequestParam String fechaDesde,
-            @RequestParam String fechaHasta,
-            Model model) {
-
-        model.addAttribute("numero_habitacion", numero_habitacion);
-        model.addAttribute("reservaId", reservaId);
-        model.addAttribute("fechaDesde", fechaDesde);
-        model.addAttribute("fechaHasta", fechaHasta);
-        model.addAttribute("tiposDocumento", TipoDocumento.values());
-
-        return "ocuparHabitacion/buscar";
-    }*/
+    // ----------------- 1) MOSTRAR BUSCADOR -----------------
     @GetMapping("/buscar")
     public String mostrarBuscar(
             @RequestParam Integer numero_habitacion,
@@ -57,29 +41,30 @@ public class OcupacionController {
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) String apellido,
             @RequestParam(required = false) String tipoDocumento,
-            @RequestParam(required = false) String numeroDocumento,
+            @RequestParam(required = false) String documento,
+            @RequestParam(required = false) String error,
             Model model) {
 
         model.addAttribute("numero_habitacion", numero_habitacion);
         model.addAttribute("reservaId", reservaId);
         model.addAttribute("fechaDesde", fechaDesde);
         model.addAttribute("fechaHasta", fechaHasta);
-
         model.addAttribute("nombre", nombre);
         model.addAttribute("apellido", apellido);
         model.addAttribute("tipoDocumento", tipoDocumento);
-        model.addAttribute("numeroDocumento", numeroDocumento);
+        model.addAttribute("documento", documento);
+        model.addAttribute("error", error);
 
         return "ocuparHabitacion/buscar";
     }
 
-    // 2) PROCESAR BÚSQUEDA CU02
+    // ----------------- 2) PROCESAR BÚSQUEDA -----------------
     @PostMapping("/buscar")
     public String procesarBusqueda(
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) String apellido,
             @RequestParam(required = false) String tipoDocumento,
-            @RequestParam(required = false) String numeroDocumento,
+            @RequestParam(required = false) String documento,
             @RequestParam Integer numero_habitacion,
             @RequestParam Integer reservaId,
             @RequestParam String fechaDesde,
@@ -91,20 +76,14 @@ public class OcupacionController {
             try {
                 tipoDocEnum = TipoDocumento.valueOf(tipoDocumento);
             } catch (Exception e) {
-
-                model.addAttribute("mensaje", "Ocurrió un error: " + e.getMessage());
-                e.printStackTrace();
-                return "emergentes/error";
+                model.addAttribute("error", "Tipo de documento inválido.");
+                return mostrarBuscar(numero_habitacion, reservaId, fechaDesde, fechaHasta, nombre, apellido, tipoDocumento, documento, "Tipo de documento inválido", model);
             }
         }
 
-        // ← CU02 EXACTO
-        List<Huesped> resultados = gestionHuesped.buscarHuespedFinal(
-                apellido, nombre, tipoDocEnum, numeroDocumento
-        );
+        List<Huesped> resultados = gestionHuesped.buscarHuespedFinal(apellido, nombre, tipoDocEnum, documento);
 
         model.addAttribute("resultados", resultados);
-        model.addAttribute("tiposDocumento", TipoDocumento.values());
         model.addAttribute("numero_habitacion", numero_habitacion);
         model.addAttribute("reservaId", reservaId);
         model.addAttribute("fechaDesde", fechaDesde);
@@ -113,107 +92,99 @@ public class OcupacionController {
         return "ocuparHabitacion/buscar";
     }
 
-    /*  @GetMapping(value = "/buscar", params = {"nombre", "apellido", "tipoDocumento", "numeroDocumento"})
-    public String buscarGet(
-            @RequestParam(required = false) String nombre,
-            @RequestParam(required = false) String apellido,
-            @RequestParam(required = false) String tipoDocumento,
-            @RequestParam(required = false) String numeroDocumento,
-            @RequestParam Integer numero_habitacion,
-            @RequestParam Integer reservaId,
-            @RequestParam String fechaDesde,
-            @RequestParam String fechaHasta,
-            Model model) {
-
-        TipoDocumento tipoDocEnum = null;
-        if (tipoDocumento != null && !tipoDocumento.isEmpty()) {
-            try {
-                tipoDocEnum = TipoDocumento.valueOf(tipoDocumento);
-            } catch (Exception ignored) {
-            }
-
-        }
-
-        List<Huesped> resultados = gestionHuesped.buscarHuespedFinal(
-                apellido, nombre, tipoDocEnum, numeroDocumento
-        );
-
-        model.addAttribute("resultados", resultados);
-        model.addAttribute("nombre", nombre);
-        model.addAttribute("apellido", apellido);
-        model.addAttribute("tipoDocumento", tipoDocumento);
-        model.addAttribute("numeroDocumento", numeroDocumento);
-        model.addAttribute("numero_habitacion", numero_habitacion);
-        model.addAttribute("reservaId", reservaId);
-        model.addAttribute("fechaDesde", fechaDesde);
-        model.addAttribute("fechaHasta", fechaHasta);
-
-        return "ocuparHabitacion/buscar";
-    }*/
-    // 3) SELECCIONAR RESPONSABLE + ACOMPAÑANTES
     @PostMapping("/seleccionar")
     public String seleccionarOcupantes(
-            @RequestParam(required = false) List<String> seleccionados,
+            @RequestParam(required = false) String responsablePago,
+            @RequestParam(required = false) List<String> acompanantes,
             @RequestParam Integer numero_habitacion,
             @RequestParam Integer reservaId,
             @RequestParam String fechaDesde,
             @RequestParam String fechaHasta,
+            @RequestParam(required = false) String nombreBusqueda,
+            @RequestParam(required = false) String apellidoBusqueda,
+            @RequestParam(required = false) String tipoDocumentoBusqueda,
+            @RequestParam(required = false) String documentoBusqueda,
             Model model) {
 
-        // --- CU15 8.A: Validación de selección ---
-        if (seleccionados == null || seleccionados.isEmpty()) {
-            model.addAttribute("error", "Debe seleccionar al menos un huésped (CU15 paso 8.A)");
-
-            // Para que los filtros, fechas y resultados sigan estando visibles:
+        if (responsablePago == null || responsablePago.isEmpty()) {
+            model.addAttribute("error", "Debe seleccionar un responsable de pago.");
+            // Recargar búsqueda
+            model.addAttribute("nombre", nombreBusqueda);
+            model.addAttribute("apellido", apellidoBusqueda);
+            model.addAttribute("tipoDocumento", tipoDocumentoBusqueda);
+            model.addAttribute("documento", documentoBusqueda);
             model.addAttribute("numero_habitacion", numero_habitacion);
             model.addAttribute("reservaId", reservaId);
             model.addAttribute("fechaDesde", fechaDesde);
             model.addAttribute("fechaHasta", fechaHasta);
 
+            TipoDocumento tipoDocEnum = null;
+            if (tipoDocumentoBusqueda != null && !tipoDocumentoBusqueda.isEmpty()) {
+                try {
+                    tipoDocEnum = TipoDocumento.valueOf(tipoDocumentoBusqueda);
+                } catch (Exception ignored) {
+                }
+            }
+
+            List<Huesped> resultados = gestionHuesped.buscarHuespedFinal(apellidoBusqueda, nombreBusqueda, tipoDocEnum, documentoBusqueda);
+            model.addAttribute("resultados", resultados);
+
             return "ocuparHabitacion/buscar";
         }
 
-        // Construir DTO
+        // Filtrar acompañantes para no incluir al responsable
+        List<String> acomp = (acompanantes == null) ? List.of() : acompanantes.stream()
+                .filter(c -> !c.equals(responsablePago))
+                .collect(Collectors.toList());
+
         OcupacionHuespedDTO dto = new OcupacionHuespedDTO();
-        dto.setIdHuesped(seleccionados.get(0));
-        dto.setIdAcompanantes(seleccionados.subList(1, seleccionados.size()));
+        dto.setIdHuesped(responsablePago);
+        dto.setIdAcompanantes(acomp);
 
         OcupacionRequestDTO req = new OcupacionRequestDTO();
         req.setNumeroHabitacion(numero_habitacion);
-
         try {
             req.setFechaDesde(df.parse(fechaDesde));
             req.setFechaHasta(df.parse(fechaHasta));
         } catch (Exception e) {
             model.addAttribute("error", "Fecha inválida.");
-            return "ocuparHabitacion/buscar";
+            return mostrarBuscar(numero_habitacion, reservaId, fechaDesde, fechaHasta, nombreBusqueda, apellidoBusqueda, tipoDocumentoBusqueda, documentoBusqueda, "Fecha inválida.", model);
         }
 
         try {
-            gestionHabitacion.ocuparHabitacion(reservaId, req, dto);
-
-            // Si no explota → no había solapamiento
-            return "redirect:/ocupacion/resumen?numero_habitacion="
-                    + numero_habitacion
+            gestionHabitacion.ocuparHabitacion(reservaId, req, dto, false);
+            return "redirect:/ocupacion/resumen?numero_habitacion=" + numero_habitacion
                     + "&reservaId=" + reservaId
                     + "&fechaDesde=" + fechaDesde
                     + "&fechaHasta=" + fechaHasta;
-
         } catch (Exception ex) {
-
-            // --- CU15 8.B → RESERVA SOLAPADA → MOSTRAR MODAL ---
             model.addAttribute("error", ex.getMessage());
-
             model.addAttribute("numero_habitacion", numero_habitacion);
             model.addAttribute("reservaId", reservaId);
             model.addAttribute("fechaDesde", fechaDesde);
             model.addAttribute("fechaHasta", fechaHasta);
 
-            return "ocuparHabitacion/buscar"; // <-- NO redirect
+            // Guardar selección para modal forzar
+            model.addAttribute("cuitResponsable", responsablePago);
+            model.addAttribute("cuitsAcompanantes", acomp);
+            model.addAttribute("solapamiento", true);
+
+            // Recargar resultados de búsqueda
+            TipoDocumento tipoDocEnum = null;
+            if (tipoDocumentoBusqueda != null && !tipoDocumentoBusqueda.isEmpty()) {
+                try {
+                    tipoDocEnum = TipoDocumento.valueOf(tipoDocumentoBusqueda);
+                } catch (Exception ignored) {
+                }
+            }
+            List<Huesped> resultados = gestionHuesped.buscarHuespedFinal(apellidoBusqueda, nombreBusqueda, tipoDocEnum, documentoBusqueda);
+            model.addAttribute("resultados", resultados);
+
+            return "ocuparHabitacion/buscar";
         }
     }
 
-    // 4) RESUMEN FINAL
+    // ----------------- 4) RESUMEN -----------------
     @GetMapping("/resumen")
     public String resumen(
             @RequestParam Integer numero_habitacion,
@@ -222,10 +193,11 @@ public class OcupacionController {
             @RequestParam String fechaHasta,
             Model model) {
 
-        List<PersonaFisica> ocupantes
-                = gestionHabitacion.obtenerOcupantesAsignados(reservaId, numero_habitacion);
+        List<PersonaFisica> ocupantes = gestionHabitacion.obtenerOcupantesAsignados(reservaId, numero_habitacion);
+        PersonaFisica responsable = ocupantes.isEmpty() ? null : ocupantes.get(0);
 
         model.addAttribute("ocupantes", ocupantes);
+        model.addAttribute("responsable", responsable);
         model.addAttribute("numero_habitacion", numero_habitacion);
         model.addAttribute("reservaId", reservaId);
         model.addAttribute("fechaDesde", fechaDesde);
@@ -234,30 +206,37 @@ public class OcupacionController {
         return "ocuparHabitacion/resumen";
     }
 
-    @PostMapping("/ocupacion/forzar")
+    // ----------------- 5) FORZAR OCUPACIÓN -----------------
+    @PostMapping("/forzar")
     public String ocuparIgualmente(
             @RequestParam Integer numero_habitacion,
             @RequestParam Integer reservaId,
             @RequestParam String fechaDesde,
-            @RequestParam String fechaHasta) {
+            @RequestParam String fechaHasta,
+            @RequestParam String responsablePago,
+            @RequestParam(required = false) List<String> acompanantes) {
 
         OcupacionRequestDTO req = new OcupacionRequestDTO();
         req.setNumeroHabitacion(numero_habitacion);
+        OcupacionHuespedDTO dto = new OcupacionHuespedDTO();
+        dto.setIdHuesped(responsablePago);
+        dto.setIdAcompanantes(acompanantes);
 
         try {
             req.setFechaDesde(df.parse(fechaDesde));
             req.setFechaHasta(df.parse(fechaHasta));
         } catch (Exception e) {
-            return "redirect:/ocupacion/buscar?numero_habitacion=" + numero_habitacion;
+            return "redirect:/ocupacion/buscar?numero_habitacion=" + numero_habitacion
+                    + "&reservaId=" + reservaId
+                    + "&fechaDesde=" + fechaDesde
+                    + "&fechaHasta=" + fechaHasta;
         }
 
-        gestionHabitacion.ocuparHabitacion(reservaId, req, null);
+        gestionHabitacion.ocuparHabitacion(reservaId, req, dto, true);
 
-        return "redirect:/ocupacion/resumen?numero_habitacion="
-                + numero_habitacion
+        return "redirect:/ocupacion/resumen?numero_habitacion=" + numero_habitacion
                 + "&reservaId=" + reservaId
                 + "&fechaDesde=" + fechaDesde
                 + "&fechaHasta=" + fechaHasta;
     }
-
 }

@@ -155,13 +155,14 @@ public class HabitacionWebController {
         return "reserva/nueva-reserva";
     }
 
-   /*  @PostMapping("/ocupar")
+    @PostMapping("/ocupar")
     public String ocuparDesdeGrilla(
             @RequestParam("fechaDesde") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
             @RequestParam("fechaHasta") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
             @RequestParam("habitaciones") String habitacionesCSV,
             RedirectAttributes redirectAttributes) {
 
+        // 1) Parsear CSV de habitaciones
         List<Integer> habitacionesSel = new ArrayList<>();
         if (habitacionesCSV != null && !habitacionesCSV.isEmpty()) {
             for (String h : habitacionesCSV.split(",")) {
@@ -172,76 +173,34 @@ public class HabitacionWebController {
             }
         }
 
+        // 2) Validar selección
         if (habitacionesSel.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Debe seleccionar una habitación para ocupar.");
-            return "redirect:/habitacion";
-        }
-        //VALIDAMOS HABITACIONES INEXTISTENTES
-        List<Integer> inexistentes = habitacionesSel.stream().filter(n -> !gestionHabitacion.existeHabitacion(n)).toList();
-
-        if (!inexistentes.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Habitación inexistente: " + inexistentes);
+            redirectAttributes.addFlashAttribute("errorMessage", "Debe seleccionar al menos una habitación para ocupar.");
             return "redirect:/habitacion";
         }
 
         Integer numeroHab = habitacionesSel.get(0);
 
+        // 3) Validar que la habitación exista
+        if (!gestionHabitacion.existeHabitacion(numeroHab)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "La habitación seleccionada no existe.");
+            return "redirect:/habitacion";
+        }
+
+        // 4) Buscar reserva existente (si hay)
+        Integer reservaId = gestionHabitacion.buscarReservaParaOcupar(numeroHab, fechaDesde, fechaHasta, true);
+
+        // 5) Formatear fechas para URL
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
-        return "redirect:/ocupacion/buscar?numero_habitacion=" + numeroHab + "&fechaDesde=" + df.format(fechaDesde) + "&fechaHasta=" + df.format(fechaHasta);
-    }*/
-@PostMapping("/ocupar")
-public String ocuparDesdeGrilla(
-        @RequestParam("fechaDesde") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
-        @RequestParam("fechaHasta") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
-        @RequestParam("habitaciones") String habitacionesCSV,
-        RedirectAttributes redirectAttributes) {
+        // 6) Redirigir a CU15 con los parámetros necesarios
+        String url = "redirect:/ocupacion/buscar?"
+                + "numero_habitacion=" + numeroHab
+                + "&fechaDesde=" + df.format(fechaDesde)
+                + "&fechaHasta=" + df.format(fechaHasta)
+                + "&reservaId=" + (reservaId != null ? reservaId : 0); // 0 = ocupa sin reserva
 
-    List<Integer> habitacionesSel = new ArrayList<>();
-    if (habitacionesCSV != null && !habitacionesCSV.isEmpty()) {
-        for (String h : habitacionesCSV.split(",")) {
-            try {
-                habitacionesSel.add(Integer.parseInt(h.trim()));
-            } catch (NumberFormatException ignored) {}
-        }
+        return url;
     }
-
-    if (habitacionesSel.isEmpty()) {
-        redirectAttributes.addFlashAttribute("errorMessage", "Debe seleccionar una habitación para ocupar.");
-        return "redirect:/habitacion";
-    }
-
-    Integer numeroHab = habitacionesSel.get(0);
-
-    // VALIDACIÓN
-    if (!gestionHabitacion.existeHabitacion(numeroHab)) {
-        redirectAttributes.addFlashAttribute("errorMessage", "La habitación no existe.");
-        return "redirect:/habitacion";
-    }
-
-    // 1) BUSCAR RESERVA QUE CORRESPONDA A ESA HABITACIÓN
-    Integer reservaId = gestionHabitacion.buscarReservaParaOcupar(
-            numeroHab, fechaDesde, fechaHasta
-    );
-
-    // FORMATEO DE FECHAS 
-    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-
-    //2) REDIRIGIR A CU15 (agregando reservaId si existe)
-    String url = "redirect:/ocupacion/buscar?"
-            + "numero_habitacion=" + numeroHab
-            + "&fechaDesde=" + df.format(fechaDesde)
-            + "&fechaHasta=" + df.format(fechaHasta);
-
-    if (reservaId != null) {
-        url += "&reservaId=" + reservaId;
-    } else {
-        url += "&reservaId=0"; // ocupa sin reserva
-    }
-
-    return url;
-}
-
-
 
 }

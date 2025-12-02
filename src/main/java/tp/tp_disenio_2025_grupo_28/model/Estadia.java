@@ -19,7 +19,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoEstadia;
-import tp.tp_disenio_2025_grupo_28.model.enums.TipoEstadia;
 
 @Entity
 @Table(name = "estadia")
@@ -31,18 +30,18 @@ public class Estadia {
     private Integer idEstadia;
 
     // ----- Fechas y horas -----
-    @Column(name = "horaCheckIn")
+    @Column(name = "hora_check_in")
     private Time horaCheckIn;
 
-    @Column(name = "horaCheckOut")
+    @Column(name = "hora_check_out")
     private Time horaCheckOut;
 
     @Temporal(TemporalType.DATE)
-    @Column(name = "fechaCheckIn")
+    @Column(name = "fecha_check_in")
     private Date fechaCheckIn;
 
     @Temporal(TemporalType.DATE)
-    @Column(name = "fechaCheckOut")
+    @Column(name = "fecha_check_out")
     private Date fechaCheckOut;
 
     // ----- Estado -----
@@ -51,13 +50,11 @@ public class Estadia {
     @Column(name = "estado_estadia")
     private EstadoEstadia estado;
 
-    @Enumerated(EnumType.STRING)
-    private TipoEstadia tipo;
-
+    // @Enumerated(EnumType.STRING)
+    // private TipoEstadia tipo;
     @ManyToOne
-    @JoinColumn(name = "idResponsablePago", nullable = false)
+    @JoinColumn(name = "id_responsable_pago", nullable = false)
     private ResponsablePago responsablePago;
-
     // BD: Tabla intermedia Estadia_Servicio
     @ManyToMany
     @JoinTable(
@@ -76,13 +73,13 @@ public class Estadia {
 
     // Opcional: constructor completo
     public Estadia(Time horaCheckIn, Time horaCheckOut, Date fechaCheckIn, Date fechaCheckOut,
-            EstadoEstadia estado, TipoEstadia tipo, ResponsablePago responsablePago) {
+            EstadoEstadia estado, ResponsablePago responsablePago) {
         this.horaCheckIn = horaCheckIn;
         this.horaCheckOut = horaCheckOut;
         this.fechaCheckIn = fechaCheckIn;
         this.fechaCheckOut = fechaCheckOut;
         this.estado = estado;
-        this.tipo = tipo;
+        // this.tipo = tipo;
         this.responsablePago = responsablePago;
     }
 
@@ -134,14 +131,13 @@ public class Estadia {
         this.estado = estado;
     }
 
-    public TipoEstadia getTipo() {
+    /*  public TipoEstadia getTipo() {
         return tipo;
     }
 
     public void setTipo(TipoEstadia tipo) {
         this.tipo = tipo;
-    }
-
+    }*/
     public ResponsablePago getResponsablePago() {
         return responsablePago;
     }

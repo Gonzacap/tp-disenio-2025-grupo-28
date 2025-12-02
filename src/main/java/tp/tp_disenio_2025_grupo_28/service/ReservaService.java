@@ -1,6 +1,7 @@
 package tp.tp_disenio_2025_grupo_28.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import tp.tp_disenio_2025_grupo_28.dto.ReservaResponseDTO;
 import tp.tp_disenio_2025_grupo_28.mapper.ReservaMapper;
 import tp.tp_disenio_2025_grupo_28.model.EstadoHabitacionPeriodo;
 import tp.tp_disenio_2025_grupo_28.model.Habitacion;
+import tp.tp_disenio_2025_grupo_28.model.PersonaFisica;
 import tp.tp_disenio_2025_grupo_28.model.Reserva;
 import tp.tp_disenio_2025_grupo_28.model.Usuario;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoHabitacion;
@@ -84,6 +86,15 @@ public class ReservaService {
                 );
             }
         }
+    }
+
+    public void agregarAcompanantesAreserva(Integer idReserva, List<PersonaFisica> acompanantes) {
+        Optional<Reserva> reserva = reservaRepo.findById(idReserva);
+        Reserva r = reserva.orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+        r.setAcompanantes(acompanantes);
+        reservaRepo.save(r);
+        r.setAcompanantes(acompanantes);
+        reservaRepo.save(r);
     }
 
 }
