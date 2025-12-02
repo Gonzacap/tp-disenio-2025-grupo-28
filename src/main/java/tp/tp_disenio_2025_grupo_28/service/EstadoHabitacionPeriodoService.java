@@ -34,25 +34,22 @@ public class EstadoHabitacionPeriodoService {
 
         for (EstadoHabitacionPeriodo p : periodos) {
 
-            boolean seSolapa
-                    = !p.getFechaHasta().before(desde)
-                    && !p.getFechaDesde().after(hasta);
+            boolean seSolapa = !p.getFechaHasta().before(desde) && !p.getFechaDesde().after(hasta);
 
             if (seSolapa && p.getEstado() != EstadoHabitacion.disponible) {
-                return false;
+                return false; // Cualquier estado NO disponible → ocupa la fecha
             }
         }
-
         return true;
     }
+//registrar como ocupada
 
-    public void registrarEstadoPeriodo(Habitacion habitacion, EstadoHabitacion estado, Date desde, Date hasta) {
-        EstadoHabitacionPeriodo periodo = new EstadoHabitacionPeriodo();
-        periodo.setNumeroHabitacion(habitacion.getNumeroHabitacion());
-        periodo.setEstado(estado);
-        periodo.setFechaDesde(desde);
-        periodo.setFechaHasta(hasta);
-
-        repo.save(periodo);
+    public EstadoHabitacionPeriodo ocupar(Integer numeroHabitacion, Date desde, Date hasta) {
+        EstadoHabitacionPeriodo p = new EstadoHabitacionPeriodo();
+        p.setNumeroHabitacion(numeroHabitacion);
+        p.setEstado(EstadoHabitacion.ocupada);
+        p.setFechaDesde(desde);
+        p.setFechaHasta(hasta);
+        return repo.save(p);
     }
 }

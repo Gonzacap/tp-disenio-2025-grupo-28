@@ -113,8 +113,7 @@ public class HabitacionWebController {
         }
 
         // 2) VALIDAR HABITACIONES EXISTENTES
-        List<Integer> inexistentes
-                = gestionHabitacion.habitacionesInexistentes(habitacionesSel);
+        List<Integer> inexistentes = habitacionesSel.stream().filter(n -> !gestionHabitacion.existeHabitacion(n)).toList();
 
         if (!inexistentes.isEmpty()) {
             redirectAttributes.addFlashAttribute(
@@ -177,11 +176,11 @@ public class HabitacionWebController {
             redirectAttributes.addFlashAttribute("errorMessage", "Debe seleccionar una habitación para ocupar.");
             return "redirect:/habitacion";
         }
+        //VALIDAMOS HABITACIONES INEXTISTENTES
+        List<Integer> inexistentes = habitacionesSel.stream().filter(n -> !gestionHabitacion.existeHabitacion(n)).toList();
 
-        List<Integer> inexistentes = gestionHabitacion.habitacionesInexistentes(habitacionesSel);
         if (!inexistentes.isEmpty()) {
-            redirectAttributes.addFlashAttribute(
-                    "errorMessage", "Habitación inexistente: " + inexistentes);
+            redirectAttributes.addFlashAttribute("errorMessage", "Habitación inexistente: " + inexistentes);
             return "redirect:/habitacion";
         }
 
@@ -189,9 +188,7 @@ public class HabitacionWebController {
 
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
-        return "redirect:/ocupacion/buscar?numero_habitacion=" + numeroHab
-                + "&fechaDesde=" + df.format(fechaDesde)
-                + "&fechaHasta=" + df.format(fechaHasta);
+        return "redirect:/ocupacion/buscar?numero_habitacion=" + numeroHab + "&fechaDesde=" + df.format(fechaDesde) + "&fechaHasta=" + df.format(fechaHasta);
     }
 
 }
