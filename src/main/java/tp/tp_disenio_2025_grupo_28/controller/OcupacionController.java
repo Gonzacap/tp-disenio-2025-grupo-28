@@ -45,6 +45,7 @@ public class OcupacionController {
             @RequestParam(required = false) String documento,
             @RequestParam(required = false) String error,
             @RequestParam(required = false) String cuitResponsable,
+            @RequestParam(required = false) List<String> cuitsAcompanantes,
             Model model) {
 
         model.addAttribute("numero_habitacion", numero_habitacion);
@@ -56,7 +57,8 @@ public class OcupacionController {
         model.addAttribute("tipoDocumento", tipoDocumento);
         model.addAttribute("documento", documento);
         model.addAttribute("error", error);
-        model.addAttribute("cuitResponsable", cuitResponsable); // Para recordar la selección
+        model.addAttribute("cuitResponsable", cuitResponsable);
+        model.addAttribute("cuitsAcompanantes", cuitsAcompanantes); // Para recordar la selección
 
         return "ocuparHabitacion/buscar";
     }

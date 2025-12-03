@@ -77,8 +77,16 @@
         </thead>
         <tbody>
             <tr th:each="p : ${resultados}">
-                <td><input type="radio" name="responsablePago" th:value="${p.cuit}" required/></td>
-                <td><input type="checkbox" name="acompanantes" th:value="${p.cuit}"/></td>
+                <td>
+    <input type="radio" name="responsablePago" th:value="${p.cuit}"
+           th:checked="${cuitResponsable != null && p.cuit == cuitResponsable}"/>
+</td>
+
+<td>
+    <input type="checkbox" name="acompanantes" th:value="${p.cuit}"
+           th:checked="${cuitsAcompanantes != null and cuitsAcompanantes.contains(p.cuit)}"/>
+</td>
+
                 <td th:text="${p.nombre}"></td>
                 <td th:text="${p.apellido}"></td>
                 <td th:text="${p.tipoDocumento}"></td>

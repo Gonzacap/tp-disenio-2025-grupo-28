@@ -18,4 +18,13 @@ public class HomeController {
 
         return "index";  // nombre de la plantilla index.html
     }
+
+    @GetMapping("/")
+    public String root(HttpSession session) {
+        if (session.getAttribute("usuario") == null) {
+            return "redirect:/login";
+        }
+        return "redirect:/index";
+    }
+
 }

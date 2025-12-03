@@ -54,12 +54,21 @@
             <div>
                 <!-- Seguir cargando: volver a la selección de la misma habitación (paso anterior) -->
                 <form th:action="@{/ocupacion/buscar}" method="get" style="display:inline;">
-                    <input type="hidden" name="reservaId" th:value="${reservaId}"/>
-                    <input type="hidden" name="numero_habitacion" th:value="${numero_habitacion}"/>
-                    <input type="hidden" name="fechaDesde" th:value="${fechaDesde}"/>
-                    <input type="hidden" name="fechaHasta" th:value="${fechaHasta}"/>
-                    <button type="submit" class="btn">SEGUIR CARGANDO</button>
-                </form>
+    <input type="hidden" name="reservaId" th:value="${reservaId}"/>
+    <input type="hidden" name="numero_habitacion" th:value="${numero_habitacion}"/>
+    <input type="hidden" name="fechaDesde" th:value="${fechaDesde}"/>
+    <input type="hidden" name="fechaHasta" th:value="${fechaHasta}"/>
+
+    <!-- ENVIAR RESPONSABLE -->
+    <input type="hidden" name="cuitResponsable" th:value="${responsable != null ? responsable.cuit : ''}"/>
+
+    <!-- ENVIAR ACOMPAÑANTES -->
+    <div th:each="p : ${ocupantes}">
+        <input type="hidden" name="cuitsAcompanantes" th:value="${p.cuit}"/>
+    </div>
+
+    <button type="submit" class="btn">SEGUIR CARGANDO</button>
+</form>
             </div>
 
             <div>

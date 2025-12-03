@@ -3,6 +3,7 @@ package tp.tp_disenio_2025_grupo_28.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,7 @@ public class ReservaService {
     private ReservaMapper mapper;
 
     @Autowired
+    @Lazy
     private GestionHabitacion gestionHabitacion;
 
     public ReservaResponseDTO reservar(ReservaRequestDTO dto, Usuario usuario) {
