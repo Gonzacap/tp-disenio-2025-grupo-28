@@ -2,6 +2,7 @@ package tp.tp_disenio_2025_grupo_28.controller;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -43,6 +44,7 @@ public class OcupacionController {
             @RequestParam(required = false) String tipoDocumento,
             @RequestParam(required = false) String documento,
             @RequestParam(required = false) String error,
+            @RequestParam(required = false) String cuitResponsable,
             Model model) {
 
         model.addAttribute("numero_habitacion", numero_habitacion);
@@ -54,6 +56,7 @@ public class OcupacionController {
         model.addAttribute("tipoDocumento", tipoDocumento);
         model.addAttribute("documento", documento);
         model.addAttribute("error", error);
+        model.addAttribute("cuitResponsable", cuitResponsable); // Para recordar la selección
 
         return "ocuparHabitacion/buscar";
     }
@@ -77,7 +80,15 @@ public class OcupacionController {
                 tipoDocEnum = TipoDocumento.valueOf(tipoDocumento);
             } catch (Exception e) {
                 model.addAttribute("error", "Tipo de documento inválido.");
-                return mostrarBuscar(numero_habitacion, reservaId, fechaDesde, fechaHasta, nombre, apellido, tipoDocumento, documento, "Tipo de documento inválido", model);
+                model.addAttribute("numero_habitacion", numero_habitacion);
+                model.addAttribute("reservaId", reservaId);
+                model.addAttribute("fechaDesde", fechaDesde);
+                model.addAttribute("fechaHasta", fechaHasta);
+                model.addAttribute("nombre", nombre);
+                model.addAttribute("apellido", apellido);
+                model.addAttribute("tipoDocumento", tipoDocumento);
+                model.addAttribute("documento", documento);
+
             }
         }
 
@@ -92,6 +103,7 @@ public class OcupacionController {
         return "ocuparHabitacion/buscar";
     }
 
+    // ----------------- 3) SELECCIONAR OCUPANTES -----------------
     @PostMapping("/seleccionar")
     public String seleccionarOcupantes(
             @RequestParam(required = false) String responsablePago,
@@ -108,7 +120,7 @@ public class OcupacionController {
 
         if (responsablePago == null || responsablePago.isEmpty()) {
             model.addAttribute("error", "Debe seleccionar un responsable de pago.");
-            // Recargar búsqueda
+            // Recargar filtros y resultados
             model.addAttribute("nombre", nombreBusqueda);
             model.addAttribute("apellido", apellidoBusqueda);
             model.addAttribute("tipoDocumento", tipoDocumentoBusqueda);
@@ -129,13 +141,13 @@ public class OcupacionController {
             List<Huesped> resultados = gestionHuesped.buscarHuespedFinal(apellidoBusqueda, nombreBusqueda, tipoDocEnum, documentoBusqueda);
             model.addAttribute("resultados", resultados);
 
+            model.addAttribute("cuitResponsable", null);
             return "ocuparHabitacion/buscar";
         }
 
         // Filtrar acompañantes para no incluir al responsable
-        List<String> acomp = (acompanantes == null) ? List.of() : acompanantes.stream()
-                .filter(c -> !c.equals(responsablePago))
-                .collect(Collectors.toList());
+        List<String> acomp = (acompanantes == null) ? List.of()
+                : acompanantes.stream().filter(c -> !c.equals(responsablePago)).collect(Collectors.toList());
 
         OcupacionHuespedDTO dto = new OcupacionHuespedDTO();
         dto.setIdHuesped(responsablePago);
@@ -148,7 +160,11 @@ public class OcupacionController {
             req.setFechaHasta(df.parse(fechaHasta));
         } catch (Exception e) {
             model.addAttribute("error", "Fecha inválida.");
-            return mostrarBuscar(numero_habitacion, reservaId, fechaDesde, fechaHasta, nombreBusqueda, apellidoBusqueda, tipoDocumentoBusqueda, documentoBusqueda, "Fecha inválida.", model);
+            model.addAttribute("numero_habitacion", numero_habitacion);
+            model.addAttribute("reservaId", reservaId);
+            model.addAttribute("fechaDesde", fechaDesde);
+            model.addAttribute("fechaHasta", fechaHasta);
+
         }
 
         try {
@@ -164,12 +180,11 @@ public class OcupacionController {
             model.addAttribute("fechaDesde", fechaDesde);
             model.addAttribute("fechaHasta", fechaHasta);
 
-            // Guardar selección para modal forzar
             model.addAttribute("cuitResponsable", responsablePago);
             model.addAttribute("cuitsAcompanantes", acomp);
             model.addAttribute("solapamiento", true);
 
-            // Recargar resultados de búsqueda
+            // Recargar resultados
             TipoDocumento tipoDocEnum = null;
             if (tipoDocumentoBusqueda != null && !tipoDocumentoBusqueda.isEmpty()) {
                 try {
@@ -216,27 +231,27 @@ public class OcupacionController {
             @RequestParam String responsablePago,
             @RequestParam(required = false) List<String> acompanantes) {
 
+        if (responsablePago == null || responsablePago.isEmpty()) {
+            // Nunca dejar null
+            return "redirect:/ocupacion/buscar?numero_habitacion=" + numero_habitacion + "&reservaId=" + reservaId + "&fechaDesde=" + fechaDesde + "&fechaHasta=" + fechaHasta;
+        }
+
         OcupacionRequestDTO req = new OcupacionRequestDTO();
         req.setNumeroHabitacion(numero_habitacion);
+
         OcupacionHuespedDTO dto = new OcupacionHuespedDTO();
         dto.setIdHuesped(responsablePago);
-        dto.setIdAcompanantes(acompanantes);
+        dto.setIdAcompanantes((acompanantes == null) ? List.of() : acompanantes);
 
         try {
             req.setFechaDesde(df.parse(fechaDesde));
             req.setFechaHasta(df.parse(fechaHasta));
         } catch (Exception e) {
-            return "redirect:/ocupacion/buscar?numero_habitacion=" + numero_habitacion
-                    + "&reservaId=" + reservaId
-                    + "&fechaDesde=" + fechaDesde
-                    + "&fechaHasta=" + fechaHasta;
+            return "redirect:/ocupacion/buscar?numero_habitacion=" + numero_habitacion + "&reservaId=" + reservaId + "&fechaDesde=" + fechaDesde + "&fechaHasta=" + fechaHasta;
         }
 
         gestionHabitacion.ocuparHabitacion(reservaId, req, dto, true);
 
-        return "redirect:/ocupacion/resumen?numero_habitacion=" + numero_habitacion
-                + "&reservaId=" + reservaId
-                + "&fechaDesde=" + fechaDesde
-                + "&fechaHasta=" + fechaHasta;
+        return "redirect:/ocupacion/resumen?numero_habitacion=" + numero_habitacion + "&reservaId=" + reservaId + "&fechaDesde=" + fechaDesde + "&fechaHasta=" + fechaHasta;
     }
 }
