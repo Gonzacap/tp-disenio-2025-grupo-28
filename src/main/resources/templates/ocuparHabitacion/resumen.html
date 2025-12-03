@@ -20,7 +20,7 @@
         <h3>Estado de la Habitación</h3>
 
         <p><strong>Responsable:</strong>
-            <span th:if="${responsable != null}" th:text="${responsable.nombre + ', ' + responsable.apellido + ', DNI: ' + responsable.numeroDocumento}">Responsable</span>
+            <span th:if="${responsable != null}" th:text="${responsable.nombre + ', ' + responsable.apellido + ', DNI: ' + responsable.documento}">Responsable</span>
             <span th:if="${responsable == null}"> - </span>
         </p>
 
@@ -58,14 +58,14 @@
                     <input type="hidden" name="numero_habitacion" th:value="${numero_habitacion}"/>
                     <input type="hidden" name="fechaDesde" th:value="${fechaDesde}"/>
                     <input type="hidden" name="fechaHasta" th:value="${fechaHasta}"/>
-                    <button type="submit" class="btn">Seguir Cargando</button>
+                    <button type="submit" class="btn">SEGUIR CARGANDO</button>
                 </form>
             </div>
 
             <div>
                 <!-- Cargar otra habitación: volver al inicio del CU (ruta de tu flujo) -->
-                <a th:href="@{/ocupacion/inicio}" class="btn">Cargar Otra Habitación</a>
-                <a th:href="@{ / }" class="btn">Salir</a>
+                <a th:href="@{/habitacion}" class="btn">CARGAR OTRA HABITACIÓN</a>
+                <a th:href="@{ / }" class="btn">SALIR</a>
             </div>
         </div>
 

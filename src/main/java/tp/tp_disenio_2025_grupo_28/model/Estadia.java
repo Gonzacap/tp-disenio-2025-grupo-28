@@ -156,4 +156,12 @@ public class Estadia {
         this.reserva = reserva;
     }
 
+    public List<Servicio> getServicios() {
+        return servicios;
+    }
+
+    public void setServicios(List<Servicio> servicios) {
+        this.servicios = servicios;
+    }
+
 }
