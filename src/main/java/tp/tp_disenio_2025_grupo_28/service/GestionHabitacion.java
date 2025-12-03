@@ -308,8 +308,10 @@ public class GestionHabitacion {
             //throw new IllegalStateException("Debe seleccionar un responsable de pago para crear la estadía.");
             // }
 
-            reserva.setAcompanantes(listaAcompanantes);
-            reservaRepository.save(reserva);
+            if (reserva != null) {
+                reserva.setAcompanantes(listaAcompanantes);
+                reservaRepository.save(reserva);
+            }
 
             ocupantesAsignados.put(key, ocupantes);
         }
@@ -318,7 +320,7 @@ public class GestionHabitacion {
         Estadia estadia = estadiaService.crearDesdeReserva(reserva, request.getFechaDesde(), responsable);
 
         // ---- ACTUALIZAR ESTADO DE RESERVA ----
-        if (reserva.getEstado() == EstadoReserva.confirmada) {
+        if (reserva != null && reserva.getEstado() == EstadoReserva.confirmada) {
             reserva.setEstado(EstadoReserva.cumplida);
             reservaRepository.save(reserva);
         }
