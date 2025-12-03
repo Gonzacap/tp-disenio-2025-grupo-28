@@ -291,7 +291,9 @@ public class GestionHabitacion {
             responsable = personaFisicaRepository.findById(huespedes.getIdHuesped())
                     .orElseThrow(() -> new IllegalArgumentException("Responsable no encontrado"));
 
-            String key = idReserva + "_" + request.getNumeroHabitacion();
+            String key = ((idReserva != null) ? idReserva.toString() : "00000")
+              + "_" + request.getNumeroHabitacion();
+              
             List<PersonaFisica> ocupantes = new ArrayList<>();
             ocupantes.add(responsable);
 
