@@ -27,7 +27,7 @@ import tp.tp_disenio_2025_grupo_28.repository.PersonaFisicaRepository;
 import tp.tp_disenio_2025_grupo_28.repository.ReservaRepository;
 
 @Service
-@Transactional
+// @Transactional
 public class GestionHabitacion {
 
     @Autowired
@@ -64,6 +64,7 @@ public class GestionHabitacion {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<Habitacion> obtenerHabitaciones() {
 
         // Traemos las habitaciones directamente como entidades
@@ -104,6 +105,7 @@ public class GestionHabitacion {
         return dias;
     }
 
+    @Transactional(readOnly = true)
     public List<Map<String, Object>> grilla(List<Map<String, Object>> habitacionesPorTipo, List<Habitacion> habitaciones, List<Date> dias) {
 
         // Traemos reservas que afectan a las habitaciones del hotel
@@ -181,10 +183,12 @@ public class GestionHabitacion {
         return salida;
     }
 
+    @Transactional(readOnly = true)
     public Habitacion buscarPorNumero(Integer numero) {
         return habitacionRepository.findById(numero).orElse(null);
     }
 
+    @Transactional(readOnly = true)
     public boolean estaDisponible(Integer nroHabitacion, Date desde, Date hasta) {
         List<Reserva> reservas = reservaRepository.findByHabitacion(nroHabitacion);
         if (reservas == null || reservas.isEmpty()) {
@@ -204,10 +208,12 @@ public class GestionHabitacion {
 
     }
 
+    @Transactional(readOnly = true)
     public boolean existeHabitacion(Integer numero) {
         return habitacionRepository.existsById(numero);
     }
 
+    @Transactional(readOnly = true)
     public List<Integer> habitacionesNoDisponibles(List<Integer> numeros, Date desde, Date hasta) {
 
         List<Integer> noDisp = new ArrayList<>();
@@ -221,6 +227,7 @@ public class GestionHabitacion {
     }
 
     // ----------------- CU15: OCUPAR HABITACIÓN -----------------
+    @Transactional
     public void ocuparHabitacion(Integer idReserva, OcupacionRequestDTO request, OcupacionHuespedDTO huespedes, boolean forzar) {
 
         validarFecha(request.getFechaDesde(), request.getFechaHasta());
@@ -310,6 +317,7 @@ public class GestionHabitacion {
     }
 
     // ----------------- BUSCAR RESERVA PARA OCUPAR -----------------
+    @Transactional(readOnly = true)
     public Reserva buscarReservaParaOcupar(Integer numeroHab, Date fechaDesde, Date fechaHasta) {
         List<Reserva> reservas = reservaRepository.findByHabitacion(numeroHab);
         if (reservas == null || reservas.isEmpty()) {
@@ -330,6 +338,7 @@ public class GestionHabitacion {
     }
 
     // ----------------- BUSCAR RESERVA PARA OCUPAR (RETORNA ID) -----------------
+    @Transactional(readOnly = true)
     public Integer buscarReservaParaOcupar(Integer numeroHab, Date fechaDesde, Date fechaHasta, boolean permitirSinReserva) {
         Reserva r = buscarReservaParaOcupar(numeroHab, fechaDesde, fechaHasta); // método interno que ya tenemos
         if (r != null) {
