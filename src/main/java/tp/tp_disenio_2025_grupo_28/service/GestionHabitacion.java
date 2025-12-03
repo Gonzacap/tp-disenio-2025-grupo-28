@@ -233,8 +233,11 @@ public class GestionHabitacion {
         validarFecha(request.getFechaDesde(), request.getFechaHasta());
 
         // ---- CHEQUEO DE DISPONIBILIDAD ----
-        Reserva reservaExistente = buscarReservaParaOcupar(request.getNumeroHabitacion(),
-                request.getFechaDesde(), request.getFechaHasta());
+        Reserva reservaExistente = null;
+        if (idReserva != null) {
+            reservaExistente = reservaRepository.findById(idReserva)
+                    .orElse(null); // no lanzar excepción
+        }
 
         if (reservaExistente != null && !reservaExistente.getIdReserva().equals(idReserva) && !forzar) {
             throw new IllegalStateException(
@@ -247,10 +250,12 @@ public class GestionHabitacion {
                 .orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada."));
 
         // ---- VALIDAR PERTENECE A LA RESERVA ----
-        boolean habitacionPertenece = reserva.getHabitaciones().stream()
-                .anyMatch(h -> h.getNumeroHabitacion().equals(request.getNumeroHabitacion()));
-        if (!habitacionPertenece) {
-            throw new IllegalArgumentException("La habitación no pertenece a esta reserva.");
+        if (reserva != null) {
+            boolean habitacionPertenece = reserva.getHabitaciones().stream()
+                    .anyMatch(h -> h.getNumeroHabitacion().equals(request.getNumeroHabitacion()));
+            if (!habitacionPertenece) {
+                throw new IllegalArgumentException("La habitación no pertenece a esta reserva.");
+            }
         }
 
         // ---- VALIDAR CAPACIDAD ----
