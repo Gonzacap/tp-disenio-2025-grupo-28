@@ -334,9 +334,16 @@ public class GestionHabitacion {
                 ocupantes.addAll(listaAcompanantes);
             }
 
+<<<<<<< HEAD
             //reserva.setAcompanantes(listaAcompanantes);
             reservaService.agregarAcompanantesAreserva(reserva.getIdReserva(), listaAcompanantes);
             reservaRepository.save(reserva);
+=======
+            if (reserva != null) {
+                reserva.setAcompanantes(listaAcompanantes);
+                reservaRepository.save(reserva);
+            }
+>>>>>>> 4e2235b6f9d6f6f82a712daee70597fc44fb7846
 
             ocupantesAsignados.put(key, ocupantes);
         }
@@ -345,7 +352,7 @@ public class GestionHabitacion {
         Estadia estadia = estadiaService.crearDesdeReserva(reserva, request.getFechaDesde(), responsable);
 
         // ---- ACTUALIZAR ESTADO DE RESERVA ----
-        if (reserva.getEstado() == EstadoReserva.confirmada) {
+        if (reserva != null && reserva.getEstado() == EstadoReserva.confirmada) {
             reserva.setEstado(EstadoReserva.cumplida);
             reservaRepository.save(reserva);
         }
