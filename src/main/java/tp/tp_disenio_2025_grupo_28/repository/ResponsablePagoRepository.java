@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 import tp.tp_disenio_2025_grupo_28.model.ResponsablePago;
 
 @Repository
-public interface ResponsablePagoRepository extends JpaRepository<ResponsablePago, Integer> {
+public interface ResponsablePagoRepository extends JpaRepository<ResponsablePago, String> {
 }

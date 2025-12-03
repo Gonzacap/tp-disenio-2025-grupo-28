@@ -247,12 +247,10 @@ public class GestionHabitacion {
 
         // if (idReserva) {
         //     String huespedId = huespedes.getIdHuesped();
-            
         //     ReservaRequestDTO dtoReserva = new ReservaRequestDTO();
         //     Usuario usuario = (Usuario) session.getAttribute("usuario");
         //     reservaService.reservar(dtoReserva, usuario);
         // }
-
         // ---- BUSCAR RESERVA ----
         Reserva reserva = null;
         if (idReserva != null) {
@@ -292,8 +290,8 @@ public class GestionHabitacion {
                     .orElseThrow(() -> new IllegalArgumentException("Responsable no encontrado"));
 
             String key = ((idReserva != null) ? idReserva.toString() : "00000")
-              + "_" + request.getNumeroHabitacion();
-              
+                    + "_" + request.getNumeroHabitacion();
+
             List<PersonaFisica> ocupantes = new ArrayList<>();
             ocupantes.add(responsable);
 
@@ -306,9 +304,9 @@ public class GestionHabitacion {
                     listaAcompanantes.add(acomp);
                 }
                 ocupantes.addAll(listaAcompanantes);
-            } else {
-                throw new IllegalStateException("Debe seleccionar un responsable de pago para crear la estadía.");
-            }
+            } //else {
+            //throw new IllegalStateException("Debe seleccionar un responsable de pago para crear la estadía.");
+            // }
 
             reserva.setAcompanantes(listaAcompanantes);
             reservaRepository.save(reserva);
@@ -317,10 +315,8 @@ public class GestionHabitacion {
         }
 
         // ---- CREAR ESTADÍA ----
-        Estadia estadia = estadiaService.crearDesdeReserva(reserva, request.getFechaDesde());
+        Estadia estadia = estadiaService.crearDesdeReserva(reserva, request.getFechaDesde(), responsable);
 
-        // ---- ASIGNAR CUIT DEL RESPONSABLE A LA ESTADÍA ----
-        estadia.setResponsablePago(responsable);
         // ---- ACTUALIZAR ESTADO DE RESERVA ----
         if (reserva.getEstado() == EstadoReserva.confirmada) {
             reserva.setEstado(EstadoReserva.cumplida);

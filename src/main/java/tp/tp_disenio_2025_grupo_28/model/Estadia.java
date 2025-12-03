@@ -2,6 +2,7 @@ package tp.tp_disenio_2025_grupo_28.model;
 
 import java.sql.Time;
 import java.util.Date;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,6 +20,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoEstadia;
+import tp.tp_disenio_2025_grupo_28.model.*;
 
 @Entity
 @Table(name = "estadia")
@@ -26,7 +28,7 @@ public class Estadia {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idEstadia")
+    @Column(name = "id_estadia")
     private Integer idEstadia;
 
     // ----- Fechas y horas -----
@@ -58,11 +60,11 @@ public class Estadia {
     // BD: Tabla intermedia Estadia_Servicio
     @ManyToMany
     @JoinTable(
-            name = "Estadia_Servicio",
-            joinColumns = @JoinColumn(name = "idEstadia"),
-            inverseJoinColumns = @JoinColumn(name = "idServicio")
+            name = "estadia_servicio",
+            joinColumns = @JoinColumn(name = "id_estadia"),
+            inverseJoinColumns = @JoinColumn(name = "id_servicio")
     )
-    //private List<Servicio> servicios;
+    private List<Servicio> servicios;
 
     @OneToOne
     @JoinColumn(name = "id_reserva")

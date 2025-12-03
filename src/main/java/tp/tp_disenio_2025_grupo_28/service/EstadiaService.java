@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import tp.tp_disenio_2025_grupo_28.model.Estadia;
-import tp.tp_disenio_2025_grupo_28.model.Reserva;
+import tp.tp_disenio_2025_grupo_28.model.*;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoEstadia;
 import tp.tp_disenio_2025_grupo_28.repository.EstadiaRepository;
 
@@ -20,13 +20,14 @@ public class EstadiaService {
     private EstadiaRepository estadiaRepository;
 
     //Crear una estadía desde una reserva (cuando el huésped llega).    
-    public Estadia crearDesdeReserva(Reserva reserva, Date fechaCheckIn) {
+    public Estadia crearDesdeReserva(Reserva reserva, Date fechaCheckIn, PersonaFisica responsable) {
         Estadia e = new Estadia();
         e.setReserva(reserva);
         e.setEstado(EstadoEstadia.enCurso);
         e.setFechaCheckIn(fechaCheckIn);
         e.setHoraCheckIn(new Time(System.currentTimeMillis()));
         e.setFechaCheckOut(reserva.getFechaHasta()); // por defecto fin de reserva
+        e.setResponsablePago(responsable);
         return estadiaRepository.save(e);
     }
     //Registrar check-in real (cuando el huésped se presenta en recepción).
