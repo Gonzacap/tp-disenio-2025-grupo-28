@@ -245,9 +245,20 @@ public class GestionHabitacion {
             );
         }
 
+        // if (idReserva) {
+        //     String huespedId = huespedes.getIdHuesped();
+            
+        //     ReservaRequestDTO dtoReserva = new ReservaRequestDTO();
+        //     Usuario usuario = (Usuario) session.getAttribute("usuario");
+        //     reservaService.reservar(dtoReserva, usuario);
+        // }
+
         // ---- BUSCAR RESERVA ----
-        Reserva reserva = reservaRepository.findById(idReserva)
-                .orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada."));
+        Reserva reserva = null;
+        if (idReserva != null) {
+            reserva = reservaRepository.findById(idReserva)
+                    .orElse(null); // no lanzar excepción
+        }
 
         // ---- VALIDAR PERTENECE A LA RESERVA ----
         if (reserva != null) {
