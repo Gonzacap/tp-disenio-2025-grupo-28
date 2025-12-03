@@ -61,11 +61,17 @@ public class ReservaController {
             errores.add("Debe ingresar el Teléfono.");
         }
         // Si hay errores → volver al formulario
-        if (!errores.isEmpty()) {
+        /*    if (!errores.isEmpty()) {
             model.addAttribute("errores", errores);
             model.addAttribute("dto", dto); // Mantiene datos cargados
             return "reserva/nueva-reserva"; // Vuelve al punto 8 del CU
+        }*/
+        if (!errores.isEmpty()) {
+            model.addAttribute("errorMessage", errores.get(0)); // muestra solo 1 error
+            model.addAttribute("reservaRequestDTO", dto);
+            return "reserva/nueva-reserva";
         }
+
         try {
             Usuario usuario = (Usuario) session.getAttribute("usuario");
             reservaService.reservar(dto, usuario);
