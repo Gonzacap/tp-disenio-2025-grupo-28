@@ -20,6 +20,37 @@
     .estado-clickable {
         cursor: pointer;
     }
+
+
+    /* MODAL ERROR CU04 */
+#modal-no-disponible {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+#modal-box-nd {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    text-align: center;
+    width: 380px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+#modal-box-nd button {
+    width: 60%;
+    background: #1b4965;
+    color: white;
+    margin-top: 20px;
+}
+
 </style>
 
 <div class="container-md my-5">
@@ -102,32 +133,48 @@
 </div>
 
     <!-- BOTONES -->
-    <div class="mt-3 text-end">
+   <!-- BOTONES -->
+<div class="mt-3 text-end">
 
-        <!-- RESERVAR -->
-        <form th:action="@{/habitacion/reservar}" method="post" class="d-inline">
-            <input type="hidden" name="fechaDesde"
-                th:value="${fechaDesde != null ? #dates.format(fechaDesde,'yyyy-MM-dd') : ''}">
-            <input type="hidden" name="fechaHasta"
-                th:value="${fechaHasta != null ? #dates.format(fechaHasta,'yyyy-MM-dd') : ''}">
-            <input type="hidden" id="habitacionesInput" name="habitaciones">
-
-            <button type="submit" class="btn btn-success">RESERVAR</button>
-        </form>
-
-        <!-- OCUPAR CU15 -->
-        <form th:action="@{/habitacion/ocupar}" method="post" class="d-inline">
-            <input type="hidden" name="fechaDesde"
-                th:value="${fechaDesde != null ? #dates.format(fechaDesde,'yyyy-MM-dd') : ''}">
-            <input type="hidden" name="fechaHasta"
+    <!-- RESERVAR -->
+    <form th:action="@{/habitacion/reservar}" method="post" class="d-inline">
+        <input type="hidden" name="fechaDesde"
+            th:value="${fechaDesde != null ? #dates.format(fechaDesde,'yyyy-MM-dd') : ''}">
+        <input type="hidden" name="fechaHasta"
             th:value="${fechaHasta != null ? #dates.format(fechaHasta,'yyyy-MM-dd') : ''}">
-            <input type="hidden" id="habitacionesInput2" name="habitaciones">
+        <input type="hidden" id="habitacionesInput" name="habitaciones">
 
-            <button type="submit" class="btn btn-warning">OCUPAR HABITACION</button>
-        </form>
+        <button type="submit" class="btn btn-success">RESERVAR</button>
+    </form>
 
-        <a th:href="@{/}" class="btn btn-secondary">CANCELAR</a>
+</div>
+
+<!-- EL MODAL DEBE IR FUERA DE LOS FORMULARIOS -->
+<div id="modal-no-disponible">
+    <div id="modal-box-nd">
+        <h3>Habitación No Disponible</h3>
+        <p>Las habitaciones seleccionadas no están disponibles para el periodo indicado.</p>
+        <button onclick="cerrarModalNoDisponible()">Aceptar</button>
     </div>
+</div>
+
+<!-- BOTONES PARTE 2 (OCUPAR) -->
+<div class="mt-3 text-end">
+
+    <!-- OCUPAR CU15 -->
+    <form th:action="@{/habitacion/ocupar}" method="post" class="d-inline">
+        <input type="hidden" name="fechaDesde"
+            th:value="${fechaDesde != null ? #dates.format(fechaDesde,'yyyy-MM-dd') : ''}">
+        <input type="hidden" name="fechaHasta"
+        th:value="${fechaHasta != null ? #dates.format(fechaHasta,'yyyy-MM-dd') : ''}">
+        <input type="hidden" id="habitacionesInput2" name="habitaciones">
+
+        <button type="submit" class="btn btn-warning">OCUPAR HABITACION</button>
+    </form>
+
+    <a th:href="@{/}" class="btn btn-secondary">CANCELAR</a>
+</div>
+
 
     <!-- LEYENDA -->
     <div class="mt-4">
@@ -143,32 +190,49 @@
 
 <div th:replace="fragments/Base :: scripts"></div>
 
-<!-- SCRIPT NUEVO -->
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const seleccionadas = new Set();
+document.addEventListener("DOMContentLoaded", () => {
+    const seleccionadas = new Set();
 
-        document.querySelectorAll(".estado-clickable").forEach(cell => {
-            cell.addEventListener("click", () => {
-                const hab = cell.dataset.habitacion;
+    document.querySelectorAll(".estado-clickable").forEach(cell => {
+        cell.addEventListener("click", () => {
 
-                if (cell.classList.contains("celda-seleccionada")) {
-                    cell.classList.remove("celda-seleccionada");
-                    seleccionadas.delete(hab);
-                } else {
-                    cell.classList.add("celda-seleccionada");
-                    seleccionadas.add(hab);
-                }
+            const estado = cell.dataset.estado;
+            const hab = cell.dataset.habitacion;
 
-                document.getElementById("habitacionesInput").value =
-                    Array.from(seleccionadas).join(",");
+            /* ▶▶ CU04 – Si NO está disponible → ABRIR MODAL Y NO SELECCIONAR */
+            if (estado !== "DISPONIBLE") {
+                abrirModalNoDisponible();
+                return;
+            }
 
-                document.getElementById("habitacionesInput2").value =
-                    Array.from(seleccionadas).join(",");
-            });
+            /* ▶▶ Comportamiento normal si está disponible */
+            if (cell.classList.contains("celda-seleccionada")) {
+                cell.classList.remove("celda-seleccionada");
+                seleccionadas.delete(hab);
+            } else {
+                cell.classList.add("celda-seleccionada");
+                seleccionadas.add(hab);
+            }
+
+            document.getElementById("habitacionesInput").value =
+                Array.from(seleccionadas).join(",");
+
+            document.getElementById("habitacionesInput2").value =
+                Array.from(seleccionadas).join(",");
         });
     });
-    /* --- SHIFT + TAB retrocede campo --- */
+});
+
+/* === MODAL NO DISPONIBLE (IGUAL AL DEL INDEX) === */
+function abrirModalNoDisponible() {
+    document.getElementById("modal-no-disponible").style.display = "flex";
+}
+function cerrarModalNoDisponible() {
+    document.getElementById("modal-no-disponible").style.display = "none";
+}
+
+/* --- SHIFT + TAB retrocede campo --- */
 document.addEventListener("keydown", function(event) {
     if (event.key === "Tab" && event.shiftKey) {
         event.preventDefault();
@@ -197,10 +261,8 @@ document.addEventListener("input", function(event) {
         target.setSelectionRange(start, end);
     }
 });
-
-
-
 </script>
+
 
 </body>
 </html>
