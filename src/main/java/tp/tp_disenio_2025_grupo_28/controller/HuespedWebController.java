@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
@@ -85,87 +84,94 @@ public class HuespedWebController {
 
         StringBuilder errores = new StringBuilder();
 
-        if (esVacio(huesped.getNombre())) {
-            errores.append("Debe ingresar el Nombre.\n");
-        }
+        try {
 
-        if (esVacio(huesped.getApellido())) {
-            errores.append("Debe ingresar el Apellido.\n");
-        }
-
-        if (huesped.getTipoDocumento() == null) {
-            errores.append("Debe seleccionar el Tipo de documento.\n");
-        }
-
-        if (esVacio(huesped.getDocumento())) {
-            errores.append("Debe ingresar el Número de documento.\n");
-        }
-
-        if (huesped.getFechaNacimiento() == null) {
-            errores.append("Debe ingresar la Fecha de nacimiento.\n");
-        }
-
-        if (esVacio(huesped.getTelefono())) {
-            errores.append("Debe ingresar el Teléfono.\n");
-        }
-
-        // regla del CU
-        if (huesped.getPosicionFrenteAlIva() != null
-                && huesped.getPosicionFrenteAlIva().toString().equals("RESPONSABLE_INSCRIPTO")
-                && esVacio(huesped.getCuit())) {
-            errores.append("Debe ingresar CUIT porque es Responsable Inscripto.\n");
-        }
-
-        // Si hay errores S
-
-        if (errores.length() > 0) {
-
-            List<String> listaErrores = Arrays.stream(errores.toString().split("\\r?\\n"))
-                    .filter(s -> !s.isBlank())
-                    .collect(Collectors.toList());
-
-            model.addAttribute("errorList", listaErrores);
-            model.addAttribute("huesped", huesped);
-            model.addAttribute("tiposDocumento", TipoDocumento.values());
-            model.addAttribute("paises", paisRepository.findAll());
-            model.addAttribute("provincias", provinciaRepository.findAll());
-            model.addAttribute("localidades", localidadRepository.findAll());
-
-            return "huesped/huesped-form"; // ← volver al formulario
-        }
-
-        if (gestionHuesped.existeDocumento(huesped.getTipoDocumento(), huesped.getDocumento())) {
-            if (huesped.getDireccion() == null) {
-                huesped.setDireccion(new Direccion());
-            }
-            if (huesped.getDireccion().getLocalidad() == null) {
-                huesped.getDireccion().setLocalidad(new Localidad());
-            }
-            if (huesped.getDireccion().getLocalidad().getProvincia() == null) {
-                huesped.getDireccion().getLocalidad().setProvincia(new Provincia());
-            }
-            if (huesped.getDireccion().getLocalidad().getProvincia().getPais() == null) {
-                huesped.getDireccion().getLocalidad().getProvincia().setPais(new Pais());
+            if (esVacio(huesped.getNombre())) {
+                errores.append("Debe ingresar el Nombre.\n");
             }
 
-            model.addAttribute("titulo", "¡CUIDADO!");
-            model.addAttribute("mensaje", "El tipo y número de documento ya existen en el sistema.");
-            model.addAttribute("accionAceptar", "/huespedes/forzar-guardar");
-            model.addAttribute("accionCorregir", "/huespedes/corregir"); // corregir → POST que devuelve form
-            model.addAttribute("objeto", huesped);
-            model.addAttribute("focusField", "tipoDocumento");
+            if (esVacio(huesped.getApellido())) {
+                errores.append("Debe ingresar el Apellido.\n");
+            }
 
-            return "emergentes/advertencia";
+            if (huesped.getTipoDocumento() == null) {
+                errores.append("Debe seleccionar el Tipo de documento.\n");
+            }
+
+            if (esVacio(huesped.getDocumento())) {
+                errores.append("Debe ingresar el Número de documento.\n");
+            }
+
+            if (huesped.getFechaNacimiento() == null) {
+                errores.append("Debe ingresar la Fecha de nacimiento.\n");
+            }
+
+            if (esVacio(huesped.getTelefono())) {
+                errores.append("Debe ingresar el Teléfono.\n");
+            }
+
+            // regla del CU
+            if (huesped.getPosicionFrenteAlIva() != null
+                    && huesped.getPosicionFrenteAlIva().equals("RESPONSABLE_INSCRIPTO")
+                    && esVacio(huesped.getCuit())) {
+                errores.append("Debe ingresar CUIT porque es Responsable Inscripto.\n");
+            }
+
+            // Si hay errores S
+            if (errores.length() > 0) {
+
+                List<String> listaErrores = Arrays.stream(errores.toString().split("\\r?\\n"))
+                        .filter(s -> !s.isBlank())
+                        .collect(Collectors.toList());
+
+                model.addAttribute("errorList", listaErrores);
+                model.addAttribute("huesped", huesped);
+                model.addAttribute("tiposDocumento", TipoDocumento.values());
+                model.addAttribute("paises", paisRepository.findAll());
+                model.addAttribute("provincias", provinciaRepository.findAll());
+                model.addAttribute("localidades", localidadRepository.findAll());
+
+                return "huesped/huesped-form"; // ← volver al formulario
+            }
+
+            if (gestionHuesped.existeDocumento(huesped.getTipoDocumento(), huesped.getDocumento())) {
+                if (huesped.getDireccion() == null) {
+                    huesped.setDireccion(new Direccion());
+                }
+                if (huesped.getDireccion().getLocalidad() == null) {
+                    huesped.getDireccion().setLocalidad(new Localidad());
+                }
+                if (huesped.getDireccion().getLocalidad().getProvincia() == null) {
+                    huesped.getDireccion().getLocalidad().setProvincia(new Provincia());
+                }
+                if (huesped.getDireccion().getLocalidad().getProvincia().getPais() == null) {
+                    huesped.getDireccion().getLocalidad().getProvincia().setPais(new Pais());
+                }
+
+                model.addAttribute("titulo", "¡CUIDADO!");
+                model.addAttribute("mensaje", "El tipo y número de documento ya existen en el sistema.");
+                model.addAttribute("accionAceptar", "/huespedes/forzar-guardar");
+                model.addAttribute("accionCorregir", "/huespedes/corregir"); // corregir → POST que devuelve form
+                model.addAttribute("objeto", huesped);
+                model.addAttribute("focusField", "tipoDocumento");
+
+                return "emergentes/advertencia";
+            }
+
+            gestionHuesped.registrarHuesped(huesped);
+
+            model.addAttribute("titulo", "Huésped registrado");
+            model.addAttribute("mensaje", "El huésped fue cargado correctamente. ¿Desea cargar otro?");
+            model.addAttribute("accionAceptar", "/huespedes/nuevo");
+            model.addAttribute("accionCancelar", "/");
+
+            return "emergentes/exito";
+
+        } catch (Exception e) {
+            model.addAttribute("mensaje", "Ocurrió un error: " + e.getMessage());
+            // e.printStackTrace();
+            return "emergentes/error";
         }
-
-        gestionHuesped.registrarHuesped(huesped);
-
-        model.addAttribute("titulo", "Huésped registrado");
-        model.addAttribute("mensaje", "El huésped fue cargado correctamente. ¿Desea cargar otro?");
-        model.addAttribute("accionAceptar", "/huespedes/nuevo");
-        model.addAttribute("accionCancelar", "/");
-
-        return "emergentes/exito";
     }
 
     @PostMapping("/forzar-guardar")
@@ -183,7 +189,6 @@ public class HuespedWebController {
             return "emergentes/exito";
         } catch (Exception e) {
             model.addAttribute("mensaje", "Ocurrió un error: " + e.getMessage());
-            e.printStackTrace();
             return "emergentes/error";
         }
     }
@@ -217,7 +222,6 @@ public class HuespedWebController {
     }
 
     // cu 2
-
     @GetMapping("/buscar")
     public String mostrarBusqueda(Model model) {
         model.addAttribute("apellido", "");
