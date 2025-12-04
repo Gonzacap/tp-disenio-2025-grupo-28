@@ -2,10 +2,8 @@ package tp.tp_disenio_2025_grupo_28.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,16 +52,14 @@ public class GestionHuesped {
         }
 
         // Verificar duplicados
-        Optional<Huesped> existente = huespedRepository.findByTipoDocumentoAndDocumento(
-                nuevoHuesped.getTipoDocumento(),
-                nuevoHuesped.getDocumento());
+        // Optional<Huesped> existente = huespedRepository.findByTipoDocumentoAndDocumento(
+        //         nuevoHuesped.getTipoDocumento(),
+        //         nuevoHuesped.getDocumento());
 
-        if (existente.isPresent()) {
-            throw new DuplicateKeyException("El huésped con ese documento ya existe");
-        }
+        // if (existente.isPresent()) {
+        //     throw new DuplicateKeyException("El huésped con ese documento ya existe");
+        // }
 
-        // Pais pais =
-        // paisRepository.save(nuevoHuesped.getDireccion().getLocalidad().getProvincia().getPais());
         Pais paisHuesped = nuevoHuesped.getDireccion().getLocalidad().getProvincia().getPais();
         Optional<Pais> paisExistente = paisRepository.findByNombre(paisHuesped.getNombre());
 
