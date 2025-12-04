@@ -354,7 +354,9 @@ public class GestionHabitacion {
             reservaRepository.save(reserva);
         }
     }*/
-//METEDO NUEVO, TENIENDO EN CUENTA LOS FLUJOS ALTERNATIVOS
+
+    //METEDO NUEVO, TENIENDO EN CUENTA LOS FLUJOS ALTERNATIVOS
+    @Transactional
     public void ocuparHabitacion(Integer idReserva, OcupacionRequestDTO request, OcupacionHuespedDTO huespedes, boolean forzar) {
         validarFecha(request.getFechaDesde(), request.getFechaHasta());
         Reserva reservaExistente = buscarReservaParaOcupar(request.getNumeroHabitacion(), request.getFechaDesde(), request.getFechaDesde()) != null
