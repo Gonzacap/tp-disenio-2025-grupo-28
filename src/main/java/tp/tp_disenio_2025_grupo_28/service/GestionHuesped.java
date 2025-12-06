@@ -2,10 +2,8 @@ package tp.tp_disenio_2025_grupo_28.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +43,53 @@ public class GestionHuesped {
     @Autowired
     private PaisRepository paisRepository;
 
+    // public Huesped registrarHuesped(Huesped nuevoHuesped) {
+    //     // Validaciones
+    //     List<String> errores = validarCampos(nuevoHuesped);
+    //     if (!errores.isEmpty()) {
+    //         throw new IllegalArgumentException("Errores: " + String.join(", ", errores));
+    //     }
+    //     // Verificar duplicados
+    //     Optional<Huesped> existente = huespedRepository.findByTipoDocumentoAndDocumento(
+    //             nuevoHuesped.getTipoDocumento(),
+    //             nuevoHuesped.getDocumento());
+    //     if (existente.isPresent()) {
+    //         throw new DuplicateKeyException("El huésped con ese documento ya existe");
+    //     }
+    //     // Pais pais =
+    //     // paisRepository.save(nuevoHuesped.getDireccion().getLocalidad().getProvincia().getPais());
+    //     Pais paisHuesped = nuevoHuesped.getDireccion().getLocalidad().getProvincia().getPais();
+    //     Optional<Pais> paisExistente = paisRepository.findByNombre(paisHuesped.getNombre());
+    //     Pais pais;
+    //     if (paisExistente.isPresent()) {
+    //         pais = paisExistente.get(); // usamos el país que ya existe
+    //     } else {
+    //         pais = paisRepository.save(paisHuesped); // lo guardamos si no existía
+    //     }
+    //     Provincia provinciaHuesped = nuevoHuesped.getDireccion().getLocalidad().getProvincia();
+    //     Optional<Provincia> provinciaExistente = provinciaRepository.findByNombre(provinciaHuesped.getNombre());
+    //     Provincia provincia;
+    //     if (provinciaExistente.isPresent()) {
+    //         provincia = provinciaExistente.get(); // usamos el país que ya existe
+    //     } else {
+    //         provinciaHuesped.setPais(pais);
+    //         provincia = provinciaRepository.save(provinciaHuesped); // lo guardamos si no existía
+    //     }
+    //     Localidad localidadHuesped = nuevoHuesped.getDireccion().getLocalidad();
+    //     Optional<Localidad> localidadExistente = localidadRepository.findByNombre(localidadHuesped.getNombre());
+    //     Localidad localidad;
+    //     if (localidadExistente.isPresent()) {
+    //         localidad = localidadExistente.get(); // usamos el país que ya existe
+    //     } else {
+    //         localidadHuesped.setProvincia(provincia);
+    //         localidad = localidadRepository.save(localidadHuesped); // lo guardamos si no existía
+    //     }
+    //     Direccion direccion = nuevoHuesped.getDireccion();
+    //     direccion.setLocalidad(localidad);
+    //     direccion = direccionRepository.save(direccion);
+    //     nuevoHuesped.setDireccion(direccion);
+    //     return huespedRepository.save(nuevoHuesped);
+    // }
     public Huesped registrarHuesped(Huesped nuevoHuesped) {
 
         // Validaciones
@@ -56,14 +101,14 @@ public class GestionHuesped {
         // Verificar duplicados
         Optional<Huesped> existente = huespedRepository.findByTipoDocumentoAndDocumento(
                 nuevoHuesped.getTipoDocumento(),
-                nuevoHuesped.getDocumento());
+                nuevoHuesped.getDocumento()
+        );
 
         if (existente.isPresent()) {
             throw new DuplicateKeyException("El huésped con ese documento ya existe");
         }
 
-        // Pais pais =
-        // paisRepository.save(nuevoHuesped.getDireccion().getLocalidad().getProvincia().getPais());
+        // Pais pais = paisRepository.save(nuevoHuesped.getDireccion().getLocalidad().getProvincia().getPais());
         Pais paisHuesped = nuevoHuesped.getDireccion().getLocalidad().getProvincia().getPais();
         Optional<Pais> paisExistente = paisRepository.findByNombre(paisHuesped.getNombre());
 
@@ -210,7 +255,6 @@ public class GestionHuesped {
     }
 
     // cu 2
-
     public List<Huesped> buscarHuespedFinal(
             String apellido,
             String nombre,
@@ -226,8 +270,9 @@ public class GestionHuesped {
                         huespedRepository.findAllByTipoDocumentoAndDocumento(tipoDocumento, documento));
             } else {
                 Huesped h = huespedRepository.findFirstByDocumento(documento);
-                if (h != null)
+                if (h != null) {
                     candidatos.add(h);
+                }
             }
 
         } else {
@@ -251,13 +296,13 @@ public class GestionHuesped {
 
         return candidatos.stream()
                 .filter(h -> apellido == null || apellido.isBlank()
-                        || h.getApellido().toLowerCase().contains(apellido.toLowerCase()))
+                || h.getApellido().toLowerCase().contains(apellido.toLowerCase()))
                 .filter(h -> nombre == null || nombre.isBlank()
-                        || h.getNombre().toLowerCase().contains(nombre.toLowerCase()))
+                || h.getNombre().toLowerCase().contains(nombre.toLowerCase()))
                 .filter(h -> tipoDocumento == null
-                        || h.getTipoDocumento() == tipoDocumento)
+                || h.getTipoDocumento() == tipoDocumento)
                 .filter(h -> documento == null || documento.isBlank()
-                        || h.getDocumento().equals(documento))
+                || h.getDocumento().equals(documento))
                 .distinct()
                 .toList();
     }
