@@ -1,20 +1,19 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.*;
 
 import tp.tp_disenio_2025_grupo_28.model.Huesped;
 import tp.tp_disenio_2025_grupo_28.service.GestionHuesped;
-import tp.tp_disenio_2025_grupo_28.dto.HuespedDTO;
-import tp.tp_disenio_2025_grupo_28.mapper.HuespedMapper;
 
 @Controller
 @RequestMapping("/huesped")
@@ -28,8 +27,8 @@ public class HuespedTestWebController {
     }
 
     /**
-     * Handles the GET request to show the new Huesped form.
-     * Ensures a Huesped object is available for form binding and checks for Flash attributes.
+     * Handles the GET request to show the new Huesped form. Ensures a Huesped
+     * object is available for form binding and checks for Flash attributes.
      */
     @GetMapping("/new")
     public String showNewHuespedForm(Model model) {
@@ -46,14 +45,14 @@ public class HuespedTestWebController {
     }
 
     /**
-     * Handles the POST request when the form is submitted.
-     * Delegates saving to the service and handles exceptions.
+     * Handles the POST request when the form is submitted. Delegates saving to
+     * the service and handles exceptions.
      */
     @PostMapping("/new")
     public String saveHuesped(@ModelAttribute("huesped") Huesped huesped,
-                              RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
         try {
-            HuespedDTO nuevoHuesped = gestionHuesped.registrarNuevoHuesped(huesped);
+            Huesped nuevoHuesped = gestionHuesped.registrarNuevoHuesped(huesped);
 
             String fullName = nuevoHuesped.getNombre() + " " + nuevoHuesped.getApellido();
             return "redirect:/huesped/success?name=" + fullName;
@@ -67,7 +66,7 @@ public class HuespedTestWebController {
     /**
      * Simple success page controller.
      */
-   @GetMapping("/success")
+    @GetMapping("/success")
     public String showSuccess(@RequestParam String name, Model model) {
         String msg = "El huésped " + name + " ha sido satisfactoriamente cargado.";
         model.addAttribute("successMessage", msg);

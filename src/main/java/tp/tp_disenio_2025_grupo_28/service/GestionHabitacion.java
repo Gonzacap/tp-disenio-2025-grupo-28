@@ -334,16 +334,13 @@ public class GestionHabitacion {
                 ocupantes.addAll(listaAcompanantes);
             }
 
-<<<<<<< HEAD
             //reserva.setAcompanantes(listaAcompanantes);
             reservaService.agregarAcompanantesAreserva(reserva.getIdReserva(), listaAcompanantes);
             reservaRepository.save(reserva);
-=======
             if (reserva != null) {
                 reserva.setAcompanantes(listaAcompanantes);
                 reservaRepository.save(reserva);
             }
->>>>>>> 4e2235b6f9d6f6f82a712daee70597fc44fb7846
 
             ocupantesAsignados.put(key, ocupantes);
         }
@@ -357,7 +354,9 @@ public class GestionHabitacion {
             reservaRepository.save(reserva);
         }
     }*/
-//METEDO NUEVO, TENIENDO EN CUENTA LOS FLUJOS ALTERNATIVOS
+
+    //METEDO NUEVO, TENIENDO EN CUENTA LOS FLUJOS ALTERNATIVOS
+    @Transactional
     public void ocuparHabitacion(Integer idReserva, OcupacionRequestDTO request, OcupacionHuespedDTO huespedes, boolean forzar) {
         validarFecha(request.getFechaDesde(), request.getFechaHasta());
         Reserva reservaExistente = buscarReservaParaOcupar(request.getNumeroHabitacion(), request.getFechaDesde(), request.getFechaDesde()) != null
