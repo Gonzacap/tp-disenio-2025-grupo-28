@@ -186,7 +186,7 @@ public class GestionHuesped {
         }
 
         // Dirección completa (reusar o crear)
-        Direccion direccion = obtenerOcrearDireccion(nuevoHuesped.getDireccion());
+        Direccion direccion = obtenerOcrearDireccion(nuevoHuesped);
         nuevoHuesped.setDireccion(direccion);
 
         return huespedRepository.save(nuevoHuesped);
@@ -260,56 +260,42 @@ public class GestionHuesped {
     }
 
     //METODOS AUXILIAR PARA DIRECCION
-    public Direccion obtenerOcrearDireccion(Direccion d) {
-        //1-Pais
-        Pais pais = paisRepository.findByNombre(d.getLocalidad().getProvincia().getPais().getNombre())
-                .orElseGet(() -> paisRepository.save(
-                new Pais(d.getLocalidad().getProvincia().getPais().getNombre())
-        ));
-        //2-Provincia
-        Provincia provincia = provinciaRepository
-                .findByNombre(d.getLocalidad().getProvincia().getNombre())
-                .orElseGet(() -> {
-                    Provincia nueva = new Provincia(
-                            d.getLocalidad().getProvincia().getNombre(), pais
-                    );
-                    return provinciaRepository.save(nueva);
-                });
+    public Direccion obtenerOcrearDireccion(Huesped nuevoHuesped) {
+        Pais paisHuesped = nuevoHuesped.getDireccion().getLocalidad().getProvincia().getPais();
+        Optional<Pais> paisExistente = paisRepository.findByNombre(paisHuesped.getNombre());
 
-        // 3 ─ Localidad
-        Localidad localidad = localidadRepository
-                .findByNombre(d.getLocalidad().getNombre())
-                .orElseGet(() -> {
-                    Localidad nueva = new Localidad(
-                            d.getLocalidad().getNombre(),
-                            d.getLocalidad().getCodigoPostal(),
-                            provincia
-                    );
-                    return localidadRepository.save(nueva);
-                });
-// 4 ─ Dirección (UNIQUE)
-        Optional<Direccion> direccionExistente = direccionRepository.findByDireccionAndNumeroAndPisoAndDeptoAndLocalidad(
-                d.getDireccion(),
-                d.getNumero(),
-                d.getPiso(),
-                d.getDepto(),
-                localidad
-        );
-
-        if (direccionExistente.isPresent()) {
-            return direccionExistente.get(); // ✔️ REUSAR
+        Pais pais;
+        if (paisExistente.isPresent()) {
+            pais = paisExistente.get();
+        } else {
+            pais = paisRepository.save(paisHuesped);
         }
 
-        // 5 ─ Crear nueva
-        Direccion nuevaDir = new Direccion(
-                d.getDireccion(),
-                d.getNumero(),
-                d.getDepto(),
-                d.getPiso(),
-                d.getNacionalidad(),
-                localidad
-        );
+        Provincia provinciaHuesped = nuevoHuesped.getDireccion().getLocalidad().getProvincia();
+        Optional<Provincia> provinciaExistente = provinciaRepository.findByNombre(provinciaHuesped.getNombre());
 
-        return direccionRepository.save(nuevaDir);
+        Provincia provincia;
+        if (provinciaExistente.isPresent()) {
+            provincia = provinciaExistente.get();
+        } else {
+            provinciaHuesped.setPais(pais);
+            provincia = provinciaRepository.save(provinciaHuesped);
+        }
+
+        Localidad localidadHuesped = nuevoHuesped.getDireccion().getLocalidad();
+        Optional<Localidad> localidadExistente = localidadRepository.findByNombre(localidadHuesped.getNombre());
+
+        Localidad localidad;
+        if (localidadExistente.isPresent()) {
+            localidad = localidadExistente.get();
+        } else {
+            localidadHuesped.setProvincia(provincia);
+            localidad = localidadRepository.save(localidadHuesped);
+        }
+
+        Direccion direccion = nuevoHuesped.getDireccion();
+        direccion.setLocalidad(localidad);
+
+        return direccionRepository.save(direccion);
     }
 }

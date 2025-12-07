@@ -109,11 +109,24 @@ public class HuespedWebController2 {
     //caso de uso 9
     @GetMapping("/nuevo")
     public String mostrarFormularioAlta(Model model) {
-        model.addAttribute("huesped", new HuespedDTO());
+
+        Huesped h = new Huesped();
+        Direccion d = new Direccion();
+        Localidad loc = new Localidad();
+        Provincia prov = new Provincia();
+        Pais pais = new Pais();
+
+        // armamos la jerarquía vacía
+        prov.setPais(pais);
+        loc.setProvincia(prov);
+        d.setLocalidad(loc);
+        h.setDireccion(d);
+        model.addAttribute("huesped", h);
         model.addAttribute("tiposDocumento", TipoDocumento.values());
         model.addAttribute("paises", paisRepository.findAll());
         model.addAttribute("provincias", provinciaRepository.findAll());
         model.addAttribute("localidades", localidadRepository.findAll());
+
         return "huesped/huesped-form";
     }
 
@@ -234,15 +247,13 @@ public class HuespedWebController2 {
         Localidad loc = new Localidad();
         loc.setNombre(dto.getLocalidad());
         loc.setProvincia(prov);
+        loc.setCodigoPostal(dto.getCodigoPostal());
 
         Direccion d = new Direccion();
         d.setDireccion(dto.getDireccion());
-
         d.setDepto(dto.getDepto());
         d.setPiso(dto.getPiso());
-        // d.setCodigoPostal(dto.getCodigoPostal());
         d.setLocalidad(loc);
-
         return d;
     }
 

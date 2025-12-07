@@ -33,14 +33,14 @@
 <body>
   <h2>Hotel Premier - Dar de Alta Huésped</h2>
 
-  <!-- MENSAJES DE CONFIRMACIÓN O ERROR -->
-<!-- Mensajes de error en lista -->
-<div th:if="${errorList}" class="alert alert-danger">
-  <strong>ERROR!</strong>
-  <ul>
-    <li th:each="err : ${errorList}" th:text="${err}"></li>
-  </ul>
-</div>
+  <!-- LISTA DE ERRORES -->
+  <div th:if="${errorList}" class="alert alert-danger">
+    <strong>ERROR!</strong>
+    <ul>
+      <li th:each="err : ${errorList}" th:text="${err}"></li>
+    </ul>
+  </div>
+
 
 <!-- Mensajes de éxito -->
 <div th:if="${mensajeExito}" class="alert alert-success" th:utext="${mensajeExito}"></div>
@@ -122,13 +122,11 @@
     </div>
 
     <!-- Botones -->
-      <div id="modal-cancelar" th:if="${confirmarCancelar}" class="botones">
-
+    <div class="botones">
       <button type="submit">Siguiente</button>
       <button type="reset">Borrar</button>
-<button type="button" onclick="abrirModalCancelar()">Cancelar</button>
-
-    </div>
+      <button type="button" onclick="abrirModalCancelar()">Cancelar</button>
+    </div>
   </form>
 
 <!-- MODAL ÉXITO -->
@@ -215,41 +213,41 @@
         <form th:action="@{/huespedes/cancelar}" method="post" style="display:inline;">
             <input type="hidden" name="confirm" value="SI">
             <button type="submit" style="padding:8px 20px; background:#b30000; color:white; border:none; border-radius:6px;">
-                Sí
+                SI
             </button>
         </form>
 
         <form th:action="@{/huespedes/cancelar}" method="post" style="display:inline;">
             <input type="hidden" name="confirm" value="NO">
             <button type="submit" style="padding:8px 20px; background:#aaa; color:white; border:none; border-radius:6px;">
-                No
+                NO
             </button>
         </form>
     </div>
 </div>
 
 
-<script>
+  <script>
+    function cerrarError() {
+        document.getElementById("modal-error").style.display = "none";
+    }
 
-function cerrarError() {
-    document.getElementById("modal-error").style.display = "none";
-}
+    function cerrarDuplicado() {
+        document.getElementById("modal-duplicado").style.display = "none";
+    }
 
-function cerrarDuplicado() {
-    document.getElementById("modal-duplicado").style.display = "none";
-}
+    function abrirModalCancelar() {
+      document.getElementById("modal-cancelar").style.display = "flex";
+    }
 
-function abrirModalCancelar() {
-  document.getElementById("modal-cancelar").style.display = "flex";
-}
+    function cerrarCancelar() {
+      document.getElementById("modal-cancelar").style.display = "none";
+    }
 
-function cerrarCancelar() {
-  document.getElementById("modal-cancelar").style.display = "none";
-}
+    function cerrarExito() {
+        document.getElementById("modal-exito").style.display = "none";
+    }
 
-function cerrarExito() {
-    document.getElementById("modal-exito").style.display = "none";
-}
     document.addEventListener("DOMContentLoaded", function() {
        document.querySelectorAll('input[type="text"], input[type="email"], textarea')
         .forEach(input => {
@@ -258,16 +256,15 @@ function cerrarExito() {
           });
         });
     });
-</script>
-<script th:inline="javascript">
-  var focusField = /*[[${focusField} != null ? '${focusField}' : ''] ]*/ '';
-  if (focusField) {
-    // campo nombre en el form - ajusta selector según name en el modelo
-    var el = document.querySelector('[name="' + focusField + '"]');
-    if (el) el.focus();
-  }
-</script>
+  </script>
 
+  <script th:inline="javascript">
+    var focusField = /*[[${focusField} != null ? '${focusField}' : ''] ]*/ '';
+    if (focusField) {
+      var el = document.querySelector('[name="' + focusField + '"]');
+      if (el) el.focus();
+    }
+  </script>
 
 </body>
 </html>
