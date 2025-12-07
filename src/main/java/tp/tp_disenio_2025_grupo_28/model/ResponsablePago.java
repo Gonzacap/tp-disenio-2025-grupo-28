@@ -1,6 +1,13 @@
 package tp.tp_disenio_2025_grupo_28.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "responsable_pago")
@@ -20,7 +27,8 @@ public abstract class ResponsablePago {
     @JoinColumn(name = "direccion_id")
     protected Direccion direccion;
 
-    public ResponsablePago() {}
+    public ResponsablePago() {
+    }
 
     public ResponsablePago(String cuit, String razonSocial, String telefono, Direccion direccion) {
         this.cuit = cuit;

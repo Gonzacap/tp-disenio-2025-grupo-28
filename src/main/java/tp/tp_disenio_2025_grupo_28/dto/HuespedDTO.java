@@ -20,18 +20,13 @@ public class HuespedDTO {
     private String email;
     private String ocupacion;
 
-    // Datos de dirección (aplanados)
-    private String direccion;
-    private String numero;
-    private String depto;
-    private String piso;
-    private String localidad;
-    private String codigoPostal;
-    private String provincia;
-    private String pais;
+    private DireccionDTO direccion;
 
-    // Constructores
     public HuespedDTO() {
+        this.direccion = new DireccionDTO();
+        this.direccion.setLocalidad(new LocalidadDTO());
+        this.direccion.getLocalidad().setProvincia(new ProvinciaDTO());
+        this.direccion.getLocalidad().getProvincia().setPais(new PaisDTO());
     }
 
     // Getters y setters
@@ -115,67 +110,12 @@ public class HuespedDTO {
         this.ocupacion = ocupacion;
     }
 
-    public String getDireccion() {
+    public DireccionDTO getDireccion() {
         return direccion;
     }
 
-    public void setDireccion(String direccion) {
+    public void setDireccion(DireccionDTO direccion) {
         this.direccion = direccion;
     }
 
-    public String getNumero() {
-        return numero;
-    }
-
-    public void setNumero(String numero) {
-        this.numero = numero;
-    }
-
-    public String getDepto() {
-        return depto;
-    }
-
-    public void setDepto(String depto) {
-        this.depto = depto;
-    }
-
-    public String getPiso() {
-        return piso;
-    }
-
-    public void setPiso(String piso) {
-        this.piso = piso;
-    }
-
-    public String getLocalidad() {
-        return localidad;
-    }
-
-    public void setLocalidad(String localidad) {
-        this.localidad = localidad;
-    }
-
-    public String getCodigoPostal() {
-        return codigoPostal;
-    }
-
-    public void setCodigoPostal(String codigoPostal) {
-        this.codigoPostal = codigoPostal;
-    }
-
-    public String getProvincia() {
-        return provincia;
-    }
-
-    public void setProvincia(String provincia) {
-        this.provincia = provincia;
-    }
-
-    public String getPais() {
-        return pais;
-    }
-
-    public void setPais(String pais) {
-        this.pais = pais;
-    }
 }

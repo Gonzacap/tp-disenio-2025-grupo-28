@@ -7,7 +7,7 @@
     body { font-family: Arial, sans-serif; margin: 40px; background-color: #fff; }
     h2 { text-align: center; margin-bottom: 25px; }
     form { max-width: 900px; margin: 0 auto; border: 1px solid #ccc; padding: 25px 40px;
-           border-radius: 5px; background-color: #fafafa; }
+          border-radius: 5px; background-color: #fafafa; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; row-gap: 10px; }
     label { font-weight: bold; margin-bottom: 3px; display: inline-block; }
     label .req { color: red; }
@@ -22,7 +22,7 @@
     .direccion-group input { flex: 1; }
     .botones { text-align: center; margin-top: 25px; }
     button { padding: 8px 20px; margin: 0 5px; border: 1px solid #888;
-             background-color: #eee; border-radius: 3px; cursor: pointer; font-size: 14px; }
+            background-color: #eee; border-radius: 3px; cursor: pointer; font-size: 14px; }
     button:hover { background-color: #ddd; }
     .alert { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
     .alert-success { color: green; font-weight: bold; text-align: center; }
@@ -33,18 +33,16 @@
 <body>
   <h2>Hotel Premier - Dar de Alta Huésped</h2>
 
-  <!-- LISTA DE ERRORES -->
-  <div th:if="${errorList}" class="alert alert-danger">
+  <!-- LISTA DE ERRORES 
+<th:block th:if="${errorList != null}">
+  <div class="alert alert-danger">
     <strong>ERROR!</strong>
-    <ul>
-      <li th:each="err : ${errorList}" th:text="${err}"></li>
-    </ul>
+    <ul>  <li data-th-each="err : ${errorList}"  data-th-text="${err}"></li> </ul>
   </div>
-
-
-<!-- Mensajes de éxito -->
+</th:block>
+ Mensajes de éxito 
 <div th:if="${mensajeExito}" class="alert alert-success" th:utext="${mensajeExito}"></div>
-
+-->
 
   <!-- FORMULARIO PRINCIPAL -->
   <form th:action="@{/huespedes/guardar}" method="post" th:object="${huesped}">
@@ -54,7 +52,6 @@
       <div>
         <label>Nombre <span class="req">*</span></label>
         <input type="text" th:field="*{nombre}" required>
-
         <label>Apellido <span class="req">*</span></label>
         <input type="text" th:field="*{apellido}" required>
 
@@ -70,7 +67,11 @@
         <input type="text" th:field="*{documento}" required>
 
         <label>CUIT</label>
-        <input type="text" th:field="*{cuit}">
+        <input type="text" th:field="*{cuit}"
+      placeholder="XX-XXXXXXXX-X"
+      pattern="\d{2}-\d{8}-\d"
+      title="Formato válido: XX-XXXXXXXX-X">
+<small style="color:#666;"></small>
 
         <label>Fecha de nacimiento <span class="req">*</span></label>
         <input type="date" th:field="*{fechaNacimiento}" required>
@@ -124,46 +125,51 @@
     <!-- Botones -->
     <div class="botones">
       <button type="submit">Siguiente</button>
-      <button type="reset">Borrar</button>
+      
       <button type="button" onclick="abrirModalCancelar()">Cancelar</button>
     </div>
   </form>
 
 <!-- MODAL ÉXITO -->
 <div id="modal-exito" 
-     th:if="${mostrarModalExito}" 
-     style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
-    <div style="background:white; padding:25px; border-radius:10px; width:350px; text-align:center;
-                box-shadow:0 0 15px rgba(0,0,0,0.3);">
-        <h3>Registro exitoso</h3>
-        <p th:utext="${mensajeExito}"></p>
+    th:if="${mostrarModalExito}" 
+    style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%;
+           background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+  <div style="background:white; padding:25px; border-radius:10px; width:380px; text-align:center;
+              box-shadow:0 0 15px rgba(0,0,0,0.3);">
+    <h3>Registro exitoso</h3>
+    <p th:utext="${mensajeExito}"></p>
 
-        <div style="margin-top:15px;">
-            <!-- Botón para cargar otro -->
-            <form th:action="@{/huespedes/nuevo}" method="get" style="display:inline;">
-                <button type="submit"
-                        style="padding:8px 20px; background:#1b4965; color:white; border:none; border-radius:6px;">
-                    SI
-                </button>
-            </form>
+    <div style="margin-top:18px; display:flex; justify-content:center; gap:12px;">
+      <!-- SI: limpiar formulario y quedarse en alta -->
+      <form th:action="@{/huespedes/continuar}" method="post" style="display:inline;">
+        <input type="hidden" name="respuesta" value="si"/>
+        <button type="submit"
+                style="padding:10px 22px; background:#1b4965; color:white; border:none; border-radius:6px;">
+          SI
+        </button>
+      </form>
 
-            <!-- Botón para cerrar el modal -->
-            <button onclick="cerrarExito()" 
-                    style="padding:8px 20px; background:#aaa; color:white; border:none; border-radius:6px; margin-left:10px;">
-                NO
-            </button>
-        </div>
+      <!-- NO: volver a index -->
+      <form th:action="@{/huespedes/continuar}" method="post" style="display:inline;">
+        <input type="hidden" name="respuesta" value="no"/>
+        <button type="submit"
+                style="padding:10px 22px; background:#6c6c6c; color:white; border:none; border-radius:6px;">
+          NO
+        </button>
+      </form>
     </div>
+  </div>
 </div>
+
 
 <!-- MODAL ERRORES DE VALIDACIÓN -->
 <div id="modal-error"
-     th:if="${mostrarModalError}"
-     style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%;
+    th:if="${mostrarModalError}"
+    style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%;
             background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
     <div style="background:white; padding:25px; border-radius:10px; width:400px; text-align:center;">
-        <h3 style="color:red;">FALTAN DATOS OBLIGATORIOS</h3>
+        <h3 style="color:red;">ERROR</h3>
 
         <ul style="text-align:left;">
             <li th:each="err : ${errorList}" th:text="${err}"></li>
@@ -177,94 +183,115 @@
 </div>
 
 <!-- MODAL DUPLICADO -->
+
 <div id="modal-duplicado"
-     th:if="${duplicado}"
-     style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%;
+    th:if="${duplicado}"
+    style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%;
             background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+
     <div style="background:white; padding:25px; border-radius:10px; width:400px; text-align:center;">
+
         <h3 style="color:#b45f00;">¡CUIDADO!</h3>
         <p th:text="${mensajeDuplicado}"></p>
 
-        <form th:action="@{/huespedes/aceptar-igualmente}" method="post" style="display:inline;">
-            <button type="submit"
-                    style="padding:8px 20px; background:#1b4965; color:white; border:none; border-radius:6px;">
-                ACEPTAR IGUALMENTE
-            </button>
-        </form>
+        <div style="display:flex; justify-content:center; gap:15px; margin-top:20px;">
 
-        <form th:action="@{/huespedes/corregir}" method="post" style="display:inline;">
-            <input type="hidden" th:field="*{tipoDocumento}">
-            <button type="submit"
-                    style="padding:8px 20px; background:#aaa; color:white; border:none; border-radius:6px; margin-left:10px;">
-                CORREGIR
-            </button>
-        </form>
+            <form th:action="@{/huespedes/aceptar-igualmente}" method="post">
+                <input type="hidden" name="tipoDocumento" th:value="${huesped.tipoDocumento}">
+                <input type="hidden" name="documento" th:value="${huesped.documento}">
+                <button type="submit"
+                        style="padding:8px 20px; background:#1b4965; color:white;
+                              border:none; border-radius:6px;">
+                    ACEPTAR IGUALMENTE
+                </button>
+            </form>
+
+          <button type="button"
+        onclick="corregirDocumento()" style="padding:8px 20px; background:#aaa; color:white; border:none; border-radius:6px; margin-left:10px;">
+              CORREGIR
+          </button>
+
+        </div>
     </div>
 </div>
 
+
 <!-- MODAL CANCELAR -->
 <div id="modal-cancelar"
-     th:if="${confirmarCancelar}"
-     style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+          background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
     <div style="background:white; padding:25px; border-radius:10px; width:350px; text-align:center;">
         <h3>¿Desea cancelar el alta del huésped?</h3>
 
+        <!-- SI -->
         <form th:action="@{/huespedes/cancelar}" method="post" style="display:inline;">
             <input type="hidden" name="confirm" value="SI">
-            <button type="submit" style="padding:8px 20px; background:#b30000; color:white; border:none; border-radius:6px;">
+            <button type="submit"
+                    style="padding:8px 20px; background:#b30000; color:white;
+                          border:none; border-radius:6px;">
                 SI
             </button>
         </form>
 
-        <form th:action="@{/huespedes/cancelar}" method="post" style="display:inline;">
-            <input type="hidden" name="confirm" value="NO">
-            <button type="submit" style="padding:8px 20px; background:#aaa; color:white; border:none; border-radius:6px;">
-                NO
-            </button>
-        </form>
+        <!-- NO -->
+        <button type="button"
+                onclick="cerrarCancelar()"
+                style="padding:8px 20px; background:#aaa; color:white;
+                      border:none; border-radius:6px; margin-left:10px;">
+            NO
+        </button>
     </div>
 </div>
 
 
-  <script>
-    function cerrarError() {
-        document.getElementById("modal-error").style.display = "none";
-    }
 
-    function cerrarDuplicado() {
-        document.getElementById("modal-duplicado").style.display = "none";
-    }
+<script>
 
-    function abrirModalCancelar() {
-      document.getElementById("modal-cancelar").style.display = "flex";
-    }
+function corregirDocumento() {
+    // cerrar modal duplicado
+    document.getElementById("modal-duplicado").style.display = "none";
 
-    function cerrarCancelar() {
-      document.getElementById("modal-cancelar").style.display = "none";
+    // foco en Tipo de Documento
+    const tipoDocumento = document.querySelector('[name="tipoDocumento"]');
+    if (tipoDocumento) {
+        tipoDocumento.focus();
     }
+}
 
-    function cerrarExito() {
-        document.getElementById("modal-exito").style.display = "none";
-    }
+function cerrarError() {
+    document.getElementById("modal-error").style.display = "none";
+}
+
+function cerrarDuplicado() {
+    document.getElementById("modal-duplicado").style.display = "none";
+}
+
+function abrirModalCancelar() {
+  document.getElementById("modal-cancelar").style.display = "flex";
+}
+
+function cerrarCancelar() {
+  document.getElementById("modal-cancelar").style.display = "none";
+}
 
     document.addEventListener("DOMContentLoaded", function() {
-       document.querySelectorAll('input[type="text"], input[type="email"], textarea')
+      document.querySelectorAll('input[type="text"], input[type="email"], textarea')
         .forEach(input => {
           input.addEventListener("input", function() {
             this.value = this.value.toUpperCase();
           });
         });
     });
-  </script>
+</script>
+<script th:inline="javascript">
+  var focusField = /*[[${focusField} != null ? '${focusField}' : ''] ]*/ '';
+  if (focusField) {
+    // campo nombre en el form - ajusta selector según name en el modelo
+    var el = document.querySelector('[name="' + focusField + '"]');
+    if (el) el.focus();
+  }
+</script>
 
-  <script th:inline="javascript">
-    var focusField = /*[[${focusField} != null ? '${focusField}' : ''] ]*/ '';
-    if (focusField) {
-      var el = document.querySelector('[name="' + focusField + '"]');
-      if (el) el.focus();
-    }
-  </script>
 
 </body>
 </html>

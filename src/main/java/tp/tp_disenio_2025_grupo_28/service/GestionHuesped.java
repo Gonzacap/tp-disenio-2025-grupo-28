@@ -2,6 +2,7 @@ package tp.tp_disenio_2025_grupo_28.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -48,6 +49,14 @@ public class GestionHuesped {
         List<String> errores = validarCampos(nuevoHuesped);
         if (!errores.isEmpty()) {
             throw new IllegalArgumentException("Errores: " + String.join(", ", errores));
+        }
+        //CUIT tecnico, para la PK de Huesped
+        if (nuevoHuesped.getCuit() == null || nuevoHuesped.getCuit().isBlank()) {
+            String cuitTecnico = "H-"
+                    + nuevoHuesped.getTipoDocumento()
+                    + "-"
+                    + nuevoHuesped.getDocumento();
+            nuevoHuesped.setCuit(cuitTecnico);
         }
 
         // Verificar duplicados
@@ -98,25 +107,78 @@ public class GestionHuesped {
     }
 
     public List<String> validarCampos(Huesped h) {
+
         List<String> errores = new ArrayList<>();
+        Date hoy = new Date();
 
         if (h.getApellido() == null || h.getApellido().isBlank()) {
             errores.add("Apellido");
         }
+
         if (h.getNombre() == null || h.getNombre().isBlank()) {
             errores.add("Nombres");
         }
-        if (h.getDocumento() == null || h.getTipoDocumento() == null) {
+
+        if (h.getTipoDocumento() == null || h.getDocumento() == null || h.getDocumento().isBlank()) {
             errores.add("Tipo y número de documento");
         }
+
         if (h.getFechaNacimiento() == null) {
             errores.add("Fecha de nacimiento");
+        } else if (h.getFechaNacimiento().after(hoy)) {
+            errores.add("La fecha de nacimiento no puede ser posterior a la fecha actual");
         }
+
         if (h.getDireccion() == null) {
             errores.add("Dirección");
+        } else {
+            if (h.getDireccion().getNacionalidad() == null || h.getDireccion().getNacionalidad().isBlank()) {
+                errores.add("Nacionalidad");
+            }
         }
-        if (h.getTelefono() == null) {
+
+        if (h.getTelefono() == null || h.getTelefono().isBlank()) {
             errores.add("Teléfono");
+        }
+
+        if (("MONOTRIBUTO".equals(h.getPosicionFrenteAlIva())
+                || "RESPONSABLE_INSCRIPTO".equals(h.getPosicionFrenteAlIva()))
+                && (h.getCuit() == null || h.getCuit().isBlank())) {
+
+            errores.add("CUIT obligatorio para " + h.getPosicionFrenteAlIva());
+            return errores; // no sigo si ya falta
+        }
+
+        if (h.getCuit() != null && !h.getCuit().isBlank()) {
+
+            // CUIT técnico: se acepta sin validar
+            if (h.getCuit().startsWith("H-")) {
+                return errores;
+            }
+
+            String cuit = h.getCuit().replaceAll("-", "").trim();
+            String dni = h.getDocumento();
+
+            if (!cuit.matches("\\d{11}")) {
+                errores.add("CUIT inválido (formato esperado: XX-XXXXXXXX-X)");
+                return errores;
+            }
+
+            if (dni == null || !dni.matches("\\d+")) {
+                errores.add("DNI inválido");
+                return errores;
+            }
+
+            String dniDesdeCuit = cuit.substring(2, 10);
+
+            if (!dniDesdeCuit.equals(dni)) {
+                errores.add("El CUIT no coincide con el DNI ingresado");
+                return errores;
+            }
+
+            if (!validarCuit(cuit)) { // ← SOLO NUMÉRICO
+                errores.add("El CUIT ingresado no es válido");
+            }
         }
 
         return errores;
@@ -174,6 +236,14 @@ public class GestionHuesped {
         List<String> errores = validarCampos(nuevoHuesped);
         if (!errores.isEmpty()) {
             throw new IllegalArgumentException("Errores: " + String.join(", ", errores));
+        }
+        //CUIT tecnico, para la PK de Huesped
+        if (nuevoHuesped.getCuit() == null || nuevoHuesped.getCuit().isBlank()) {
+            String cuitTecnico = "H-"
+                    + nuevoHuesped.getTipoDocumento()
+                    + "-"
+                    + nuevoHuesped.getDocumento();
+            nuevoHuesped.setCuit(cuitTecnico);
         }
 
         // Verificar duplicados
@@ -297,5 +367,24 @@ public class GestionHuesped {
         direccion.setLocalidad(localidad);
 
         return direccionRepository.save(direccion);
+    }
+
+    public static boolean validarCuit(String cuit) {
+        cuit = cuit.replaceAll("-", "");
+        if (!cuit.matches("\\d{11}")) {
+            return false;
+        }
+
+        int[] factores = {5, 4, 3, 2, 7, 6, 5, 4, 3, 2};
+        int suma = 0;
+
+        for (int i = 0; i < 10; i++) {
+            suma += Character.getNumericValue(cuit.charAt(i)) * factores[i];
+        }
+
+        int resto = suma % 11;
+        int digito = resto == 0 ? 0 : resto == 1 ? 9 : 11 - resto;
+
+        return digito == Character.getNumericValue(cuit.charAt(10));
     }
 }

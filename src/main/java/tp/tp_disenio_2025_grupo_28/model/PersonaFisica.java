@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -15,6 +16,7 @@ import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 
 @Entity
 @Table(name = "persona_fisica")
+@PrimaryKeyJoinColumn(name = "cuit")
 public class PersonaFisica extends ResponsablePago {
 
     protected String nombre;

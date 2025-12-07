@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,7 +18,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import tp.tp_disenio_2025_grupo_28.dto.DireccionDTO;
 import tp.tp_disenio_2025_grupo_28.dto.HuespedDTO;
+import tp.tp_disenio_2025_grupo_28.dto.LocalidadDTO;
+import tp.tp_disenio_2025_grupo_28.dto.PaisDTO;
+import tp.tp_disenio_2025_grupo_28.dto.ProvinciaDTO;
 import tp.tp_disenio_2025_grupo_28.mapper.HuespedMapper;
 import tp.tp_disenio_2025_grupo_28.model.Direccion;
 import tp.tp_disenio_2025_grupo_28.model.Huesped;
@@ -110,23 +113,18 @@ public class HuespedWebController2 {
     @GetMapping("/nuevo")
     public String mostrarFormularioAlta(Model model) {
 
-        Huesped h = new Huesped();
-        Direccion d = new Direccion();
-        Localidad loc = new Localidad();
-        Provincia prov = new Provincia();
-        Pais pais = new Pais();
+        HuespedDTO dto = new HuespedDTO();
+        dto.setDireccion(new DireccionDTO());
+        dto.getDireccion().setLocalidad(new LocalidadDTO());
+        dto.getDireccion().getLocalidad().setProvincia(new ProvinciaDTO());
+        dto.getDireccion().getLocalidad().getProvincia().setPais(new PaisDTO());
 
-        // armamos la jerarquía vacía
-        prov.setPais(pais);
-        loc.setProvincia(prov);
-        d.setLocalidad(loc);
-        h.setDireccion(d);
-        model.addAttribute("huesped", h);
+        model.addAttribute("huesped", dto);
         model.addAttribute("tiposDocumento", TipoDocumento.values());
         model.addAttribute("paises", paisRepository.findAll());
         model.addAttribute("provincias", provinciaRepository.findAll());
         model.addAttribute("localidades", localidadRepository.findAll());
-
+        cargarListas(model);
         return "huesped/huesped-form";
     }
 
@@ -136,9 +134,31 @@ public class HuespedWebController2 {
     // o ir a 3
     @PostMapping("/guardar")
     public String procesarAltaSiguiente(@ModelAttribute("huesped") HuespedDTO dto, BindingResult bindingResult, Model model) {
+
         //armamos la entidad
         Huesped huesped = HuespedMapper.toEntity(dto);
         huesped.setDireccion(construirDireccionDesdeDto(dto));
+
+        // 1) Validación de datos obligatorios (2.A)
+        List<String> errores = gestionHuesped.validarCampos(huesped);
+
+        if (!errores.isEmpty()) {
+            model.addAttribute("mostrarModalError", true);
+            model.addAttribute("errorList", errores);
+            model.addAttribute("huesped", dto);
+            cargarListas(model);
+            return "huesped/huesped-form";
+        }
+        // 2) Verificación de duplicado (2.B)
+        boolean existe = gestionHuesped.existeDocumento(dto.getTipoDocumento(), dto.getDocumento());
+        if (existe) {
+            model.addAttribute("duplicado", true);
+            model.addAttribute("mensajeDuplicado",
+                    "¡CUIDADO! El tipo y número de documento ya existen en el sistema.");
+            model.addAttribute("huesped", dto);
+            cargarListas(model);
+            return "huesped/huesped-form";
+        }
         try {
             //Flujo principal (2->3), usando el camino normal, validamos duplicados
             Huesped guardado = gestionHuesped.registrarNuevoHuesped(huesped);
@@ -150,23 +170,9 @@ public class HuespedWebController2 {
             cargarListas(model);
             return "huesped/huesped-form";
 
-        } catch (IllegalArgumentException iae) {
-            //2A
-            String mensaje = iae.getMessage() == null ? "" : iae.getMessage();
-            model.addAttribute("errorList", java.util.Arrays.asList(mensaje.replace("Errores:", "").trim().split("\\s*,\\s*")));
-            model.addAttribute("mostrarModalError", true);
-            model.addAttribute("huesped", dto); // mantener lo que el usuario ya tipeó
-            cargarListas(model);
-            return "huesped/huesped-form";
-        } catch (DuplicateKeyException dke) {
-            //2B duplicado
-            model.addAttribute("duplicado", true);
-            model.addAttribute("mensajeDuplicado", "¡CUIDADO! El tipo y número de documento ya existen en el sistema.");
-            model.addAttribute("huesped", dto); // mantener lo ingresado para CORREGIR
-            cargarListas(model);
-            return "huesped/huesped-form";
         } catch (Exception e) {
-            model.addAttribute("error", "Ocurrió un error al guardar: " + e.getMessage());
+            model.addAttribute("mostrarModalError", true);
+            model.addAttribute("errorList", List.of("Error inesperado: " + e.getMessage()));
             model.addAttribute("huesped", dto);
             cargarListas(model);
             return "huesped/huesped-form";
@@ -190,15 +196,6 @@ public class HuespedWebController2 {
         return "huesped/huesped-form";
     }
 
-    // (2.B.2.2) CORREGIR -> vuelve al form con foco en tipoDocumento (sin perder datos)
-    @PostMapping("/corregir")
-    public String corregir(@ModelAttribute("huesped") HuespedDTO dto, Model model) {
-        model.addAttribute("focusField", "tipoDocumento");
-        model.addAttribute("huesped", dto);
-        cargarListas(model);
-        return "huesped/huesped-form";
-    }
-
     // (2.C) CANCELAR -> confirmación: SI = fin (volver a CU02); NO = quedarse con los datos
     @PostMapping("/cancelar")
     public String cancelar(@ModelAttribute("huesped") HuespedDTO dto,
@@ -207,7 +204,7 @@ public class HuespedWebController2 {
 
         if ("SI".equalsIgnoreCase(confirm)) {
 
-            return "huesped/index";
+            return "index";
         }
 
         // NO: vuelve al punto 1 (pero manteniendo lo ingresado)
@@ -219,16 +216,14 @@ public class HuespedWebController2 {
     // (4-5) luego del éxito: "¿desea cargar otro?" -> SI limpia, NO vuelve a CU02
     @PostMapping("/continuar")
     public String continuarDespuesExito(@RequestParam("respuesta") String respuesta, Model model) {
-        if ("si".equalsIgnoreCase(respuesta)) {
+        if ("SI".equalsIgnoreCase(respuesta)) {
             model.addAttribute("huesped", new HuespedDTO());
             cargarListas(model);
             return "huesped/huesped-form";
         }
-        return "huesped/index";
+        return "index";
     }
 
-// Helpers (NO clases nuevas)
-    // =========================
     private void cargarListas(Model model) {
         model.addAttribute("tiposDocumento", TipoDocumento.values());
         model.addAttribute("paises", paisRepository.findAll());
@@ -237,30 +232,38 @@ public class HuespedWebController2 {
     }
 
     private Direccion construirDireccionDesdeDto(HuespedDTO dto) {
+
+        // País
         Pais pais = new Pais();
-        pais.setNombre(dto.getPais());
+        pais.setNombre(dto.getDireccion().getLocalidad().getProvincia().getPais().getNombre());
 
-        Provincia prov = new Provincia();
-        prov.setNombre(dto.getProvincia());
-        prov.setPais(pais);
+        // Provincia
+        Provincia provincia = new Provincia();
+        provincia.setNombre(dto.getDireccion().getLocalidad().getProvincia().getNombre());
+        provincia.setPais(pais);
 
-        Localidad loc = new Localidad();
-        loc.setNombre(dto.getLocalidad());
-        loc.setProvincia(prov);
-        loc.setCodigoPostal(dto.getCodigoPostal());
+        // Localidad
+        Localidad localidad = new Localidad();
+        localidad.setNombre(dto.getDireccion().getLocalidad().getNombre());
+        localidad.setCodigoPostal(dto.getDireccion().getLocalidad().getCodigoPostal());
+        localidad.setProvincia(provincia);
 
-        Direccion d = new Direccion();
-        d.setDireccion(dto.getDireccion());
-        d.setDepto(dto.getDepto());
-        d.setPiso(dto.getPiso());
-        d.setLocalidad(loc);
-        return d;
+        // Dirección
+        Direccion direccion = new Direccion();
+        direccion.setDireccion(dto.getDireccion().getDireccion());
+        direccion.setNumero(dto.getDireccion().getNumero());
+        direccion.setDepto(dto.getDireccion().getDepto());
+        direccion.setPiso(dto.getDireccion().getPiso());
+        direccion.setLocalidad(localidad);
+        direccion.setNacionalidad(dto.getDireccion().getNacionalidad());
+
+        return direccion;
     }
 
     // (opcional) si querés seguir usando el "main" que ya tenías
     @GetMapping()
     public String main(String name, RedirectAttributes redirectAttributes) {
-        return "huesped/index";
+        return "index";
     }
 
     @InitBinder
