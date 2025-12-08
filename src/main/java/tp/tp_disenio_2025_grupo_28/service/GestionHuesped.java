@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,7 @@ import tp.tp_disenio_2025_grupo_28.model.Direccion;
 import tp.tp_disenio_2025_grupo_28.model.Huesped;
 import tp.tp_disenio_2025_grupo_28.model.Localidad;
 import tp.tp_disenio_2025_grupo_28.model.Pais;
+import tp.tp_disenio_2025_grupo_28.model.PersonaFisica;
 import tp.tp_disenio_2025_grupo_28.model.Provincia;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 import tp.tp_disenio_2025_grupo_28.repository.DireccionRepository;
@@ -387,4 +389,100 @@ public class GestionHuesped {
 
         return digito == Character.getNumericValue(cuit.charAt(10));
     }
+
+    public List<PersonaFisica> findAllByCuitIn(List<String> ocupantes) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     *
+     */
+    public List<PersonaFisica> buscarHuesped(
+            String apellido,
+            String nombre,
+            TipoDocumento tipoDocumento,
+            String documento) {
+
+        // Obtengo personas que cumplen los criterios
+        List<PersonaFisica> personas = buscarPersona(apellido, nombre, tipoDocumento, documento);
+
+        if (personas.isEmpty()) {
+            return List.of();
+        }
+
+        // Filtrar solo las que tienen registro de Huesped
+        return personas.stream()
+                .filter(p -> huespedRepository.existsById(p.getCuit()))
+                .distinct()
+                .toList();
+    }
+
+    /**
+     *
+     */
+    public List<PersonaFisica> buscarPersona(
+            String apellido,
+            String nombre,
+            TipoDocumento tipoDocumento,
+            String documento) {
+
+        // 1) Si tengo documento, hago búsqueda directa optimizada
+        if (tieneContenido(documento)) {
+            return buscarPersonaPorDocumento(tipoDocumento, documento).stream()
+                    .filter(h -> coincide(h.getApellido(), apellido))
+                    .filter(h -> coincide(h.getNombre(), nombre))
+                    .filter(h -> tipoDocumento == null || h.getTipoDocumento() == tipoDocumento)
+                    .distinct()
+                    .toList();
+        }
+
+        // 2) Si no hay documento, hago búsqueda ampliada
+        List<PersonaFisica> candidatos = new ArrayList<>();
+        if (tieneContenido(apellido)) {
+            candidatos.addAll(personaFisicaRepository.findByApellidoContainingIgnoreCase(apellido));
+        }
+        if (tieneContenido(nombre)) {
+            candidatos.addAll(personaFisicaRepository.findByNombreContainingIgnoreCase(nombre));
+        }
+        if (tipoDocumento != null) {
+            candidatos.addAll(personaFisicaRepository.findAllByTipoDocumento(tipoDocumento));
+        }
+
+        return candidatos.stream()
+                .filter(h -> coincide(h.getApellido(), apellido))
+                .filter(h -> coincide(h.getNombre(), nombre))
+                .distinct()
+                .toList();
+    }
+
+    private boolean tieneContenido(String s) {
+        return s != null && !s.isBlank();
+    }
+
+    private boolean coincide(String valorEntidad, String filtro) {
+        return !tieneContenido(filtro)
+                || (valorEntidad != null
+                && valorEntidad.toLowerCase().contains(filtro.toLowerCase()));
+    }
+
+    private List<PersonaFisica> buscarPersonaPorDocumento(TipoDocumento tipoDocumento, String documento) {
+        if (tipoDocumento != null) {
+            return personaFisicaRepository.findAllByTipoDocumentoAndDocumento(tipoDocumento, documento);
+        }
+        PersonaFisica p = personaFisicaRepository.findFirstByDocumento(documento);
+        return p == null ? List.of() : List.of(p);
+    }
+
+    /**
+     * Devuelve el Huesped asociado a una PersonaFisica
+     */
+    public Huesped obtenerHuesped(PersonaFisica persona) {
+
+        if (persona == null || persona.getCuit() == null) {
+            return null;
+        }
+
+        return huespedRepository.findById(persona.getCuit()).orElse(null);
+    }
+
 }

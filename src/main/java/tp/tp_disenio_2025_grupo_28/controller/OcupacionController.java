@@ -1,15 +1,28 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import tp.tp_disenio_2025_grupo_28.model.Huesped;
+import tp.tp_disenio_2025_grupo_28.model.PersonaFisica;
+import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 import tp.tp_disenio_2025_grupo_28.service.GestionHabitacion;
 import tp.tp_disenio_2025_grupo_28.service.GestionHuesped;
 
 @Controller
+@SessionAttributes({"huspedCargado", "ocupantesCargados", "responsable", "reservaId", "fechaDesde", "fechaHasta", "numeroHabitacion"})
 @RequestMapping("/ocupacion")
 public class OcupacionController {
 
@@ -20,6 +33,7 @@ public class OcupacionController {
     private GestionHuesped gestionHuesped;
 
     private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
     /* 
     // ----------------- 1) MOSTRAR BUSCADOR -----------------
     @GetMapping("/buscar")
@@ -246,6 +260,163 @@ public class OcupacionController {
         return "redirect:/ocupacion/resumen?numero_habitacion=" + numero_habitacion + "&reservaId=" + reservaId + "&fechaDesde=" + fechaDesde + "&fechaHasta=" + fechaHasta;
     }
 
+    /// ***********
+    /// Nuevos metodos
+    /// ***********
 
+    @ModelAttribute("huspedCargado")
+    public Huesped huspedCargado() {
+        return null;
+    }
+
+    @ModelAttribute("ocupantesCargados")
+    public List<PersonaFisica> ocupantesCargados() {
+        return new ArrayList<>();
+    }
+
+    @ModelAttribute("reservaId")
+    public Integer reservaId() {
+        return null;
+    }
+
+    @ModelAttribute("fechaDesde")
+    public String fechaDesde() {
+        return null;
+    }
+
+    @ModelAttribute("fechaHasta")
+    public String fechaHasta() {
+        return null;
+    }
+
+    @ModelAttribute("numeroHabitacion")
+    public Integer numeroHabitacion() {
+        return null;
+    }
+
+    /**
+     * 1) INICIALIZAR PANTALLA DE CARGA
      */
+    @GetMapping("/cargar")
+    public String iniciarCarga(
+            @RequestParam(required = false) Integer reservaId,
+            @RequestParam Integer numeroHabitacion,
+            @RequestParam String fechaDesde,
+            @RequestParam String fechaHasta,
+            Model model,
+            @ModelAttribute("huspedCargado") Huesped huspedCargado,
+            @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados
+    ) {
+
+        // Guardar en sesión
+        model.addAttribute("reservaId", reservaId);
+        model.addAttribute("fechaDesde", fechaDesde);
+        model.addAttribute("fechaHasta", fechaHasta);
+        model.addAttribute("numeroHabitacion", numeroHabitacion);
+
+        model.addAttribute("huspedCargado", huspedCargado);
+
+        // Primero cargo el huesped
+        if (huspedCargado == null) {
+            ocupantesCargados = new ArrayList<>();
+        }
+
+        model.addAttribute("ocupantesCargados", ocupantesCargados);
+
+        return "ocupacion/cargar";
+    }
+
+    /**
+     * 2) BUSCAR HUESPEDES
+     */
+    @PostMapping("/buscar-huesped")
+    public String buscarHuesped(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String apellido,
+            @RequestParam(required = false) String tipoDocumento,
+            @RequestParam(required = false) String documento,
+            Model model,
+            @ModelAttribute("huspedCargado") Huesped huspedCargado,
+            @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados
+    ) {
+
+        TipoDocumento tipo = null;
+
+        // Tipo de documento no valido
+        if (tipoDocumento != null && !tipoDocumento.isEmpty()) {
+            try {
+                tipo = TipoDocumento.valueOf(tipoDocumento);
+            } catch (Exception ignored) {
+                tipo = null;
+            }
+        }
+
+        // pueden ser Huespedes o PersonasFisicas
+        List<PersonaFisica> resultados;
+
+        // Primero busco un huesped
+        if (huspedCargado == null) {
+            resultados = gestionHuesped.buscarHuesped(apellido, nombre, tipo, documento);
+        } else {
+            resultados = gestionHuesped.buscarPersona(apellido, nombre, tipo, documento);
+        }
+
+        model.addAttribute("resultados", resultados);
+
+        model.addAttribute("huesped", huspedCargado);
+        model.addAttribute("ocupantesCargados", ocupantesCargados);
+        return "ocupacion/cargar";
+    }
+
+    /**
+     * 3) AGREGAR OCUPANTE A LA LISTA
+     */
+    @PostMapping("/agregar")
+    public String agregarOcupante(
+            @RequestParam PersonaFisica personaSeleccionada,
+            Model model,
+            @ModelAttribute("huspedCargado") Huesped huspedCargado,
+            @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
+            RedirectAttributes redirect
+    ) {
+
+        if (huspedCargado != null) {
+
+            Huesped huesped = gestionHuesped.obtenerHuesped(personaSeleccionada);
+            model.addAttribute("huesped", huesped);
+        }
+        if (!ocupantesCargados.contains(personaSeleccionada)) {
+            ocupantesCargados.add(personaSeleccionada);
+        }
+
+        model.addAttribute("huesped", huspedCargado);
+
+        redirect.addFlashAttribute("msg", "Huesped agregado correctamente");
+
+        return "redirect:/ocupacion/cargar";
+    }
+
+    /**
+     * 4) RESUMEN FINAL
+     */
+    @GetMapping("/resumen")
+    public String resumen(
+            Model model,
+            @ModelAttribute("reservaId") Integer reservaId,
+            @ModelAttribute("numeroHabitacion") Integer numeroHabitacion,
+            @ModelAttribute("fechaDesde") String fechaDesde,
+            @ModelAttribute("fechaHasta") String fechaHasta,
+            @ModelAttribute("huspedCargado") Huesped huspedCargado,
+            @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados
+    ) {
+
+        model.addAttribute("reservaId", reservaId);
+        model.addAttribute("numeroHabitacion", numeroHabitacion);
+        model.addAttribute("fechaDesde", fechaDesde);
+        model.addAttribute("fechaHasta", fechaHasta);
+        model.addAttribute("huspedCargado", huspedCargado);
+        model.addAttribute("ocupantesCargados", ocupantesCargados);
+
+        return "ocuparHabitacion/resumen";
+    }
 }
