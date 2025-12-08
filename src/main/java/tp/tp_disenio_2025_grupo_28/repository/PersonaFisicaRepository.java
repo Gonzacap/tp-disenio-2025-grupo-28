@@ -21,8 +21,6 @@ public interface PersonaFisicaRepository extends JpaRepository<PersonaFisica, St
 
     List<PersonaFisica> findByDocumento(String documento);
 
-    List<PersonaFisica> findByEmailContainingIgnoreCase(String email);
-
     PersonaFisica findFirstByDocumento(String documento);
 
     List<PersonaFisica> findAllByTipoDocumento(TipoDocumento tipoDocumento);
