@@ -8,105 +8,112 @@
 
 <body class="bg-light">
 
-<div class="container mt-5">
+<div class="container mt-4">
+    <h4>Reservar Habitación</h4>
 
-    <h2 class="mb-4">CU04 — Reservar Habitación</h2>
-
-    <!-- MENSAJE DE ERROR -->
-    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
-
-    <!-- BLOQUE SUPERIOR: RESERVA SELECCIONADA -->
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">Reserva Solicitada</div>
+    <!-- ================= RESERVA SOLICITADA ================= -->
+    <div class="card mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+            Reserva solicitada
+        </div>
         <div class="card-body">
 
-            <p><strong>Tipo de Habitación:</strong>
+            <p>
+                ✔ <strong>Tipo de habitación:</strong>
                 <span th:text="${reservaRequestDTO.tipoHabitacion}"></span>
             </p>
 
-            <p><strong>Ingreso:</strong>
-                <span th:text="${reservaRequestDTO.fechaDesde}"></span> (12:00hs)
+            <p>
+                <strong>Ingreso:</strong>
+                <span th:text="${#dates.format(reservaRequestDTO.fechaDesde,'EEEE dd/MM/yyyy')}"></span>,
+                12 hs
             </p>
 
-            <p><strong>Egreso:</strong>
-                <span th:text="${reservaRequestDTO.fechaHasta}"></span> (10:00hs)
+            <p>
+                <strong>Egreso:</strong>
+                <span th:text="${#dates.format(reservaRequestDTO.fechaHasta,'EEEE dd/MM/yyyy')}"></span>,
+                10 hs
             </p>
 
-            <p><strong>Habitaciones seleccionadas:</strong>
-                <span th:text="${reservaRequestDTO.habitaciones}"></span>
-            </p>
+            <button id="btnAceptar" class="btn btn-success">
+                Aceptar
+            </button>
 
-            <div class="text-end">
-                <!-- VOLVER A LA SELECCIÓN DE HABITACIONES -->
-                <a th:href="@{/habitacion}" class="btn btn-outline-danger btn-sm">Rechazar / Volver</a>
-            </div>
-
+            <a th:href="@{/habitacion}" class="btn btn-outline-danger">
+                Cancelar
+            </a>
         </div>
     </div>
 
+    <!-- ================= FORMULARIO ================= -->
+    <form th:action="@{/reserva/crear}"
+          th:object="${reservaRequestDTO}"
+          method="post">
 
-    <!-- FORMULARIO PRINCIPAL -->
-    <form th:action="@{/reserva/crear}" th:object="${reservaRequestDTO}" method="post">
-
-        <!-- CAMPOS OCULTOS QUE VIAJAN AL POST -->
+        <!-- datos ocultos -->
         <input type="hidden" th:field="*{fechaDesde}">
         <input type="hidden" th:field="*{fechaHasta}">
         <input type="hidden" th:field="*{tipoHabitacion}">
 
-        <!-- HABITACIONES -->
-        <th:block th:each="idHab : *{habitaciones}">
-            <input type="hidden" name="habitaciones" th:value="${idHab}">
-        </th:block>
+        <div id="datosReserva"
+             class="card"
+             th:classappend="${errorMessage != null} ? '' : 'd-none'">
 
-        <!-- DATOS DEL HUÉSPED -->
-        <div class="card">
-            <div class="card-header">Datos del Huésped</div>
+            <div class="card-header">
+                Datos de la reserva
+            </div>
+
             <div class="card-body">
 
                 <div class="mb-3">
-                    <label class="form-label">Apellido (*):</label>
-                    <input id="apellido" type="text" class="form-control" th:field="*{apellido}" required>
+                    <label>Apellido (*)</label>
+                    <input id="apellido"
+                           class="form-control"
+                           th:field="*{apellido}">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Nombre (*):</label>
-                    <input id="nombre" type="text" class="form-control" th:field="*{nombre}" required>
+                    <label>Nombre (*)</label>
+                    <input id="nombre"
+                           class="form-control"
+                           th:field="*{nombre}">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Teléfono (*):</label>
-                    <input id="telefono" type="text" class="form-control" th:field="*{telefono}" required>
+                    <label>Teléfono (*)</label>
+                    <input id="telefono"
+                           class="form-control"
+                           th:field="*{telefono}">
                 </div>
 
-                <div class="d-flex justify-content-end gap-2">
-                    <a th:href="@{/}" class="btn btn-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-success">Aceptar</button>
-                </div>
+                <button class="btn btn-success">
+                    Aceptar
+                </button>
 
+                <a th:href="@{/habitacion}"
+                   class="btn btn-outline-secondary">
+                    Cancelar
+                </a>
             </div>
         </div>
-
     </form>
-
 </div>
-<!-- MODAL DE ERROR -->
-<div class="modal fade" id="errorModal" tabindex="-1">
+
+<!-- ================= MODAL ERROR ================= -->
+<div class="modal fade" id="errorModal">
     <div class="modal-dialog">
         <div class="modal-content">
-
             <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">Error</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5>Error</h5>
             </div>
-
             <div class="modal-body">
                 <p th:text="${errorMessage}"></p>
             </div>
-
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Aceptar</button>
+                <button class="btn btn-danger" data-bs-dismiss="modal">
+                    Aceptar
+                </button>
             </div>
-
         </div>
     </div>
 </div>
@@ -114,40 +121,29 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script th:inline="javascript">
-document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("btnAceptar").onclick = () => {
+        document.getElementById("datosReserva").classList.remove("d-none");
+        document.getElementById("apellido").focus();
+    };
 
-    // Mayúsculas
-    const inputs = document.querySelectorAll("input[type='text'], input[type='search']");
-    inputs.forEach(input => {
-        input.addEventListener("input", () => {
-            const start = input.selectionStart;
-            const end = input.selectionEnd;
-            input.value = input.value.toUpperCase();
-            input.setSelectionRange(start, end);
-        });
-    });
-
-    // Modal si hay error
     const hasError = [[${errorMessage != null}]];
-
     if (hasError) {
-        const modal = new bootstrap.Modal(document.getElementById('errorModal'));
-        modal.show();
+        new bootstrap.Modal(
+            document.getElementById("errorModal")
+        ).show();
 
-        setTimeout(() => {
-            if (!document.getElementById("apellido").value.trim()) {
-                document.getElementById("apellido").focus();
-            } else if (!document.getElementById("nombre").value.trim()) {
-                document.getElementById("nombre").focus();
-            } else if (!document.getElementById("telefono").value.trim()) {
-                document.getElementById("telefono").focus();
-            }
-        }, 300);
+        const focusField = '[[${focusField}]]';
+        if (focusField) {
+            document.getElementById(focusField).focus();
+        }
     }
 
-});
+    document.querySelectorAll("input").forEach(i =>
+        i.addEventListener("input", () =>
+            i.value = i.value.toUpperCase()
+        )
+    );
 </script>
-
 
 </body>
 </html>

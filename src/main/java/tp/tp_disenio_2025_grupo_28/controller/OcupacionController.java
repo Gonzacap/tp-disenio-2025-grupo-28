@@ -1,22 +1,11 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import tp.tp_disenio_2025_grupo_28.dto.OcupacionHuespedDTO;
-import tp.tp_disenio_2025_grupo_28.dto.OcupacionRequestDTO;
-import tp.tp_disenio_2025_grupo_28.model.Huesped;
-import tp.tp_disenio_2025_grupo_28.model.PersonaFisica;
-import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 import tp.tp_disenio_2025_grupo_28.service.GestionHabitacion;
 import tp.tp_disenio_2025_grupo_28.service.GestionHuesped;
 
@@ -31,7 +20,7 @@ public class OcupacionController {
     private GestionHuesped gestionHuesped;
 
     private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-
+    /* 
     // ----------------- 1) MOSTRAR BUSCADOR -----------------
     @GetMapping("/buscar")
     public String mostrarBuscar(
@@ -256,4 +245,7 @@ public class OcupacionController {
 
         return "redirect:/ocupacion/resumen?numero_habitacion=" + numero_habitacion + "&reservaId=" + reservaId + "&fechaDesde=" + fechaDesde + "&fechaHasta=" + fechaHasta;
     }
+
+
+     */
 }

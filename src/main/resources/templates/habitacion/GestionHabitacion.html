@@ -20,10 +20,9 @@
     .estado-clickable {
         cursor: pointer;
     }
-
-
-    /* MODAL ERROR CU04 */
-#modal-no-disponible {
+#modal-no-disponible,
+#modal-no-seleccionadas,
+#modal-modo-incorrecto  {
     display: none;
     position: fixed;
     top: 0;
@@ -50,6 +49,14 @@
     color: white;
     margin-top: 20px;
 }
+.modal-box {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        text-align: center;
+        width: 380px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
 
 </style>
 
@@ -57,9 +64,9 @@
     <h1 class="text-center mb-4">Hotel Premier - Gestion de Habitaciones</h1>
 
     <!-- Mensaje error -->
-    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
-        <p th:text="${errorMessage}"></p>
-    </div>
+ <div th:if="${errorMessage}" class="alert alert-danger" role="alert"> <p th:text="${errorMessage}"></p> </div> 
+
+
 
     <!-- Mensaje éxito -->
     <div th:if="${successMessage}" class="alert alert-success" role="alert">
@@ -69,6 +76,8 @@
     <!-- FORM FECHAS -->
     <form th:action="@{/habitacion/validar-fecha}" method="post"
         class="needs-validation mx-5 row g-3" novalidate>
+        <input type="hidden" name="modo" th:value="${modo}" />
+
         <div class="col-md-4">
             <label class="form-label fw-bold">Fecha Desde</label>
             <input type="date" name="fechaDesde" class="form-control"
@@ -122,58 +131,61 @@
          estado == 'FUERA_SERVICIO' ? 'badge bg-warning' :
          'badge bg-secondary')
         + ' estado-clickable'
-      }"
-      th:text="${estado}">
+    }"
+    th:text="${estado}">
 </span>
         </div>
-     </td> 
-    </tr> 
-</tbody> 
-</table> 
+    </td>
+    </tr>
+</tbody>
+</table>
 </div>
+  <!-- BOTONES PRINCIPALES -->
+    <div class="mt-3 text-end">
 
-    <!-- BOTONES -->
-   <!-- BOTONES -->
-<div class="mt-3 text-end">
+        <!-- MODO RESERVAR -->
+        <div th:if="${modo == 'reservar'}">
 
-    <!-- RESERVAR -->
-    <form th:action="@{/habitacion/reservar}" method="post" class="d-inline">
-        <input type="hidden" name="fechaDesde"
-            th:value="${fechaDesde != null ? #dates.format(fechaDesde,'yyyy-MM-dd') : ''}">
-        <input type="hidden" name="fechaHasta"
-            th:value="${fechaHasta != null ? #dates.format(fechaHasta,'yyyy-MM-dd') : ''}">
-        <input type="hidden" id="habitacionesInput" name="habitaciones">
+            <!-- RESERVAR FUNCIONA -->
+            <form th:action="@{/habitacion/reservar}" method="post" class="d-inline">
+                <input type="hidden" name="fechaDesde" th:value="${#dates.format(fechaDesde,'yyyy-MM-dd')}">
+                <input type="hidden" name="fechaHasta" th:value="${#dates.format(fechaHasta,'yyyy-MM-dd')}">
+                <input type="hidden" id="habitacionesInput" name="habitaciones">
 
-        <button type="submit" class="btn btn-success">RESERVAR</button>
-    </form>
+                <button type="submit" class="btn btn-success">RESERVAR</button>
+            </form>
 
-</div>
+            <!-- OCUPAR → MUESTRA MODAL -->
+            <button type="button" class="btn btn-warning"
+                    onclick="abrirModalModoIncorrecto('ocupación')">
+                OCUPAR HABITACION
+            </button>
+            <!-- CANCELAR -->
+    <a th:href="@{/}" class="btn btn-secondary ms-2">Cancelar</a>
+        </div>
 
-<!-- EL MODAL DEBE IR FUERA DE LOS FORMULARIOS -->
-<div id="modal-no-disponible">
-    <div id="modal-box-nd">
-        <h3>Habitación No Disponible</h3>
-        <p>Las habitaciones seleccionadas no están disponibles para el periodo indicado.</p>
-        <button onclick="cerrarModalNoDisponible()">Aceptar</button>
+        <!-- MODO OCUPAR -->
+        <div th:if="${modo == 'ocupar'}">
+
+            <!-- RESERVAR → MUESTRA MODAL -->
+            <button type="button" class="btn btn-success"
+                    onclick="abrirModalModoIncorrecto('reserva')">
+                RESERVAR
+            </button>
+
+            <!-- OCUPAR FUNCIONA -->
+            <form th:action="@{/habitacion/ocupar}" method="post" class="d-inline">
+                <input type="hidden" name="fechaDesde" th:value="${#dates.format(fechaDesde,'yyyy-MM-dd')}">
+                <input type="hidden" name="fechaHasta" th:value="${#dates.format(fechaHasta,'yyyy-MM-dd')}">
+                <input type="hidden" id="habitacionesInput2" name="habitaciones">
+
+                <button type="submit" class="btn btn-warning">OCUPAR HABITACION</button>
+            </form>
+            <a th:href="@{/}" class="btn btn-secondary ms-2">Cancelar</a>
+        </div>
+
     </div>
-</div>
 
-<!-- BOTONES PARTE 2 (OCUPAR) -->
-<div class="mt-3 text-end">
-
-    <!-- OCUPAR CU15 -->
-    <form th:action="@{/habitacion/ocupar}" method="post" class="d-inline">
-        <input type="hidden" name="fechaDesde"
-            th:value="${fechaDesde != null ? #dates.format(fechaDesde,'yyyy-MM-dd') : ''}">
-        <input type="hidden" name="fechaHasta"
-        th:value="${fechaHasta != null ? #dates.format(fechaHasta,'yyyy-MM-dd') : ''}">
-        <input type="hidden" id="habitacionesInput2" name="habitaciones">
-
-        <button type="submit" class="btn btn-warning">OCUPAR HABITACION</button>
-    </form>
-
-    <a th:href="@{/}" class="btn btn-secondary">CANCELAR</a>
-</div>
 
 
     <!-- LEYENDA -->
@@ -188,10 +200,40 @@
     </div>
 </div>
 
+<!-- ======================== MODALES ======================== -->
+
+<!-- NO DISPONIBLE -->
+<div id="modal-no-disponible">
+    <div class="modal-box">
+        <h3>Habitación No Disponible</h3>
+        <p>Las habitaciones seleccionadas no están disponibles para el periodo indicado.</p>
+        <button onclick="cerrarModalNoDisponible()" class="btn btn-primary mt-3">Aceptar</button>
+    </div>
+</div>
+
+<!-- NO SELECCIONADAS -->
+<div id="modal-no-seleccionadas">
+    <div class="modal-box">
+        <h3>Seleccione una Habitación</h3>
+        <p>Debe seleccionar al menos una habitación para continuar.</p>
+        <button onclick="cerrarModalNoSeleccionadas()" class="btn btn-primary mt-3">Aceptar</button>
+    </div>
+</div>
+
+<!-- MODO INCORRECTO -->
+<div id="modal-modo-incorrecto">
+    <div class="modal-box">
+        <h3>Acción No Permitida</h3>
+        <p id="modal-texto-incorrecto"></p>
+        <button onclick="cerrarModalModoIncorrecto()" class="btn btn-primary mt-3">Aceptar</button>
+    </div>
+</div>
+
 <div th:replace="fragments/Base :: scripts"></div>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+
     const seleccionadas = new Set();
 
     document.querySelectorAll(".estado-clickable").forEach(cell => {
@@ -200,13 +242,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const estado = cell.dataset.estado;
             const hab = cell.dataset.habitacion;
 
-            /* ▶▶ CU04 – Si NO está disponible → ABRIR MODAL Y NO SELECCIONAR */
             if (estado !== "DISPONIBLE") {
                 abrirModalNoDisponible();
                 return;
             }
 
-            /* ▶▶ Comportamiento normal si está disponible */
             if (cell.classList.contains("celda-seleccionada")) {
                 cell.classList.remove("celda-seleccionada");
                 seleccionadas.delete(hab);
@@ -215,16 +255,55 @@ document.addEventListener("DOMContentLoaded", () => {
                 seleccionadas.add(hab);
             }
 
-            document.getElementById("habitacionesInput").value =
-                Array.from(seleccionadas).join(",");
-
-            document.getElementById("habitacionesInput2").value =
-                Array.from(seleccionadas).join(",");
+            const lista = Array.from(seleccionadas).join(",");
+            document.getElementById("habitacionesInput").value = lista;
+            document.getElementById("habitacionesInput2").value = lista;
         });
     });
+
+    const formReservar = document.querySelector("form[action='/habitacion/reservar']");
+    if (formReservar) {
+        formReservar.addEventListener("submit", (event) => {
+            const habitaciones = document.getElementById("habitacionesInput").value;
+            if (!habitaciones.trim()) {
+                event.preventDefault();
+                abrirModalNoSeleccionadas();
+            }
+        });
+    }
+
+    const formOcupar = document.querySelector("form[action='/habitacion/ocupar']");
+if (formOcupar) {
+    formOcupar.addEventListener("submit", (event) => {
+        const habitaciones = document.getElementById("habitacionesInput2").value;
+        if (!habitaciones.trim()) {
+            event.preventDefault();
+            abrirModalNoSeleccionadas();
+        }
+    });
+}
+
 });
 
-/* === MODAL NO DISPONIBLE (IGUAL AL DEL INDEX) === */
+/* MODALES */
+function abrirModalModoIncorrecto(accion) {
+    const p = document.getElementById("modal-texto-incorrecto");
+
+    if (accion === "ocupación") {
+        p.textContent = "No puede OCUPAR una habitación desde la pantalla de RESERVA.";
+    } else if (accion === "reserva") {
+        p.textContent = "No puede RESERVAR una habitación desde la pantalla de OCUPACIÓN.";
+    } else {
+        p.textContent = "Acción no permitida.";
+    }
+
+    document.getElementById("modal-modo-incorrecto").style.display = "flex";
+}
+
+function cerrarModalModoIncorrecto() {
+    document.getElementById("modal-modo-incorrecto").style.display = "none";
+}
+
 function abrirModalNoDisponible() {
     document.getElementById("modal-no-disponible").style.display = "flex";
 }
@@ -232,37 +311,14 @@ function cerrarModalNoDisponible() {
     document.getElementById("modal-no-disponible").style.display = "none";
 }
 
-/* --- SHIFT + TAB retrocede campo --- */
-document.addEventListener("keydown", function(event) {
-    if (event.key === "Tab" && event.shiftKey) {
-        event.preventDefault();
+function abrirModalNoSeleccionadas() {
+    document.getElementById("modal-no-seleccionadas").style.display = "flex";
+}
+function cerrarModalNoSeleccionadas() {
+    document.getElementById("modal-no-seleccionadas").style.display = "none";
+}
 
-        const focusables = Array.from(
-            document.querySelectorAll("input, button, select, textarea, a")
-        ).filter(el => !el.disabled && el.offsetParent !== null);
-
-        const index = focusables.indexOf(document.activeElement);
-
-        if (index > 0) {
-            focusables[index - 1].focus();
-        }
-    }
-});
-
-/* --- Ingreso SIEMPRE en MAYÚSCULAS --- */
-document.addEventListener("input", function(event) {
-    const target = event.target;
-
-    if (target.tagName === "INPUT" && 
-        (target.type === "text" || target.type === "search" || target.type === "email")) {
-        const start = target.selectionStart;
-        const end = target.selectionEnd;
-        target.value = target.value.toUpperCase();
-        target.setSelectionRange(start, end);
-    }
-});
 </script>
-
 
 </body>
 </html>

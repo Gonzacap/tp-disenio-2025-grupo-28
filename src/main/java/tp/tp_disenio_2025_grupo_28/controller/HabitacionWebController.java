@@ -1,7 +1,6 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.http.HttpSession;
 import tp.tp_disenio_2025_grupo_28.dto.ReservaRequestDTO;
 import tp.tp_disenio_2025_grupo_28.model.Habitacion;
-import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
 import tp.tp_disenio_2025_grupo_28.service.GestionHabitacion;
 
 @Controller
@@ -32,129 +31,102 @@ public class HabitacionWebController {
         this.gestionHabitacion = gestionHabitacion;
     }
 
-    @GetMapping()
-    public String mostrarPagina(Model model) {
-        if (!model.containsAttribute("errorMessage")) {
-            model.addAttribute("errorMessage", null);
-        }
-
-        if (!model.containsAttribute("successMessage")) {
-            model.addAttribute("successMessage", null);
-        }
-
-        // 1. Cargamos tipos de habitación (encabezados de la tabla)
+    @GetMapping
+    public String mostrarPagina(
+            @RequestParam(value = "modo", required = false, defaultValue = "reservar") String modo,
+            Model model
+    ) {
+        model.addAttribute("modo", modo);
         model.addAttribute("habitacionesPorTipo", gestionHabitacion.obtenerHabitacionPorTipoMockup());
-
-        // 2. Inicializamos las listas y variables que la vista necesita
-        // Esto evita errores si GestionHabitacion.html intenta iterar sobre 'grilla' o 'dias'.
-        model.addAttribute("dias", new ArrayList<>());
-        model.addAttribute("grilla", new ArrayList<>());
+        model.addAttribute("dias", List.of());
+        model.addAttribute("grilla", List.of());
         model.addAttribute("fechaDesde", null);
         model.addAttribute("fechaHasta", null);
 
-        // 3. Devolvemos la vista con la RUTA CORREGIDA (usando la subcarpeta 'habitacion')
         return "habitacion/GestionHabitacion";
     }
 
+    //CU05 - BUSCAR ESTADOS
     @PostMapping("/validar-fecha")
-    public String solicitarEstadoHabitaciones(
-            @RequestParam("fechaDesde") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
-            @RequestParam("fechaHasta") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
-            RedirectAttributes redirectAttributes,
-            Model model
+    public String buscarDisponibilidad(
+            @RequestParam(value = "fechaDesde", required = false)
+            @DateTimeFormat(pattern = "yyyy-MM-dd") Date desde,
+            @RequestParam(value = "fechaHasta", required = false)
+            @DateTimeFormat(pattern = "yyyy-MM-dd") Date hasta,
+            @RequestParam(value = "modo", required = false, defaultValue = "reservar") String modo,
+            Model model,
+            RedirectAttributes redirect
     ) {
+
         try {
-            gestionHabitacion.validarFecha(fechaDesde, fechaHasta);
-
+            gestionHabitacion.validarFecha(desde, hasta);
             List<Habitacion> habitaciones = gestionHabitacion.obtenerHabitaciones();
-            List<Map<String, Object>> habitacionesPorTipo = gestionHabitacion.obtenerHabitacionPorTipo(habitaciones);
-            List<Date> dias = gestionHabitacion.generarDiasEntre(fechaDesde, fechaHasta);
-            List<Map<String, Object>> grilla = gestionHabitacion.grilla(habitacionesPorTipo, habitaciones, dias);
-
+            List<Map<String, Object>> porTipo = gestionHabitacion.obtenerHabitacionPorTipo(habitaciones);
+            List<Date> dias = gestionHabitacion.generarDiasEntre(desde, hasta);
+            List<Map<String, Object>> grilla = gestionHabitacion.grilla(porTipo, habitaciones, dias, desde, hasta);
+            model.addAttribute("modo", modo);
+            model.addAttribute("habitacionesPorTipo", porTipo);
             model.addAttribute("grilla", grilla);
             model.addAttribute("dias", dias);
-            model.addAttribute("habitacionesPorTipo", habitacionesPorTipo);
-            model.addAttribute("fechaDesde", fechaDesde);
-            model.addAttribute("fechaHasta", fechaHasta);
+            model.addAttribute("fechaDesde", desde);
+            model.addAttribute("fechaHasta", hasta);
 
             return "habitacion/GestionHabitacion";
 
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirect.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/habitacion";
         }
     }
 
-    // ESTE METODO RECIBE LOS DATOS DE LA GRILLA (CU05) Y MANDA AL FORMULARIO (CU04)
-    // ESTE METODO RECIBE LOS DATOS DE LA GRILLA (CU05) Y MANDA AL FORMULARIO (CU04)
+    //CU04 - PASO 3 --> IR AL FORMULARIO
     @PostMapping("/reservar")
-    public String reservarDesdeGrilla(
+    public String pasarAFormularioReserva(
             @RequestParam("fechaDesde") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
             @RequestParam("fechaHasta") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
-            @RequestParam("habitaciones") String habitacionesCSV,
+            @RequestParam String habitaciones,
             Model model,
-            RedirectAttributes redirectAttributes) {
-
-        // 1) PARSEAR CSV DE HABITACIONES
-        List<Integer> habitacionesSel = new ArrayList<>();
-
-        if (habitacionesCSV != null && !habitacionesCSV.isEmpty()) {
-            for (String h : habitacionesCSV.split(",")) {
-                try {
-                    habitacionesSel.add(Integer.parseInt(h.trim()));
-                } catch (NumberFormatException ignored) {
-                }
-            }
-        }
-
-        if (habitacionesSel.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Debe seleccionar al menos una habitación.");
+            RedirectAttributes redirect, HttpSession session
+    ) {
+        if (habitaciones == null || habitaciones.isBlank()) {
+            redirect.addFlashAttribute("errorMessage", "Debe seleccionar al menos una habitación disponible.");
             return "redirect:/habitacion";
         }
 
-        // 2) VALIDAR HABITACIONES EXISTENTES
-        List<Integer> inexistentes = habitacionesSel.stream().filter(n -> !gestionHabitacion.existeHabitacion(n)).toList();
+        List<Integer> seleccionadas = Arrays.stream(habitaciones.split(","))
+                .map(Integer::parseInt)
+                .toList();
 
-        if (!inexistentes.isEmpty()) {
-            redirectAttributes.addFlashAttribute(
-                    "errorMessage",
-                    "Las siguientes habitaciones no existen: " + inexistentes
-            );
+        if (seleccionadas.isEmpty()) {
+            redirect.addFlashAttribute("errorMessage",
+                    "Debe seleccionar al menos una habitación disponible.");
             return "redirect:/habitacion";
         }
-        // 3) VALIDAR DISPONIBILIDAD REAL
 
-        List<Integer> noDisponibles
-                = gestionHabitacion.habitacionesNoDisponibles(
-                        habitacionesSel, fechaDesde, fechaHasta
-                );
+        List<Integer> noDisponibles = gestionHabitacion.habitacionesNoDisponibles(seleccionadas, fechaDesde, fechaHasta);
 
         if (!noDisponibles.isEmpty()) {
-            redirectAttributes.addFlashAttribute(
-                    "errorMessage",
-                    "Las siguientes habitaciones no están disponibles en el rango seleccionado: "
-                    + noDisponibles
-            );
+            redirect.addFlashAttribute("errorMessage",
+                    "Habitaciones no disponibles: " + noDisponibles);
             return "redirect:/habitacion";
         }
 
-        // 4) OBTENER TIPO DE LA PRIMER HABITACIÓN
-        Habitacion hab = gestionHabitacion.buscarPorNumero(habitacionesSel.get(0));
-        TipoHabitacion tipo = (hab != null) ? hab.getTipo() : null;
+        Habitacion h = gestionHabitacion.buscarPorNumero(seleccionadas.get(0));
 
-        // 5) CREAR DTO PARA FORMULARIO CU04
-        ReservaRequestDTO dto = new ReservaRequestDTO(
-                null, null, null, // Nombre / Apellido / Teléfono
-                fechaDesde, fechaHasta,
-                habitacionesSel,
-                tipo
-        );
+        ReservaRequestDTO dto = new ReservaRequestDTO();
+        dto.setFechaDesde(fechaDesde);
+        dto.setFechaHasta(fechaHasta);
+        dto.setHabitaciones(seleccionadas);
+        dto.setTipoHabitacion(h.getTipo());
+        session.setAttribute("reservaDTO", dto);
 
-        model.addAttribute("reservaRequestDTO", dto);
-
-        return "reserva/nueva-reserva";
+        return "redirect:/reserva/nueva";
     }
 
+}
+
+
+/* 
     @PostMapping("/ocupar")
     public String ocuparDesdeGrilla(
             @RequestParam("fechaDesde") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
@@ -202,5 +174,4 @@ public class HabitacionWebController {
 
         return url;
     }
-
-}
+} */
