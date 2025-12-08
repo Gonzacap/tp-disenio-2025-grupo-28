@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="fragments/Base :: head('Ocupar Habitacion')"></head>
+
+  <body>
+    <div class="container-md my-5">
+      <!-- TÍTULO -->
+      <h2 th:text="'Cargar ocupantes - Habitación ' + ${numeroHabitacion}"></h2>
+
+      <!-- Mensaje error -->
+      <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <p th:text="${errorMessage}"></p>
+      </div>
+
+      <!-- Mensaje éxito -->
+      <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <p th:text="${successMessage}"></p>
+      </div>
+
+      <section>
+        <!-- FORMULARIO DE BÚSQUEDA -->
+
+        <label for="" class="" th:text="${ huspedCargado == null ? 'Buscar Huesped' : 'Buscar Acompañante'}"></label>
+
+        <form th:action="@{/ocupacion/buscar-huesped}" method="post">
+          <input type="hidden" name="reservaId" th:value="${reservaId}" />
+          <input type="hidden" name="numeroHabitacion" th:value="${numeroHabitacion}" />
+          <input type="hidden" name="fechaDesde" th:value="${fechaDesde}" />
+          <input type="hidden" name="fechaHasta" th:value="${fechaHasta}" />
+
+          <label>Nombre:</label>
+          <input type="text" name="nombre" th:value="${nombre}" />
+          <label>Apellido:</label>
+          <input type="text" name="apellido" th:value="${apellido}" />
+          <label>Tipo Doc:</label>
+          <input type="text" name="tipoDocumento" th:value="${tipoDocumento}" />
+          <label>N° Doc:</label>
+          <input type="text" name="documento" th:value="${documento}" />
+
+          <button type="submit">Buscar</button>
+        </form>
+      </section>
+
+      <section>
+        <!-- RESULTADOS -->
+
+        <label
+          for=""
+          class="form-label"
+          th:text="${ huspedCargado == null ? 'Seleccione el huesped de la habitación' : 'Seleccione los acompañantes de la habitación'}"></label>
+
+        <form th:action="@{/ocupacion/agregar-huesped}" method="post">
+          <table>
+            <tr th:each="persona : ${personasResultados}">
+              <td>
+                <input
+                  class="form-check-input"
+                  th:type="${huspedCargado == null ? 'radio' : 'checkbox'}"
+                  name="personasSeleccionadas"
+                  th:value="${persona.cuit}" />
+              </td>
+              <td th:text="${persona.nombre}">Nombre</td>
+              <td th:text="${persona.apellido}">Apellido</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(personasResultados)}">
+              <td colspan="3">No se encontraron resultados</td>
+            </tr>
+          </table>
+
+          <button type="submit">Agregar</button>
+        </form>
+      </section>
+
+      <!-- YA CARGADOS -->
+      <section>
+        <a
+          class="btn btn-primary"
+          href="#"
+          role="button"
+          th:href="@{/ocupacion/resumen-ocupacion}"
+          th:disabled="${huspedCargado == null}">
+          Ir al resumen
+        </a>
+      </section>
+
+      <!-- YA CARGADOS -->
+      <section>
+        <h3>Ocupantes cargados</h3>
+        <table>
+          <tr th:each="i : ${ocupantesCargados}">
+            <td>[[${i.nombre}]] [[${i.apellido}]]</td>
+          </tr>
+        </table>
+      </section>
+    </div>
+
+    <div th:replace="fragments/Base :: scripts"></div>
+  </body>
+</html>
