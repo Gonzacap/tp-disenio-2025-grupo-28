@@ -397,7 +397,7 @@ public class GestionHuesped {
     /**
      *
      */
-    public List<Huesped> buscarHuesped(
+    public List<PersonaFisica> buscarHuesped(
             String apellido,
             String nombre,
             TipoDocumento tipoDocumento,
@@ -410,10 +410,9 @@ public class GestionHuesped {
             return List.of();
         }
 
-        // Convierto cada persona encontrada en su Huesped (si lo es)
+        // Filtrar solo las que tienen registro de Huesped
         return personas.stream()
-                .map(p -> huespedRepository.findById(p.getCuit()).orElse(null))
-                .filter(Objects::nonNull)
+                .filter(p -> huespedRepository.existsById(p.getCuit()))
                 .distinct()
                 .toList();
     }
@@ -472,6 +471,18 @@ public class GestionHuesped {
         }
         PersonaFisica p = personaFisicaRepository.findFirstByDocumento(documento);
         return p == null ? List.of() : List.of(p);
+    }
+
+    /**
+     * Devuelve el Huesped asociado a una PersonaFisica
+     */
+    public Huesped obtenerHuesped(PersonaFisica persona) {
+
+        if (persona == null || persona.getCuit() == null) {
+            return null;
+        }
+
+        return huespedRepository.findById(persona.getCuit()).orElse(null);
     }
 
 }
