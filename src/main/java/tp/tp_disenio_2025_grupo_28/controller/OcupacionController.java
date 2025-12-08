@@ -3,6 +3,7 @@ package tp.tp_disenio_2025_grupo_28.controller;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ import tp.tp_disenio_2025_grupo_28.service.GestionHabitacion;
 import tp.tp_disenio_2025_grupo_28.service.GestionHuesped;
 
 @Controller
-@SessionAttributes({"huspedCargado", "ocupantesCargados", "responsable", "reservaId", "fechaDesde", "fechaHasta", "numeroHabitacion"})
+@SessionAttributes({"huspedCargado", "ocupantesCargados", "responsable", "reservaId", "fechaDesde", "fechaHasta", "numeroHabitacion", "personasResultados"})
 @RequestMapping("/ocupacion")
 public class OcupacionController {
 
@@ -276,6 +277,11 @@ public class OcupacionController {
         return new ArrayList<>();
     }
 
+    @ModelAttribute("personasResultados")
+    public List<PersonaFisica> personasResultados() {
+        return new ArrayList<>();
+    }
+
     @ModelAttribute("reservaId")
     public Integer reservaId() {
         return null;
@@ -314,6 +320,8 @@ public class OcupacionController {
         model.addAttribute("reservaId", reservaId);
         model.addAttribute("fechaDesde", fechaDesde);
         model.addAttribute("fechaHasta", fechaHasta);
+        model.addAttribute("personasResultados", new ArrayList<>());
+
         model.addAttribute("numeroHabitacion", numeroHabitacion);
 
         model.addAttribute("huspedCargado", huspedCargado);
@@ -339,7 +347,8 @@ public class OcupacionController {
             @RequestParam(required = false) String documento,
             Model model,
             @ModelAttribute("huspedCargado") Huesped huspedCargado,
-            @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados
+            @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
+            @ModelAttribute("personasResultados") List<PersonaFisica> personasResultados
     ) {
 
         TipoDocumento tipo = null;
@@ -353,19 +362,16 @@ public class OcupacionController {
             }
         }
 
-        // pueden ser Huespedes o PersonasFisicas
-        List<PersonaFisica> resultados;
-
         // Primero busco un huesped
         if (huspedCargado == null) {
-            resultados = gestionHuesped.buscarHuesped(apellido, nombre, tipo, documento);
+            personasResultados = gestionHuesped.buscarHuesped(apellido, nombre, tipo, documento);
         } else {
-            resultados = gestionHuesped.buscarPersona(apellido, nombre, tipo, documento);
+            personasResultados = gestionHuesped.buscarPersona(apellido, nombre, tipo, documento);
         }
 
-        model.addAttribute("resultados", resultados);
+        model.addAttribute("personasResultados", personasResultados);
 
-        model.addAttribute("huesped", huspedCargado);
+        model.addAttribute("huspedCargado", huspedCargado);
         model.addAttribute("ocupantesCargados", ocupantesCargados);
         return "ocupacion/cargar";
     }
@@ -375,27 +381,61 @@ public class OcupacionController {
      */
     @PostMapping("/agregar")
     public String agregarOcupante(
-            @RequestParam PersonaFisica personaSeleccionada,
+            // @RequestParam List<PersonaFisica> personasSeleccionadas,
+            @RequestParam(name = "personasSeleccionadas") List<String> cuitsSeleccionados,
             Model model,
             @ModelAttribute("huspedCargado") Huesped huspedCargado,
             @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
+            @ModelAttribute("personasResultados") List<PersonaFisica> personasResultados,
             RedirectAttributes redirect
     ) {
 
-        if (huspedCargado != null) {
+        // CUITs que NO están en cargados
+        List<String> cuitsFaltantes = cuitsSeleccionados.stream()
+                .filter(cuit -> ocupantesCargados.stream()
+                .noneMatch(p -> cuit.equals(p.getCuit())))
+                .toList();
 
-            Huesped huesped = gestionHuesped.obtenerHuesped(personaSeleccionada);
-            model.addAttribute("huesped", huesped);
+        // Recupero las personas desde la lista de sesión cagada anteriormente por su CUIT
+        List<PersonaFisica> seleccionadas = cuitsFaltantes.stream()
+                .map(cuit -> personasResultados.stream()
+                .filter(p -> cuit != null && cuit.equals(p.getCuit()))
+                .findFirst()
+                .orElse(null))
+                .filter(Objects::nonNull)
+                .toList();
+
+        if (seleccionadas.isEmpty()) {
+            redirect.addFlashAttribute("errorMessage", "No se encontraron las personas seleccionadas en sesión.");
+            return "redirect:/ocupacion/cargar";
         }
-        if (!ocupantesCargados.contains(personaSeleccionada)) {
-            ocupantesCargados.add(personaSeleccionada);
+
+        if (huspedCargado == null) {
+
+            Huesped huesped = gestionHuesped.obtenerHuesped(seleccionadas.getFirst());
+
+            if (huesped == null) {
+                redirect.addFlashAttribute("errorMessage", "Hubo un error al cargar el Huesped.");
+                return "redirect:/ocupacion/cargar";
+            }
+
+            model.addAttribute("huspedCargado", huesped);
+        }
+
+        // Agregar acompañantes
+        for (PersonaFisica persona : seleccionadas) {
+            if (!ocupantesCargados.contains(persona)) {
+                ocupantesCargados.add(persona);
+            }
         }
 
         model.addAttribute("huesped", huspedCargado);
+        model.addAttribute("ocupantesCargados", ocupantesCargados);
+        model.addAttribute("personasResultados", new ArrayList<>());
 
-        redirect.addFlashAttribute("msg", "Huesped agregado correctamente");
+        redirect.addFlashAttribute("successMessage", "Huesped agregado correctamente");
 
-        return "redirect:/ocupacion/cargar";
+        return "redirect:/ocupacion/resumen";
     }
 
     /**
