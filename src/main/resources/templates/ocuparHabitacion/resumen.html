@@ -62,9 +62,11 @@
     <!-- ENVIAR RESPONSABLE -->
     <input type="hidden" name="cuitResponsable" th:value="${responsable != null ? responsable.cuit : ''}"/>
 
+    <input type="hidden" name="responsablePago" th:value="${cuitResponsable}"/>
+
     <!-- ENVIAR ACOMPAÑANTES -->
     <div th:each="p : ${ocupantes}">
-        <input type="hidden" name="cuitsAcompanantes" th:value="${p.cuit}"/>
+        <input type="hidden" name="cuitsAcompanantes" th:value="${p.cuit}">
     </div>
 
     <button type="submit" class="btn">SEGUIR CARGANDO</button>

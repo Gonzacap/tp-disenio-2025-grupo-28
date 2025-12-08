@@ -78,12 +78,12 @@
         <tbody>
             <tr th:each="p : ${resultados}">
                 <td>
-    <input type="radio" name="responsablePago" th:value="${p.cuit}"
+    <input type="checkbox" name="responsablePago" th:value="${p.cuit}"
            th:checked="${cuitResponsable != null && p.cuit == cuitResponsable}"/>
 </td>
 
 <td>
-    <input type="checkbox" name="acompanantes" th:value="${p.cuit}"
+    <input type="checkbox" name="cuitsAcompanantes" th:value="${p.cuit}"
            th:checked="${cuitsAcompanantes != null and cuitsAcompanantes.contains(p.cuit)}"/>
 </td>
 

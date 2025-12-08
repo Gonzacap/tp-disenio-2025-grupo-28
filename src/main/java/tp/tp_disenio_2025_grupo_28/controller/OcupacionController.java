@@ -46,7 +46,11 @@ public class OcupacionController {
             @RequestParam(required = false) String error,
             @RequestParam(required = false) String cuitResponsable,
             @RequestParam(required = false) List<String> cuitsAcompanantes,
+            @RequestParam(required = false) String responsablePago,
             Model model) {
+
+        System.out.println("\n\nGET /buscar CUITS: " + cuitsAcompanantes + "\n\n");
+        System.out.println("\n\nGET /buscar responsablePago: " + responsablePago + "\n\n");
 
         model.addAttribute("numero_habitacion", numero_habitacion);
         model.addAttribute("reservaId", reservaId);
@@ -74,7 +78,12 @@ public class OcupacionController {
             @RequestParam Integer reservaId,
             @RequestParam String fechaDesde,
             @RequestParam String fechaHasta,
+            @RequestParam(required = false) List<String> cuitsAcompanantes,
+            @RequestParam(required = false) String responsablePago,
             Model model) {
+
+        System.out.println("\n\nPOST /buscar CUITS: " + cuitsAcompanantes + "\n\n");
+        System.out.println("\n\nPOST /buscar responsablePago: " + responsablePago + "\n\n");
 
         TipoDocumento tipoDocEnum = null;
         if (tipoDocumento != null && !tipoDocumento.isEmpty()) {
@@ -101,6 +110,8 @@ public class OcupacionController {
         model.addAttribute("reservaId", reservaId);
         model.addAttribute("fechaDesde", fechaDesde);
         model.addAttribute("fechaHasta", fechaHasta);
+        model.addAttribute("cuitsAcompanantes", cuitsAcompanantes); // Para recordar la selección
+        model.addAttribute("responsablePago", responsablePago); // Para recordar la selección
 
         return "ocuparHabitacion/buscar";
     }
@@ -109,7 +120,7 @@ public class OcupacionController {
     @PostMapping("/seleccionar")
     public String seleccionarOcupantes(
             @RequestParam(required = false) String responsablePago,
-            @RequestParam(required = false) List<String> acompanantes,
+            @RequestParam(required = false) List<String> cuitsAcompanantes,
             @RequestParam Integer numero_habitacion,
             @RequestParam Integer reservaId,
             @RequestParam String fechaDesde,
@@ -120,6 +131,14 @@ public class OcupacionController {
             @RequestParam(required = false) String documentoBusqueda,
             Model model) {
 
+
+        System.out.println("\n\nPOST /seleccionar CUITS: " + cuitsAcompanantes + "\n\n");
+        System.out.println("\n\nPOST /seleccionar responsablePago: " + responsablePago + "\n\n");
+
+        model.addAttribute("cuitsAcompanantes", cuitsAcompanantes); // Para recordar la selección
+        model.addAttribute("responsablePago", responsablePago);
+
+        /*
         if (responsablePago == null || responsablePago.isEmpty()) {
             model.addAttribute("error", "Debe seleccionar un responsable de pago.");
             // Recargar filtros y resultados
@@ -143,17 +162,22 @@ public class OcupacionController {
             List<Huesped> resultados = gestionHuesped.buscarHuespedFinal(apellidoBusqueda, nombreBusqueda, tipoDocEnum, documentoBusqueda);
             model.addAttribute("resultados", resultados);
 
+            // model.addAttribute("acompanantes", cuitsAcompanantes);
+
             model.addAttribute("cuitResponsable", null);
             return "ocuparHabitacion/buscar";
         }
+        */
 
         // Filtrar acompañantes para no incluir al responsable
-        List<String> acomp = (acompanantes == null) ? List.of()
-                : acompanantes.stream().filter(c -> !c.equals(responsablePago)).collect(Collectors.toList());
+        List<String> acomp = (cuitsAcompanantes == null) ? List.of()
+                : cuitsAcompanantes.stream().filter(c -> responsablePago != null && !c.equals(responsablePago)).collect(Collectors.toList());
 
         OcupacionHuespedDTO dto = new OcupacionHuespedDTO();
-        dto.setIdHuesped(responsablePago);
-        dto.setIdAcompanantes(acomp);
+        if (responsablePago == null || responsablePago.isEmpty()) {
+            dto.setIdHuesped(responsablePago);
+            dto.setIdAcompanantes(acomp);
+        }
 
         OcupacionRequestDTO req = new OcupacionRequestDTO();
         req.setNumeroHabitacion(numero_habitacion);
@@ -208,7 +232,16 @@ public class OcupacionController {
             @RequestParam Integer reservaId,
             @RequestParam String fechaDesde,
             @RequestParam String fechaHasta,
-            Model model) {
+            Model model,
+            @RequestParam(required = false) String responsablePago,
+            @RequestParam(required = false) List<String> cuitsAcompanantes
+            ) {
+
+        System.out.println("\n\nGET /resumen CUITS: " + cuitsAcompanantes + "\n\n");
+        System.out.println("\n\nGET /resumen responsablePago: " + responsablePago + "\n\n");
+
+        model.addAttribute("cuitsAcompanantes", cuitsAcompanantes); // Para recordar la selección
+        model.addAttribute("responsablePago", responsablePago);
 
         List<PersonaFisica> ocupantes = gestionHabitacion.obtenerOcupantesAsignados(reservaId, numero_habitacion);
         PersonaFisica responsable = ocupantes.isEmpty() ? null : ocupantes.get(0);
