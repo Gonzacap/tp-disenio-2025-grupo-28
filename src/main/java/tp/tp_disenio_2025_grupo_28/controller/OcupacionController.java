@@ -379,7 +379,7 @@ public class OcupacionController {
     /**
      * 3) AGREGAR OCUPANTE A LA LISTA
      */
-    @PostMapping("/agregar")
+    @PostMapping("/agregar-huesped")
     public String agregarOcupante(
             // @RequestParam List<PersonaFisica> personasSeleccionadas,
             @RequestParam(name = "personasSeleccionadas") List<String> cuitsSeleccionados,
@@ -441,7 +441,7 @@ public class OcupacionController {
     /**
      * 4) RESUMEN FINAL
      */
-    @GetMapping("/resumen")
+    @GetMapping("/resumen-ocupacion")
     public String resumen(
             Model model,
             @ModelAttribute("reservaId") Integer reservaId,
