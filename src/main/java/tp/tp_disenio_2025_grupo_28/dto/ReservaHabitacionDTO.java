@@ -8,11 +8,13 @@ public class ReservaHabitacionDTO {
     private Date fechaDesde;
     private Date fechaHasta;
 
+    public ReservaHabitacionDTO() {
+    }
 
-    public  ReservaHabitacionDTO(Integer nro, Date desde, Date hasta){
-        this.numeroHabitacion=nro;
-        this.fechaDesde=desde;
-        this.fechaHasta=hasta;
+    public ReservaHabitacionDTO(Integer nro, Date desde, Date hasta) {
+        this.numeroHabitacion = nro;
+        this.fechaDesde = desde;
+        this.fechaHasta = hasta;
     }
 
     public Integer getNumeroHabitacion() {

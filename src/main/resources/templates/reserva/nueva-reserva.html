@@ -18,11 +18,15 @@
         </div>
         <div class="card-body">
 
-            <p>
-                ✔ <strong>Tipo de habitación:</strong>
-                <span th:text="${reservaRequestDTO.tipoHabitacion}"></span>
-            </p>
-
+        <!--  <p>✔ <strong>Tipo de habitación:</strong><span th:text="${reservaRequestDTO.tipoHabitacion}"></span> </p>-->
+<ul>
+    <li th:each="hab : ${reservaRequestDTO.habitaciones}">
+        Habitación 
+        <span th:text="${hab.numeroHabitacion}">NRO</span>
+        -
+        <span th:text="${habitacionTipoMap[hab.numeroHabitacion]}">TIPO</span>
+    </li>
+</ul>
             <p>
                 <strong>Ingreso:</strong>
                 <span th:text="${#dates.format(reservaRequestDTO.fechaDesde,'EEEE dd/MM/yyyy')}"></span>,
@@ -139,6 +143,12 @@
     }
 
     document.querySelectorAll("input").forEach(i =>
+        i.addEventListener("input", () =>
+            i.value = i.value.toUpperCase()
+        )
+    );
+
+    document.querySelectorAll("input[type='text']").forEach(i =>
         i.addEventListener("input", () =>
             i.value = i.value.toUpperCase()
         )

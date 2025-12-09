@@ -1,5 +1,6 @@
 package tp.tp_disenio_2025_grupo_28.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,17 @@ public class ReservaService {
     //CU04 --> PASO 3 Y 3.B
 
     private void validarDisponibilidadReserva(ReservaRequestDTO dto) {
+        //Valido que todas las reservas tienen el mismo rango de fechas
+        //cuando reserva habitaciones a la vez 
+        Date baseDesde = dto.getFechaDesde();
+        Date baseHasta = dto.getFechaHasta();
 
+        for (ReservaHabitacionDTO h : dto.getHabitaciones()) {
+            if (!h.getFechaDesde().equals(baseDesde) || !h.getFechaHasta().equals(baseHasta)) {
+                throw new RuntimeException("Todas las habitaciones deben tener el mismo rango de fechas.");
+            }
+        }
+        //Valido disponibilidad actual
         for (ReservaHabitacionDTO nroHab : dto.getHabitaciones()) {
 
             boolean disponible = estadoPeriodoService.estaDisponible(

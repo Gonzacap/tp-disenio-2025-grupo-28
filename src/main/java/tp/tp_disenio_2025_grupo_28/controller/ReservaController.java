@@ -1,6 +1,9 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpSession;
+import tp.tp_disenio_2025_grupo_28.dto.ReservaHabitacionDTO;
 import tp.tp_disenio_2025_grupo_28.dto.ReservaRequestDTO;
+import tp.tp_disenio_2025_grupo_28.model.Habitacion;
 import tp.tp_disenio_2025_grupo_28.model.Usuario;
 import tp.tp_disenio_2025_grupo_28.repository.HabitacionRepository;
 import tp.tp_disenio_2025_grupo_28.service.ReservaService;
@@ -29,7 +34,6 @@ public class ReservaController {
 
     // Paso 1 y 2 del CU: mostrar disponibilidad
     @GetMapping("/nueva")
-
     public String mostrarFormulario(
             @RequestParam(name = "fechaDesde", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
             @RequestParam(name = "fechaHasta", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
@@ -40,6 +44,19 @@ public class ReservaController {
             // flujo inválido, vuelve a selección de habitaciones
             return "redirect:/habitacion";
         }
+        List<Integer> nums = dto.getHabitaciones().stream()
+                .map(ReservaHabitacionDTO::getNumeroHabitacion)
+                .toList();
+
+        Map<Integer, String> tipoMap = habitacionRepo
+                .findAllByNumeroHabitacionIn(nums)
+                .stream()
+                .collect(Collectors.toMap(
+                        Habitacion::getNumeroHabitacion,
+                        h -> h.getTipo().getNombre()
+                ));
+
+        model.addAttribute("habitacionTipoMap", tipoMap);
 
         model.addAttribute("reservaRequestDTO", dto);
 

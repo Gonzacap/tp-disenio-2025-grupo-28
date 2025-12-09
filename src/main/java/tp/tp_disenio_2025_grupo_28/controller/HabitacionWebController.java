@@ -1,9 +1,7 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,8 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import jakarta.servlet.http.HttpSession;
-import tp.tp_disenio_2025_grupo_28.dto.*;
+import tp.tp_disenio_2025_grupo_28.dto.ReservaHabitacionDTO;
+import tp.tp_disenio_2025_grupo_28.dto.ReservaRequestDTO;
 import tp.tp_disenio_2025_grupo_28.model.Habitacion;
 import tp.tp_disenio_2025_grupo_28.service.GestionHabitacion;
 
@@ -85,11 +87,16 @@ public class HabitacionWebController {
             @RequestParam("fechaDesde") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
             @RequestParam("fechaHasta") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
             @RequestParam String habitaciones,
+            @RequestParam(name = "reservasInput", required = true) String reservasJson,
             Model model,
             RedirectAttributes redirect, HttpSession session
     ) {
         if (habitaciones == null || habitaciones.isBlank()) {
             redirect.addFlashAttribute("errorMessage", "Debe seleccionar al menos una habitación disponible.");
+            return "redirect:/habitacion";
+        }
+        if (reservasJson == null || reservasJson.isBlank()) {
+            redirect.addFlashAttribute("errorMessage", "Faltan las fechas de selección por habitación.");
             return "redirect:/habitacion";
         }
 
@@ -107,27 +114,85 @@ public class HabitacionWebController {
             redirect.addFlashAttribute("errorMessage", "Habitaciones no disponibles: " + noDisponibles);
             return "redirect:/habitacion";
         }
-    List<ReservaHabitacionDTO> habitacionesDTO =
-            seleccionadas.stream()
-                    .map(nro -> {
-                        ReservaHabitacionDTO rh = new ReservaHabitacionDTO(nro, fechaDesde, fechaHasta);
-                        
-                        return rh;
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Map<String, String>> reservasMap;
+        try {
+            reservasMap = mapper.readValue(
+                    reservasJson,
+                    new TypeReference<Map<String, Map<String, String>>>() {
+            }
+            );
+        } catch (IOException e) {
+            redirect.addFlashAttribute("errorMessage", "Error procesando las fechas de selección (reservasInput).");
+            return "redirect:/habitacion";
+        }
+
+        /*  List<ReservaHabitacionDTO> habitacionesDTO
+                = seleccionadas.stream()
+                        .map(nro -> {
+                            ReservaHabitacionDTO rh = new ReservaHabitacionDTO(nro, fechaDesde, fechaHasta);
+
+                            return rh;
+                        })
+                        .toList();*/
+        List<ReservaHabitacionDTO> habitacionesDTO;
+        try {
+            habitacionesDTO = seleccionadas.stream()
+                    .map(num -> {
+                        Map<String, String> r = reservasMap.get(num.toString());
+                        if (r == null || r.get("desde") == null || r.get("hasta") == null) {
+                            throw new IllegalArgumentException("Faltan fechas para la habitación " + num);
+                        }
+
+                        Date fDesde = java.sql.Date.valueOf(r.get("desde"));
+                        Date fHasta = java.sql.Date.valueOf(r.get("hasta"));
+
+                        return new ReservaHabitacionDTO(num, fDesde, fHasta);
                     })
                     .toList();
+        } catch (IllegalArgumentException ex) {
+            redirect.addFlashAttribute("errorMessage", ex.getMessage());
+            return "redirect:/habitacion";
+        }
+        if (habitacionesDTO.size() > 1) {
+            Date baseDesde = habitacionesDTO.get(0).getFechaDesde();
+            Date baseHasta = habitacionesDTO.get(0).getFechaHasta();
 
-    Habitacion habitacionBase =
-            gestionHabitacion.buscarPorNumero(seleccionadas.get(0));
+            boolean mismatch = habitacionesDTO.stream()
+                    .anyMatch(h -> !h.getFechaDesde().equals(baseDesde) || !h.getFechaHasta().equals(baseHasta));
 
-    ReservaRequestDTO dto = new ReservaRequestDTO();
-    dto.setHabitaciones(habitacionesDTO);
-    dto.setTipoHabitacion(habitacionBase.getTipo());
-    dto.setFechaDesde(fechaDesde);
-    dto.setFechaHasta(fechaHasta);
+            if (mismatch) {
+                redirect.addFlashAttribute("errorMessage",
+                        "Todas las habitaciones seleccionadas deben tener el mismo rango de fechas.");
+                return "redirect:/habitacion";
+            }
 
-    session.setAttribute("reservaDTO", dto);
+            // si son iguales, también actualizamos fechaDesde/fechaHasta globales (consistencia)
+            fechaDesde = baseDesde;
+            fechaHasta = baseHasta;
+        }
+        for (ReservaHabitacionDTO rh : habitacionesDTO) {
+            boolean disponible = gestionHabitacion.estaDisponible(
+                    rh.getNumeroHabitacion(),
+                    rh.getFechaDesde(),
+                    rh.getFechaHasta()
+            );
+            if (!disponible) {
+                redirect.addFlashAttribute("errorMessage",
+                        "La habitación " + rh.getNumeroHabitacion() + " no está disponible en el período seleccionado.");
+                return "redirect:/habitacion";
+            }
+        }
 
+        Habitacion habitacionBase = gestionHabitacion.buscarPorNumero(seleccionadas.get(0));
 
+        ReservaRequestDTO dto = new ReservaRequestDTO();
+        dto.setHabitaciones(habitacionesDTO);
+        dto.setTipoHabitacion(habitacionBase.getTipo());
+        dto.setFechaDesde(fechaDesde);
+        dto.setFechaHasta(fechaHasta);
+
+        session.setAttribute("reservaDTO", dto);
 
         return "redirect:/reserva/nueva";
     }
