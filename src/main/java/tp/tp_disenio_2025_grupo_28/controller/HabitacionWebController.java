@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
-import tp.tp_disenio_2025_grupo_28.dto.ReservaRequestDTO;
+import tp.tp_disenio_2025_grupo_28.dto.*;
 import tp.tp_disenio_2025_grupo_28.model.Habitacion;
 import tp.tp_disenio_2025_grupo_28.service.GestionHabitacion;
 
@@ -93,9 +93,7 @@ public class HabitacionWebController {
             return "redirect:/habitacion";
         }
 
-        List<Integer> seleccionadas = Arrays.stream(habitaciones.split(","))
-                .map(Integer::parseInt)
-                .toList();
+        List<Integer> seleccionadas = Arrays.stream(habitaciones.split(",")).map(Integer::parseInt).toList();
 
         if (seleccionadas.isEmpty()) {
             redirect.addFlashAttribute("errorMessage",
@@ -106,19 +104,30 @@ public class HabitacionWebController {
         List<Integer> noDisponibles = gestionHabitacion.habitacionesNoDisponibles(seleccionadas, fechaDesde, fechaHasta);
 
         if (!noDisponibles.isEmpty()) {
-            redirect.addFlashAttribute("errorMessage",
-                    "Habitaciones no disponibles: " + noDisponibles);
+            redirect.addFlashAttribute("errorMessage", "Habitaciones no disponibles: " + noDisponibles);
             return "redirect:/habitacion";
         }
+    List<ReservaHabitacionDTO> habitacionesDTO =
+            seleccionadas.stream()
+                    .map(nro -> {
+                        ReservaHabitacionDTO rh = new ReservaHabitacionDTO(nro, fechaDesde, fechaHasta);
+                        
+                        return rh;
+                    })
+                    .toList();
 
-        Habitacion h = gestionHabitacion.buscarPorNumero(seleccionadas.get(0));
+    Habitacion habitacionBase =
+            gestionHabitacion.buscarPorNumero(seleccionadas.get(0));
 
-        ReservaRequestDTO dto = new ReservaRequestDTO();
-        dto.setFechaDesde(fechaDesde);
-        dto.setFechaHasta(fechaHasta);
-        dto.setHabitaciones(seleccionadas);
-        dto.setTipoHabitacion(h.getTipo());
-        session.setAttribute("reservaDTO", dto);
+    ReservaRequestDTO dto = new ReservaRequestDTO();
+    dto.setHabitaciones(habitacionesDTO);
+    dto.setTipoHabitacion(habitacionBase.getTipo());
+    dto.setFechaDesde(fechaDesde);
+    dto.setFechaHasta(fechaHasta);
+
+    session.setAttribute("reservaDTO", dto);
+
+
 
         return "redirect:/reserva/nueva";
     }

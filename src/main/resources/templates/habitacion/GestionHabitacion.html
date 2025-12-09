@@ -116,7 +116,11 @@
 </thead>
  <!-- CUERPO -->
    <tbody> <tr th:each="row : ${grilla}">
-     <!-- Fecha --> <td class="fw-bold" th:text="${#dates.format(row.fecha, 'dd/MM/yyyy')}" >
+     <!-- Fecha --> 
+    <td class="fw-bold"
+    th:text="${#dates.format(row.fecha, 'dd/MM/yyyy')}"
+    th:data-fecha="${#dates.format(row.fecha,'yyyy-MM-dd')}">
+</td>
 
      </td> <!-- Columnas por tipo --> <td th:each="tipo : ${row.estadosPorTipo}"> 
         <!-- ESTADOS EN HORIZONTAL --> 
@@ -147,9 +151,11 @@
 
             <!-- RESERVAR FUNCIONA -->
             <form th:action="@{/habitacion/reservar}" method="post" class="d-inline">
-                <input type="hidden" name="fechaDesde" th:value="${#dates.format(fechaDesde,'yyyy-MM-dd')}">
-                <input type="hidden" name="fechaHasta" th:value="${#dates.format(fechaHasta,'yyyy-MM-dd')}">
                 <input type="hidden" id="habitacionesInput" name="habitaciones">
+                <input type="hidden" id="reservasInput" name="reservas">
+                <input type="hidden" id="fechaDesdeSeleccionada" name="fechaDesde">
+                <input type="hidden" id="fechaHastaSeleccionada" name="fechaHasta">
+
 
                 <button type="submit" class="btn btn-success">RESERVAR</button>
             </form>
@@ -229,41 +235,93 @@
 </div>
 
 <div th:replace="fragments/Base :: scripts"></div>
-
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-
     const seleccionadas = new Set();
+    const reservas = {};
 
     document.querySelectorAll(".estado-clickable").forEach(cell => {
         cell.addEventListener("click", () => {
 
-            const estado = cell.dataset.estado;
+           // const estado = cell.dataset.estado;
+            const estado = cell.dataset.estado.trim().toLowerCase();
             const hab = cell.dataset.habitacion;
+
+            const fila = cell.closest("tr");
+            const fechaCell = fila.querySelector("td[data-fecha]");
+            const fecha = fechaCell ? fechaCell.dataset.fecha : null;
+            if (fecha) {
+                const desdeInput = document.getElementById("fechaDesdeSeleccionada");
+                const hastaInput = document.getElementById("fechaHastaSeleccionada");
+
+                if (!desdeInput.value || fecha < desdeInput.value) {
+                    desdeInput.value = fecha;
+                }
+
+                if (!hastaInput.value || fecha > hastaInput.value) {
+                    hastaInput.value = fecha;
+                }
+            }
 
             if (estado !== "disponible") {
                 abrirModalNoDisponible();
                 return;
             }
-
             if (cell.classList.contains("celda-seleccionada")) {
                 cell.classList.remove("celda-seleccionada");
                 seleccionadas.delete(hab);
+                delete reservas[hab]; // quitamos también el rango
             } else {
                 cell.classList.add("celda-seleccionada");
                 seleccionadas.add(hab);
+                if (fecha) {
+                    if (!reservas[hab]) {
+                        reservas[hab] = { desde: fecha, hasta: fecha };
+                    } else {
+                        if (fecha < reservas[hab].desde) {
+                            reservas[hab].hasta = reservas[hab].desde;
+                            reservas[hab].desde = fecha;
+                        } else {
+                            reservas[hab].hasta = fecha;
+                        }
+                    }
+                }
             }
 
             const lista = Array.from(seleccionadas).join(",");
             document.getElementById("habitacionesInput").value = lista;
             document.getElementById("habitacionesInput2").value = lista;
+
+            // input nuevo para reserva con fechas
+            const reservasInput = document.getElementById("reservasInput");
+            if (reservasInput) {
+                reservasInput.value = JSON.stringify(reservas);
+            }
         });
     });
 
     const formReservar = document.querySelector("form[action='/habitacion/reservar']");
     if (formReservar) {
         formReservar.addEventListener("submit", (event) => {
-            const habitaciones = document.getElementById("habitacionesInput").value;
+
+            if (seleccionadas.size === 0) {
+                event.preventDefault();
+                abrirModalNoSeleccionadas();
+                return;
+            }
+
+            // si existe reservasInput, validamos que tenga fechas
+            const reservasInput = document.getElementById("reservasInput");
+            if (reservasInput && !reservasInput.value.trim()) {
+                event.preventDefault();
+                abrirModalNoSeleccionadas();
+            }
+        });
+    }
+    const formOcupar = document.querySelector("form[action='/habitacion/ocupar']");
+    if (formOcupar) {
+        formOcupar.addEventListener("submit", (event) => {
+            const habitaciones = document.getElementById("habitacionesInput2").value;
             if (!habitaciones.trim()) {
                 event.preventDefault();
                 abrirModalNoSeleccionadas();
@@ -271,20 +329,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    const formOcupar = document.querySelector("form[action='/habitacion/ocupar']");
-if (formOcupar) {
-    formOcupar.addEventListener("submit", (event) => {
-        const habitaciones = document.getElementById("habitacionesInput2").value;
-        if (!habitaciones.trim()) {
-            event.preventDefault();
-            abrirModalNoSeleccionadas();
-        }
-    });
-}
-
 });
 
-/* MODALES */
+
 function abrirModalModoIncorrecto(accion) {
     const p = document.getElementById("modal-texto-incorrecto");
 
@@ -316,7 +363,6 @@ function abrirModalNoSeleccionadas() {
 function cerrarModalNoSeleccionadas() {
     document.getElementById("modal-no-seleccionadas").style.display = "none";
 }
-
 </script>
 
 </body>
