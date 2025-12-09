@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import tp.tp_disenio_2025_grupo_28.model.EstadoHabitacionPeriodo;
@@ -25,5 +26,12 @@ public interface EstadoHabitacionPeriodoRepository extends JpaRepository<EstadoH
     AND p.fechaHasta >= :fechaDesde
     """)
     List<EstadoHabitacionPeriodo> findPeriodosSuperpuestos(Integer numHab, Date fechaDesde, Date fechaHasta);
+
+    @Query("""
+    SELECT e
+    FROM EstadoHabitacionPeriodo e
+    WHERE e.fechaDesde <= :hasta
+    AND e.fechaHasta >= :desde """)
+    List<EstadoHabitacionPeriodo> findEnRango(@Param("desde") Date desde, @Param("hasta") Date hasta);
 
 }

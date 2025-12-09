@@ -1,21 +1,16 @@
 package tp.tp_disenio_2025_grupo_28.service;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import tp.tp_disenio_2025_grupo_28.dto.ReservaRequestDTO;
 import tp.tp_disenio_2025_grupo_28.dto.ReservaResponseDTO;
 import tp.tp_disenio_2025_grupo_28.mapper.ReservaMapper;
-import tp.tp_disenio_2025_grupo_28.model.EstadoHabitacionPeriodo;
 import tp.tp_disenio_2025_grupo_28.model.Habitacion;
-import tp.tp_disenio_2025_grupo_28.model.PersonaFisica;
 import tp.tp_disenio_2025_grupo_28.model.Reserva;
 import tp.tp_disenio_2025_grupo_28.model.Usuario;
-import tp.tp_disenio_2025_grupo_28.model.enums.EstadoHabitacion;
 import tp.tp_disenio_2025_grupo_28.repository.EstadoHabitacionPeriodoRepository;
 import tp.tp_disenio_2025_grupo_28.repository.HabitacionRepository;
 import tp.tp_disenio_2025_grupo_28.repository.ReservaRepository;
@@ -34,69 +29,55 @@ public class ReservaService {
 
     @Autowired
     private ReservaMapper mapper;
-
     @Autowired
-    @Lazy
-    private GestionHabitacion gestionHabitacion;
+    private EstadoHabitacionPeriodoService estadoPeriodoService;
 
+    //CU04
     public ReservaResponseDTO reservar(ReservaRequestDTO dto, Usuario usuario) {
         //Evaluamos la precondicion del cu
-        /*(usuario == NULL){
+        if (usuario == null) {
             throw new RuntimeException("Debe estar autenticado");
-        }*/
+        }
 
         validarDisponibilidadReserva(dto);
-        //buscamos disponibilidad cu 05
-        List<Habitacion> disponibles = habitacionRepo.buscarHabitacionesDisponibles(dto.getFechaDesde(), dto.getFechaHasta());
-        //validamos que esten todas disponibles
-        for (Integer nro : dto.getHabitaciones()) {
-            boolean esta = disponibles.stream().anyMatch(h -> h.getNumeroHabitacion().equals(nro));
-            if (!esta) {
-                throw new RuntimeException("La habitacion " + nro + " no está disponible.");
-            }
-        }
 
         //buscamos los objetos de las habitacion completos
         List<Habitacion> habitaciones = habitacionRepo.findAllById(dto.getHabitaciones());
-
+        if (habitaciones.size() != dto.getHabitaciones().size()) {
+            throw new RuntimeException("Una o más habitaciones no existen");
+        }
         //Creamos la reserva
         Reserva reserva = mapper.toEntity(dto, habitaciones);
         reservaRepo.save(reserva);
-
-        //Registramos los periodos
+        // Registrar períodos RESERVADOS (CU04 paso 4)
         for (Habitacion h : habitaciones) {
-            EstadoHabitacionPeriodo p = new EstadoHabitacionPeriodo();
-            p.setEstado(EstadoHabitacion.reservada);
-            p.setNumeroHabitacion(h.getNumeroHabitacion());
-            p.setFechaDesde(dto.getFechaDesde());
-            p.setFechaHasta(dto.getFechaHasta());
-            periodoRepo.save(p);
+            estadoPeriodoService.registrarReserva(
+                    h.getNumeroHabitacion(),
+                    dto.getFechaDesde(),
+                    dto.getFechaHasta()
+            );
         }
+
         return mapper.toDTO(reserva);
     }
+    //CU04 --> PASO 3 Y 3.B
 
-    public void validarDisponibilidadReserva(ReservaRequestDTO dto) {
+    private void validarDisponibilidadReserva(ReservaRequestDTO dto) {
+
         for (Integer nroHab : dto.getHabitaciones()) {
-            boolean disponible = gestionHabitacion.estaDisponible(
+
+            boolean disponible = estadoPeriodoService.estaDisponible(
                     nroHab,
                     dto.getFechaDesde(),
                     dto.getFechaHasta()
             );
+
             if (!disponible) {
                 throw new RuntimeException(
-                        "La habitación " + nroHab + " no está disponible en las fechas seleccionadas."
+                        "La habitación " + nroHab
+                        + " no está disponible en el período seleccionado"
                 );
             }
         }
     }
-
-    public void agregarAcompanantesAreserva(Integer idReserva, List<PersonaFisica> acompanantes) {
-        Optional<Reserva> reserva = reservaRepo.findById(idReserva);
-        Reserva r = reserva.orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
-        r.setAcompanantes(acompanantes);
-        reservaRepo.save(r);
-        r.setAcompanantes(acompanantes);
-        reservaRepo.save(r);
-    }
-
 }

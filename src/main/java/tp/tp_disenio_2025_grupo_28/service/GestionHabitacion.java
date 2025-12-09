@@ -13,13 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import tp.tp_disenio_2025_grupo_28.dto.OcupacionHuespedDTO;
-import tp.tp_disenio_2025_grupo_28.dto.OcupacionRequestDTO;
-import tp.tp_disenio_2025_grupo_28.model.Estadia;
+import tp.tp_disenio_2025_grupo_28.model.EstadoHabitacionPeriodo;
 import tp.tp_disenio_2025_grupo_28.model.Habitacion;
-import tp.tp_disenio_2025_grupo_28.model.PersonaFisica;
-import tp.tp_disenio_2025_grupo_28.model.Reserva;
-import tp.tp_disenio_2025_grupo_28.model.enums.EstadoReserva;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
 import tp.tp_disenio_2025_grupo_28.repository.EstadoHabitacionPeriodoRepository;
 import tp.tp_disenio_2025_grupo_28.repository.HabitacionRepository;
@@ -27,7 +22,7 @@ import tp.tp_disenio_2025_grupo_28.repository.PersonaFisicaRepository;
 import tp.tp_disenio_2025_grupo_28.repository.ReservaRepository;
 
 @Service
-// @Transactional
+@Transactional(readOnly = true)
 public class GestionHabitacion {
 
     @Autowired
@@ -43,17 +38,54 @@ public class GestionHabitacion {
     @Autowired
     private EstadiaService estadiaService;
 
-    private Map<String, List<PersonaFisica>> ocupantesAsignados = new HashMap<>();
+    //CASO DE USO 05
+    //GRILLA DE ESTADOS CU05
+    public void validarFecha(Date desde, Date hasta) {
 
-    public void validarFecha(Date fechaDesde, Date fechaHasta) {
-
-        if (fechaDesde == null || fechaHasta == null) {
-            throw new IllegalArgumentException("Las fechas no pueden ser nulas.");
+        //Ambas fechas nulas
+        if (desde == null && hasta == null) {
+            throw new IllegalArgumentException("Debe ingresar la fecha Desde y la fecha Hasta.");
         }
 
-        if (fechaDesde.after(fechaHasta)) {
-            throw new IllegalArgumentException("La fecha Desde no puede ser posterior a la fecha Hasta.");
+        //Desde nula
+        if (desde == null) {
+            throw new IllegalArgumentException("Debe ingresar la fecha Desde.");
         }
+
+        //Hasta nula
+        if (hasta == null) {
+            throw new IllegalArgumentException("Debe ingresar la fecha Hasta.");
+        }
+
+        //Normalizar fechas
+        Date fechaDesde = limpiarHora(desde);
+        Date fechaHasta = limpiarHora(hasta);
+        Date hoy = limpiarHora(new Date());
+
+        // Desde < hoy  (HOY SÍ ES VÁLIDO)
+        if (fechaDesde.before(hoy)) {
+            throw new IllegalArgumentException("La fecha Desde no puede ser anterior a la fecha actual.");
+        }
+
+        //Hasta < hoy
+        if (fechaHasta.before(hoy)) {
+            throw new IllegalArgumentException("La fecha Hasta no puede ser anterior a la fecha actual.");
+        }
+
+        //Hasta < Desde
+        if (fechaHasta.before(fechaDesde)) {
+            throw new IllegalArgumentException("La fecha Hasta debe ser posterior o igual a la fecha Desde.");
+        }
+    }
+
+    private Date limpiarHora(Date fecha) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(fecha);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
     }
 
     public List<Map<String, Object>> obtenerHabitacionPorTipoMockup() {
@@ -105,7 +137,125 @@ public class GestionHabitacion {
         return dias;
     }
 
+    //GRILLA OPTIMIZADA
     @Transactional(readOnly = true)
+    public List<Map<String, Object>> grilla(List<Map<String, Object>> habitacionesPorTipo,
+            List<Habitacion> habitaciones, List<Date> dias, Date desde, Date hasta) {
+
+        // Traer TODOS los estados del rango
+        List<EstadoHabitacionPeriodo> periodos = estadoPeriodoRepository.findEnRango(desde, hasta);
+
+        //  Indexar por habitación
+        Map<Integer, List<EstadoHabitacionPeriodo>> porHabitacion = new HashMap<>();
+
+        for (EstadoHabitacionPeriodo p : periodos) {
+            Integer nro = p.getNumeroHabitacion();
+
+            porHabitacion.computeIfAbsent(nro, k -> new ArrayList<>()).add(p);
+        }
+
+        List<Map<String, Object>> salida = new ArrayList<>();
+
+        // 3️⃣ Armado de grilla
+        for (Date dia : dias) {
+
+            Map<String, Object> fila = new HashMap<>();
+            fila.put("fecha", dia);
+
+            List<Map<String, Object>> estadosPorTipo = new ArrayList<>();
+
+            for (Map<String, Object> tipoHab : habitacionesPorTipo) {
+
+                String nombreTipo = (String) tipoHab.get("nombre");
+                List<Integer> numeros = (List<Integer>) tipoHab.get("habitaciones");
+
+                List<String> estados = new ArrayList<>();
+
+                for (Integer nro : numeros) {
+
+                    String estado = "DISPONIBLE";
+
+                    for (EstadoHabitacionPeriodo p
+                            : porHabitacion.getOrDefault(nro, List.of())) {
+
+                        if (!dia.before(p.getFechaDesde())
+                                && !dia.after(p.getFechaHasta())) {
+
+                            estado = p.getEstado().name();
+                            break;
+                        }
+                    }
+                    estados.add(estado);
+                }
+
+                estadosPorTipo.add(Map.of(
+                        "tipo", nombreTipo,
+                        "habitaciones", numeros,
+                        "estados", estados
+                ));
+            }
+
+            fila.put("estadosPorTipo", estadosPorTipo);
+            salida.add(fila);
+        }
+
+        return salida;
+    }
+
+    /* @Transactional(readOnly = true)
+    public List<Map<String, Object>> grilla(
+            List<Map<String, Object>> habitacionesPorTipo,
+            List<Habitacion> habitaciones,
+            List<Date> dias) {
+
+        List<Map<String, Object>> salida = new ArrayList<>();
+
+        for (Date dia : dias) {
+
+            Map<String, Object> fila = new HashMap<>();
+            fila.put("fecha", dia);
+
+            List<Map<String, Object>> estadosPorTipo = new ArrayList<>();
+
+            for (Map<String, Object> tipoHab : habitacionesPorTipo) {
+
+                String nombreTipo = (String) tipoHab.get("nombre");
+                List<Integer> numeros = (List<Integer>) tipoHab.get("habitaciones");
+
+                List<String> estados = new ArrayList<>();
+
+                for (Integer numeroHab : numeros) {
+
+                    //buscamos estado por PERIODO
+                    List<EstadoHabitacionPeriodo> periodos
+                            = estadoPeriodoRepository.findPeriodosSuperpuestos(numeroHab, dia, dia);
+
+                    String estado = "DISPONIBLE";
+
+                    if (!periodos.isEmpty()) {
+                        // si hay varios, cualquiera distinto de DISPONIBLE bloquea
+                        EstadoHabitacionPeriodo p = periodos.get(0);
+                        estado = p.getEstado().name().toUpperCase();
+                    }
+
+                    estados.add(estado);
+                }
+
+                Map<String, Object> bloqueTipo = new HashMap<>();
+                bloqueTipo.put("tipo", nombreTipo);
+                bloqueTipo.put("habitaciones", numeros);
+                bloqueTipo.put("estados", estados);
+
+                estadosPorTipo.add(bloqueTipo);
+            }
+
+            fila.put("estadosPorTipo", estadosPorTipo);
+            salida.add(fila);
+        }
+
+        return salida;
+    }*/
+ /* @Transactional(readOnly = true)
     public List<Map<String, Object>> grilla(List<Map<String, Object>> habitacionesPorTipo, List<Habitacion> habitaciones, List<Date> dias) {
 
         // Traemos reservas que afectan a las habitaciones del hotel
@@ -181,8 +331,7 @@ public class GestionHabitacion {
         }
 
         return salida;
-    }
-
+    }*/
     @Transactional(readOnly = true)
     public Habitacion buscarPorNumero(Integer numero) {
         return habitacionRepository.findById(numero).orElse(null);
@@ -190,22 +339,7 @@ public class GestionHabitacion {
 
     @Transactional(readOnly = true)
     public boolean estaDisponible(Integer nroHabitacion, Date desde, Date hasta) {
-        List<Reserva> reservas = reservaRepository.findByHabitacion(nroHabitacion);
-        if (reservas == null || reservas.isEmpty()) {
-            return true;
-        }
-        for (Reserva r : reservas) {
-
-            Date rDesde = r.getFechaDesde();
-            Date rHasta = r.getFechaHasta();
-            // Si las habitaciones se solapan no estan disponibles
-            boolean seSolapa = !(hasta.before(rDesde) || desde.after(rHasta));
-            if (seSolapa) {
-                return false;
-            }
-        }
-        return true; // ningun choque, esta disponible
-
+        return estadoPeriodoService.estaDisponible(nroHabitacion, desde, hasta);
     }
 
     @Transactional(readOnly = true)
@@ -225,136 +359,8 @@ public class GestionHabitacion {
         }
         return noDisp;
     }
-
+    /* 
     // ----------------- CU15: OCUPAR HABITACIÓN -----------------
-    /*  @Transactional
-    public void ocuparHabitacion(Integer idReserva, OcupacionRequestDTO request, OcupacionHuespedDTO huespedes, boolean forzar) {
-
-        validarFecha(request.getFechaDesde(), request.getFechaHasta());
-
-        // ---- CHEQUEO DE DISPONIBILIDAD ----
-        Reserva reservaExistente = null;
-        if (idReserva != null) {
-            reservaExistente = reservaRepository.findById(idReserva)
-                    .orElse(null); // no lanzar excepción
-        }
-
-        if (reservaExistente != null && !reservaExistente.getIdReserva().equals(idReserva) && !forzar) {
-            throw new IllegalStateException(
-                    "La habitación está ocupada o reservada por otra reserva en ese período."
-            );
-        }
-
-        // ---- BUSCAR RESERVA ----
-        Reserva reserva = null;
-        if (idReserva != null) {
-            reserva = reservaRepository.findById(idReserva).orElse(null); // no lanzar excepción
-            if (reserva == null) {
-                PersonaFisica responsable = personaFisicaRepository.findById(huespedes.getIdHuesped()).orElseThrow(() -> new IllegalArgumentException("Responsable no encontrado"));
-                List<PersonaFisica> acompanantes = new ArrayList<>();
-                if (huespedes.getIdAcompanantes() != null) {
-                    for (String idAc : huespedes.getIdAcompanantes()) {
-                        PersonaFisica acomp = personaFisicaRepository.findById(idAc)
-                                .orElseThrow(() -> new IllegalArgumentException("Acompañante no encontrado"));
-                        acompanantes.add(acomp);
-                    }
-                }
-                Habitacion hab = habitacionRepository.findById(request.getNumeroHabitacion())
-                        .orElseThrow(() -> new IllegalArgumentException("Habitación no encontrada"));
-
-                //Creamos una nueva reserva
-                Reserva nueva = new Reserva();
-                nueva.setNombre(responsable.getNombre());
-                nueva.setApellido(responsable.getApellido());
-                nueva.setTelefono(responsable.getTelefono());
-                nueva.setHabitaciones(List.of(hab));
-                nueva.setAcompanantes(acompanantes);
-                nueva.setFechaDesde(request.getFechaDesde());
-                nueva.setFechaHasta(request.getFechaHasta());
-                nueva.setEstado(EstadoReserva.generada);
-                nueva = reservaRepository.save(nueva);
-                //Registramos el periodo como ocupada
-                EstadoHabitacionPeriodo periodo = new EstadoHabitacionPeriodo();
-                periodo.setNumeroHabitacion(hab.getNumeroHabitacion());
-                periodo.setEstado(EstadoHabitacion.ocupada);
-                periodo.setFechaDesde(request.getFechaDesde());
-                periodo.setFechaHasta(request.getFechaHasta());
-                estadoPeriodoRepository.save(periodo);
-                //Creamos la estadia basada en la reserva creada
-                estadiaService.crearDesdeReserva(nueva, request.getFechaDesde(), responsable);
-
-            }
-        }
-
-        // ---- VALIDAR PERTENECE A LA RESERVA ----
-        if (reserva != null) {
-            boolean habitacionPertenece = reserva.getHabitaciones().stream()
-                    .anyMatch(h -> h.getNumeroHabitacion().equals(request.getNumeroHabitacion()));
-            if (!habitacionPertenece) {
-                throw new IllegalArgumentException("La habitación no pertenece a esta reserva.");
-            }
-        }
-
-        // ---- VALIDAR CAPACIDAD ----
-        Habitacion hab = habitacionRepository.findById(request.getNumeroHabitacion())
-                .orElseThrow();
-
-        int cantidadOcupantes = 1;
-        if (huespedes != null && huespedes.getIdAcompanantes() != null) {
-            cantidadOcupantes += huespedes.getIdAcompanantes().size();
-        }
-
-        if (hab.getCapacidad() != null && cantidadOcupantes > hab.getCapacidad()) {
-            throw new IllegalStateException("No hay capacidad suficiente para esa habitación.");
-        }
-
-        // ---- REGISTRAR OCUPACIÓN ----
-        estadoPeriodoService.ocupar(request.getNumeroHabitacion(), request.getFechaDesde(), request.getFechaHasta());
-
-        // ---- ASIGNAR RESPONSABLE Y ACOMPAÑANTES ----
-        PersonaFisica responsable = null;
-        if (huespedes != null && huespedes.getIdHuesped() != null) {
-            responsable = personaFisicaRepository.findById(huespedes.getIdHuesped())
-                    .orElseThrow(() -> new IllegalArgumentException("Responsable no encontrado"));
-
-            String key = ((idReserva != null) ? idReserva.toString() : "00000")
-                    + "_" + request.getNumeroHabitacion();
-
-            List<PersonaFisica> ocupantes = new ArrayList<>();
-            ocupantes.add(responsable);
-
-            // Acompañantes
-            List<PersonaFisica> listaAcompanantes = new ArrayList<>();
-            if (huespedes.getIdAcompanantes() != null) {
-                for (String idAc : huespedes.getIdAcompanantes()) {
-                    PersonaFisica acomp = personaFisicaRepository.findById(idAc)
-                            .orElseThrow(() -> new IllegalArgumentException("Acompañante no encontrado"));
-                    listaAcompanantes.add(acomp);
-                }
-                ocupantes.addAll(listaAcompanantes);
-            }
-
-            //reserva.setAcompanantes(listaAcompanantes);
-            reservaService.agregarAcompanantesAreserva(reserva.getIdReserva(), listaAcompanantes);
-            reservaRepository.save(reserva);
-            if (reserva != null) {
-                reserva.setAcompanantes(listaAcompanantes);
-                reservaRepository.save(reserva);
-            }
-
-            ocupantesAsignados.put(key, ocupantes);
-        }
-
-        // ---- CREAR ESTADÍA ----
-        Estadia estadia = estadiaService.crearDesdeReserva(reserva, request.getFechaDesde(), responsable);
-
-        // ---- ACTUALIZAR ESTADO DE RESERVA ----
-        if (reserva != null && reserva.getEstado() == EstadoReserva.confirmada) {
-            reserva.setEstado(EstadoReserva.cumplida);
-            reservaRepository.save(reserva);
-        }
-    }*/
-
     //METEDO NUEVO, TENIENDO EN CUENTA LOS FLUJOS ALTERNATIVOS
     @Transactional
     public void ocuparHabitacion(Integer idReserva, OcupacionRequestDTO request, OcupacionHuespedDTO huespedes, boolean forzar) {
@@ -441,7 +447,7 @@ public class GestionHabitacion {
         }
 
         String key = ((idReserva != null) ? idReserva.toString() : "0") + "_" + request.getNumeroHabitacion();
-        ocupantesAsignados.put(key, ocupantes);
+        // ocupantesAsignados.put(key, ocupantes);
 
         // Crear estadía basada en la reserva
         Estadia estadia = estadiaService.crearDesdeReserva(reserva, request.getFechaDesde(), responsable);
@@ -490,5 +496,5 @@ public class GestionHabitacion {
         }
         return permitirSinReserva ? 0 : null;
     }
-
+     */
 }

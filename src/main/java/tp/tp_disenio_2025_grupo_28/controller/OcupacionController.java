@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import tp.tp_disenio_2025_grupo_28.dto.OcupacionHuespedDTO;
-import tp.tp_disenio_2025_grupo_28.dto.OcupacionRequestDTO;
 import tp.tp_disenio_2025_grupo_28.model.Huesped;
 import tp.tp_disenio_2025_grupo_28.model.PersonaFisica;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
@@ -38,6 +36,7 @@ public class OcupacionController {
 
     private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
+    /* 
     // ----------------- 1) MOSTRAR BUSCADOR -----------------
     @GetMapping("/buscar")
     public String mostrarBuscar(
@@ -262,6 +261,7 @@ public class OcupacionController {
 
         return "redirect:/ocupacion/resumen?numero_habitacion=" + numero_habitacion + "&reservaId=" + reservaId + "&fechaDesde=" + fechaDesde + "&fechaHasta=" + fechaHasta;
     }
+    */
 
     /// ***********
     /// Nuevos metodos

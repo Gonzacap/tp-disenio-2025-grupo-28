@@ -1,8 +1,6 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -35,58 +33,68 @@ public class ReservaController {
     public String mostrarFormulario(
             @RequestParam(name = "fechaDesde", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
             @RequestParam(name = "fechaHasta", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
-            Model model) {
-        ReservaRequestDTO dto = new ReservaRequestDTO(null, null, null, fechaDesde, fechaHasta, null, null);
+            Model model, HttpSession session) {
+        //ReservaRequestDTO dto = new ReservaRequestDTO(null, null, null, fechaDesde, fechaHasta, null, null);
+        ReservaRequestDTO dto = (ReservaRequestDTO) session.getAttribute("reservaDTO");
+        if (dto == null) {
+            // flujo inválido, vuelve a selección de habitaciones
+            return "redirect:/habitacion";
+        }
+
         model.addAttribute("reservaRequestDTO", dto);
 
         return "reserva/nueva-reserva";
 
     }
 
-    // Paso 8-10 del CU: recibir datos y registrar la reserva
+    // pasos 8 a 10
     @PostMapping("/crear")
-    public String crearReserva(@ModelAttribute ReservaRequestDTO dto, HttpSession session, Model model) {
-        // Usuario usuario = (Usuario) session.getAttribute("usuario");
-        List<String> errores = new ArrayList<>();
+    public String crear(
+            @ModelAttribute("reservaRequestDTO") ReservaRequestDTO dto,
+            HttpSession session,
+            Model model) {
 
         if (dto.getApellido() == null || dto.getApellido().isBlank()) {
-            errores.add("Debe ingresar el Apellido.");
-        }
-
-        if (dto.getNombre() == null || dto.getNombre().isBlank()) {
-            errores.add("Debe ingresar el Nombre.");
-        }
-
-        if (dto.getTelefono() == null || dto.getTelefono().isBlank()) {
-            errores.add("Debe ingresar el Teléfono.");
-        }
-        // Si hay errores → volver al formulario
-        /*    if (!errores.isEmpty()) {
-            model.addAttribute("errores", errores);
-            model.addAttribute("dto", dto); // Mantiene datos cargados
-            return "reserva/nueva-reserva"; // Vuelve al punto 8 del CU
-        }*/
-        if (!errores.isEmpty()) {
-            model.addAttribute("errorMessage", errores.get(0)); // muestra solo 1 error
+            model.addAttribute("errorMessage", "Debe ingresar el Apellido");
             model.addAttribute("reservaRequestDTO", dto);
+            model.addAttribute("focusField", "apellido");
             return "reserva/nueva-reserva";
         }
 
-        try {
-            Usuario usuario = (Usuario) session.getAttribute("usuario");
-            reservaService.reservar(dto, usuario);
-
-            model.addAttribute("titulo", "Reserva exitosa");
-            model.addAttribute("mensaje", "La reserva fue creada correctamente.");
-            model.addAttribute("redirect", "/habitacion");
-
-            return "emergentes/exito";
-        } catch (RuntimeException e) {
-            model.addAttribute("mensaje", e.getMessage());
-            model.addAttribute("redirect", "/habitacion");
-            return "emergentes/error";
+        if (dto.getNombre() == null || dto.getNombre().isBlank()) {
+            model.addAttribute("errorMessage", "Debe ingresar el Nombre");
+            model.addAttribute("reservaRequestDTO", dto);
+            model.addAttribute("focusField", "nombre");
+            return "reserva/nueva-reserva";
         }
 
-    }
+        if (dto.getTelefono() == null || dto.getTelefono().isBlank()) {
+            model.addAttribute("errorMessage", "Debe ingresar el Teléfono");
+            model.addAttribute("reservaRequestDTO", dto);
+            model.addAttribute("focusField", "telefono");
+            return "reserva/nueva-reserva";
+        }
+        ReservaRequestDTO sessionDTO = (ReservaRequestDTO) session.getAttribute("reservaDTO");
+        if (sessionDTO == null) {
+            return "redirect:/habitacion";
+        }
 
+        // Copiar solo datos ingresados por el usuario
+        sessionDTO.setApellido(dto.getApellido());
+        sessionDTO.setNombre(dto.getNombre());
+        sessionDTO.setTelefono(dto.getTelefono());
+
+        if (sessionDTO.getHabitaciones() == null || sessionDTO.getHabitaciones().isEmpty()) {
+            model.addAttribute("errorMessage", "No hay habitaciones seleccionadas para reservar");
+            model.addAttribute("reservaRequestDTO", sessionDTO);
+            return "reserva/nueva-reserva";
+        }
+
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        reservaService.reservar(sessionDTO, usuario);
+        // limpiar sesión
+        session.removeAttribute("reservaDTO");
+
+        return "redirect:/habitacion";
+    }
 }
