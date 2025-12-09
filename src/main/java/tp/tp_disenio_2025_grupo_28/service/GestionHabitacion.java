@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import tp.tp_disenio_2025_grupo_28.model.EstadoHabitacionPeriodo;
 import tp.tp_disenio_2025_grupo_28.model.Habitacion;
+import tp.tp_disenio_2025_grupo_28.model.enums.EstadoHabitacion;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
 import tp.tp_disenio_2025_grupo_28.repository.EstadoHabitacionPeriodoRepository;
 import tp.tp_disenio_2025_grupo_28.repository.HabitacionRepository;
@@ -156,7 +157,7 @@ public class GestionHabitacion {
 
         List<Map<String, Object>> salida = new ArrayList<>();
 
-        // 3️⃣ Armado de grilla
+        // Armado de grilla
         for (Date dia : dias) {
 
             Map<String, Object> fila = new HashMap<>();
@@ -173,26 +174,15 @@ public class GestionHabitacion {
 
                 for (Integer nro : numeros) {
 
-                    String estado = "DISPONIBLE";
+                    List<EstadoHabitacionPeriodo> periodosHab
+                            = porHabitacion.getOrDefault(nro, List.of());
 
-                    for (EstadoHabitacionPeriodo p
-                            : porHabitacion.getOrDefault(nro, List.of())) {
+                    EstadoHabitacion estado = estadoPeriodoService.estadoEnDia(nro, dia, periodosHab);
 
-                        if (!dia.before(p.getFechaDesde())
-                                && !dia.after(p.getFechaHasta())) {
-
-                            estado = p.getEstado().name();
-                            break;
-                        }
-                    }
-                    estados.add(estado);
+                    estados.add(estado.name());
                 }
 
-                estadosPorTipo.add(Map.of(
-                        "tipo", nombreTipo,
-                        "habitaciones", numeros,
-                        "estados", estados
-                ));
+                estadosPorTipo.add(Map.of("tipo", nombreTipo, "habitaciones", numeros, "estados", estados));
             }
 
             fila.put("estadosPorTipo", estadosPorTipo);
@@ -201,6 +191,7 @@ public class GestionHabitacion {
 
         return salida;
     }
+
 
     /* @Transactional(readOnly = true)
     public List<Map<String, Object>> grilla(

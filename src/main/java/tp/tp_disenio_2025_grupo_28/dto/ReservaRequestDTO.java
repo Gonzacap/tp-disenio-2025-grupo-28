@@ -13,7 +13,7 @@ public class ReservaRequestDTO {
     private String nombre;
     private String apellido;
     private String telefono;
-    private List<Integer> habitaciones; // numeroHabitacion
+    private List<ReservaHabitacionDTO> habitaciones; // numeroHabitacion
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date fechaDesde;
 
@@ -27,7 +27,7 @@ public class ReservaRequestDTO {
 
     public ReservaRequestDTO(String nombre, String apellido, String telefono,
             Date fechaDesde, Date fechaHasta,
-            List<Integer> habitaciones, TipoHabitacion tipoHabitacion) {
+            List<ReservaHabitacionDTO> habitaciones, TipoHabitacion tipoHabitacion) {
         this.apellido = apellido;
         this.fechaDesde = fechaDesde;
         this.fechaHasta = fechaHasta;
@@ -61,11 +61,11 @@ public class ReservaRequestDTO {
         this.telefono = telefono;
     }
 
-    public List<Integer> getHabitaciones() {
+    public List<ReservaHabitacionDTO> getHabitaciones() {
         return habitaciones;
     }
 
-    public void setHabitaciones(List<Integer> habitaciones) {
+    public void setHabitaciones(List<ReservaHabitacionDTO> habitaciones) {
         this.habitaciones = habitaciones;
     }
 

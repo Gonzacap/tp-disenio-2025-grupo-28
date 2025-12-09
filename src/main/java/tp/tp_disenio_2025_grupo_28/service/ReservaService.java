@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import tp.tp_disenio_2025_grupo_28.dto.ReservaHabitacionDTO;
 import tp.tp_disenio_2025_grupo_28.dto.ReservaRequestDTO;
 import tp.tp_disenio_2025_grupo_28.dto.ReservaResponseDTO;
 import tp.tp_disenio_2025_grupo_28.mapper.ReservaMapper;
@@ -40,9 +41,9 @@ public class ReservaService {
         }
 
         validarDisponibilidadReserva(dto);
+        List<Integer> numerosHabitacion = dto.getHabitaciones().stream().map(ReservaHabitacionDTO::getNumeroHabitacion).toList();
+        List<Habitacion> habitaciones = habitacionRepo.findAllByNumeroHabitacionIn(numerosHabitacion);
 
-        //buscamos los objetos de las habitacion completos
-        List<Habitacion> habitaciones = habitacionRepo.findAllById(dto.getHabitaciones());
         if (habitaciones.size() != dto.getHabitaciones().size()) {
             throw new RuntimeException("Una o más habitaciones no existen");
         }
@@ -64,18 +65,16 @@ public class ReservaService {
 
     private void validarDisponibilidadReserva(ReservaRequestDTO dto) {
 
-        for (Integer nroHab : dto.getHabitaciones()) {
+        for (ReservaHabitacionDTO nroHab : dto.getHabitaciones()) {
 
             boolean disponible = estadoPeriodoService.estaDisponible(
-                    nroHab,
-                    dto.getFechaDesde(),
-                    dto.getFechaHasta()
+                    nroHab.getNumeroHabitacion(),
+                    nroHab.getFechaDesde(),
+                    nroHab.getFechaHasta()
             );
 
             if (!disponible) {
-                throw new RuntimeException(
-                        "La habitación " + nroHab
-                        + " no está disponible en el período seleccionado"
+                throw new RuntimeException("La habitación " + nroHab.getNumeroHabitacion() + " no está disponible en el período seleccionado"
                 );
             }
         }

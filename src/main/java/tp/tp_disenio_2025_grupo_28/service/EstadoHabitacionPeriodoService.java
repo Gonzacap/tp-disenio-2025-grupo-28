@@ -26,8 +26,7 @@ public class EstadoHabitacionPeriodoService {
     //NO SOLAPA CON NINGUN PERIODO NO DISPONIBLE
     public boolean estaDisponible(Integer nroHab, Date desde, Date hasta) {
 
-        List<EstadoHabitacionPeriodo> periodos
-                = repo.findPeriodosSuperpuestos(nroHab, desde, hasta);
+        List<EstadoHabitacionPeriodo> periodos = repo.findPeriodosSuperpuestos(nroHab, desde, hasta);
 
         for (EstadoHabitacionPeriodo p : periodos) {
             // CUALQUIER estado distinto de DISPONIBLE bloquea
@@ -56,5 +55,19 @@ public class EstadoHabitacionPeriodoService {
         p.setFechaDesde(desde);
         p.setFechaHasta(hasta);
         return repo.save(p);
+    }
+
+    public EstadoHabitacion estadoEnDia(Integer nroHab, Date dia, List<EstadoHabitacionPeriodo> periodosHab) {
+
+        for (EstadoHabitacionPeriodo p : periodosHab) {
+            if (!dia.before(p.getFechaDesde()) && !dia.after(p.getFechaHasta())) {
+
+                // cualquier estado distinto de DISPONIBLE manda
+                if (p.getEstado() != EstadoHabitacion.disponible) {
+                    return p.getEstado();
+                }
+            }
+        }
+        return EstadoHabitacion.disponible;
     }
 }

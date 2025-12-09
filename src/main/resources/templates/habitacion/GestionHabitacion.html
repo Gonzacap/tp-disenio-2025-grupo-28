@@ -125,14 +125,13 @@
       th:data-habitacion="${tipo.habitaciones[i.index]}" 
       th:data-estado="${estado}" 
       th:class="${
-        (estado == 'DISPONIBLE' ? 'badge bg-success' : 
-         estado == 'RESERVADA' || estado == 'confirmada' ? 'badge bg-orange text-dark' :
-         estado == 'OCUPADA' ? 'badge bg-danger' : 
-         estado == 'FUERA_SERVICIO' ? 'badge bg-warning' :
-         'badge bg-secondary')
-        + ' estado-clickable'
-    }"
-    th:text="${estado}">
+   (estado == 'disponible' ? 'badge bg-success' :
+    estado == 'reservada' ? 'badge bg-orange text-dark' :
+    estado == 'ocupada' ? 'badge bg-danger' :
+    estado == 'mantenimiento' ? 'badge bg-warning' :
+    'badge bg-secondary')
+   + ' estado-clickable'
+}"  th:text="${estado}"> 
 </span>
         </div>
     </td>
@@ -242,7 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const estado = cell.dataset.estado;
             const hab = cell.dataset.habitacion;
 
-            if (estado !== "DISPONIBLE") {
+            if (estado !== "disponible") {
                 abrirModalNoDisponible();
                 return;
             }

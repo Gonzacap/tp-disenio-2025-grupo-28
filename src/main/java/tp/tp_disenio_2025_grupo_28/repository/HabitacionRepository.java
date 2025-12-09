@@ -27,4 +27,6 @@ public interface HabitacionRepository extends JpaRepository<Habitacion, Integer>
 
     List<EstadoHabitacionPeriodo> findByNumeroHabitacion(Integer numeroHabitacion);
 
+    public List<Habitacion> findAllByNumeroHabitacionIn(List<Integer> numerosHabitacion);
+
 }
