@@ -58,53 +58,73 @@ CREATE TABLE direccion (
 -- Tabla ResponsablePago
 -- ---------------------
 CREATE TABLE responsable_pago (
-    cuit VARCHAR(20) PRIMARY KEY,
+    id SERIAL NOT NULL,
+    cuit VARCHAR(20),
     razon_social VARCHAR(100),
     telefono VARCHAR(20),
-    direccion_id INTEGER REFERENCES direccion(id) ON DELETE CASCADE
+    direccion_id INTEGER REFERENCES direccion(id) ON DELETE CASCADE,
+    CONSTRAINT responsable_pago_pkey PRIMARY KEY (id),
+    CONSTRAINT responsable_pago_cuit_unique UNIQUE (cuit),
+    CONSTRAINT responsable_pago_direccion_fk FOREIGN KEY (direccion_id) references direccion (id)
 );
 
 -- ---------------------
 -- Tabla PersonaFisica
 -- ---------------------
 CREATE TABLE persona_fisica (
-    cuit VARCHAR(20) PRIMARY KEY REFERENCES responsable_pago(cuit) ON DELETE CASCADE,
+    id INTEGER NOT NULL,
+    cuit VARCHAR(20),
     nombre VARCHAR(50),
     apellido VARCHAR(50),
     tipo_documento tipo_documento,
     documento VARCHAR(20),
-    fecha_nacimiento DATE
+    fecha_nacimiento DATE NULL,
+    CONSTRAINT persona_fisica_pkey PRIMARY KEY (id),
+    CONSTRAINT persona_fisica_id_unique UNIQUE (id),
+    CONSTRAINT persona_fisica_id_fk FOREIGN KEY (id) REFERENCES responsable_pago (id) ON DELETE CASCADE
 );
 
 -- ---------------------
 -- Tabla PersonaJuridica
 -- ---------------------
 CREATE TABLE persona_juridica (
-    cuit VARCHAR(20) PRIMARY KEY REFERENCES responsable_pago(cuit) ON DELETE CASCADE
+    id INTEGER NOT NULL,
+    cuit VARCHAR(20),
+    CONSTRAINT persona_juridica_pkey PRIMARY KEY (id),
+    CONSTRAINT persona_juridica_id_unique UNIQUE (id),
+    CONSTRAINT persona_juridica_id_fk FOREIGN KEY (id) REFERENCES responsable_pago (id) ON DELETE CASCADE
 );
 
 -- ---------------------
 -- Tabla Huesped
 -- ---------------------
 CREATE TABLE huesped (
-    cuit VARCHAR(20) PRIMARY KEY REFERENCES persona_fisica(cuit) ON DELETE CASCADE,
+    id INTEGER NOT NULL,
+    cuit VARCHAR(20),
     posicion_frente_al_iva VARCHAR(50),
     email VARCHAR(100),
-    ocupacion VARCHAR(100)
+    ocupacion VARCHAR(100),
+    CONSTRAINT huesped_pkey PRIMARY KEY (id),
+    CONSTRAINT huesped_id_fk FOREIGN KEY (id) REFERENCES persona_fisica (id) ON DELETE CASCADE
 );
 
 -- ---------------------
 -- Tabla Estadia
 -- ---------------------
 CREATE TABLE Estadia (
-    idEstadia SERIAL PRIMARY KEY,
-    horaCheckIn TIME,
-    horaCheckOut TIME,
-    fechaCheckIn DATE,
-    fechaCheckOut DATE,
-    estadoEstadia EstadoEstadia,
-    idResponsablePago INT NOT NULL,
-    FOREIGN KEY (idResponsablePago) REFERENCES ResponsablePago(idResponsablePago)
+    id_estadia SERIAL NOT NULL,
+    hora_check_in TIME,
+    hora_check_out TIME,
+    fecha_check_in DATE,
+    fecha_check_out DATE,
+    estado_estadia EstadoEstadia,
+    id_reserva INT NULL,
+    fecha_ingreso DATE NULL,
+    -- huesped character varying(255) null,
+    habitacion_id INT NULL,
+    responsable_id INT NOT NULL
+    CONSTRAINT estadia_pkey PRIMARY KEY (id_estadia),
+    CONSTRAINT fk_estadia_responsable_id FOREIGN KEY (responsable_id) REFERENCES responsable_pago (id) ON DELETE CASCADE
 );
 
 -- ---------------------
