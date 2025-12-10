@@ -2,6 +2,8 @@ package tp.tp_disenio_2025_grupo_28.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -15,8 +17,11 @@ import jakarta.persistence.Table;
 public abstract class ResponsablePago {
 
     @Id
-    @Column(length = 20)
-    protected String cuit;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(length = 20, unique = true)
+    private String cuit;
 
     @Column(name = "razon_social", length = 100)
     protected String razonSocial;
@@ -38,6 +43,14 @@ public abstract class ResponsablePago {
     }
 
     // Getters y setters
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public String getCuit() {
         return cuit;
     }

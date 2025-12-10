@@ -10,7 +10,7 @@ import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 
 @Entity
 @Table(name = "huesped")
-@PrimaryKeyJoinColumn(name = "cuit") // usa la PK de persona_fisica
+@PrimaryKeyJoinColumn(name = "id") // usa la PK de persona_fisica
 public class Huesped extends PersonaFisica {
 
     @Column(name = "posicion_frente_al_iva", length = 50)

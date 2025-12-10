@@ -20,7 +20,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoEstadia;
-import tp.tp_disenio_2025_grupo_28.model.*;
 
 @Entity
 @Table(name = "estadia")
@@ -55,7 +54,7 @@ public class Estadia {
     // @Enumerated(EnumType.STRING)
     // private TipoEstadia tipo;
     @ManyToOne
-    @JoinColumn(name = "id_responsable_pago", nullable = false)
+    @JoinColumn(name = "responsable_id", nullable = false)
     private ResponsablePago responsablePago;
     // BD: Tabla intermedia Estadia_Servicio
     @ManyToMany
