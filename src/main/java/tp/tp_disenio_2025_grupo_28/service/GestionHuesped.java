@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -484,5 +483,12 @@ public class GestionHuesped {
 
         return huespedRepository.findById(persona.getCuit()).orElse(null);
     }
+
+    /**
+     * Busca los huespedes que contengan con los parametros de busqueda
+     */
+    public List<Huesped> buscarHuespedes(String apellido, String nombre, TipoDocumento tipoDocumento, String documento){
+        return huespedRepository.buscarHuespedes(apellido, nombre, tipoDocumento, documento);
+    };
 
 }

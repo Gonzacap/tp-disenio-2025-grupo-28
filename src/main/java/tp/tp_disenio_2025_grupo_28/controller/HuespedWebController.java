@@ -77,7 +77,8 @@ public class HuespedWebController {
             }
         }
 
-        List<Huesped> resultados = gestionHuesped.buscarHuespedFinal(apellido, nombre, tipoDocEnum, documento);
+        // List<Huesped> resultados = gestionHuesped.buscarHuespedFinal(apellido, nombre, tipoDocEnum, documento);
+        List<Huesped> resultados = gestionHuesped.buscarHuespedes(apellido, nombre, tipoDocEnum, documento);
 
         if (resultados.isEmpty()) {
             redirect.addFlashAttribute("infoMessage", "No se encontraron coincidencias ¿Desea dar de alta el huesped?");
