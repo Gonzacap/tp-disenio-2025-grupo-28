@@ -260,8 +260,7 @@ public class OcupacionController {
 
         return "redirect:/ocupacion/resumen?numero_habitacion=" + numero_habitacion + "&reservaId=" + reservaId + "&fechaDesde=" + fechaDesde + "&fechaHasta=" + fechaHasta;
     }
-    */
-
+     */
     /// ***********
     /// Nuevos metodos
     /// ***********
@@ -312,27 +311,34 @@ public class OcupacionController {
             @RequestParam String fechaHasta,
             Model model,
             @ModelAttribute("huespedCargado") Huesped huespedCargado,
-            @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados
+            @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
+            RedirectAttributes redirect
     ) {
 
-        // Guardar en sesión
-        model.addAttribute("reservaId", reservaId);
-        model.addAttribute("fechaDesde", fechaDesde);
-        model.addAttribute("fechaHasta", fechaHasta);
-        model.addAttribute("personasResultados", new ArrayList<>());
+        try {
+            // Guardar en sesión
+            model.addAttribute("reservaId", reservaId);
+            model.addAttribute("fechaDesde", fechaDesde);
+            model.addAttribute("fechaHasta", fechaHasta);
+            model.addAttribute("personasResultados", new ArrayList<>());
 
-        model.addAttribute("numeroHabitacion", numeroHabitacion);
+            model.addAttribute("numeroHabitacion", numeroHabitacion);
 
-        model.addAttribute("huespedCargado", huespedCargado);
+            model.addAttribute("huespedCargado", huespedCargado);
 
-        // Primero cargo el huesped
-        if (huespedCargado == null) {
-            ocupantesCargados = new ArrayList<>();
+            // Primero cargo el huesped
+            if (huespedCargado == null) {
+                ocupantesCargados = new ArrayList<>();
+            }
+
+            model.addAttribute("ocupantesCargados", ocupantesCargados);
+
+            return "ocupacion/cargar";
+
+        } catch (Exception e) {
+            redirect.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/ocupacion/cargar";
         }
-
-        model.addAttribute("ocupantesCargados", ocupantesCargados);
-
-        return "ocupacion/cargar";
     }
 
     /**
@@ -347,32 +353,38 @@ public class OcupacionController {
             Model model,
             @ModelAttribute("huespedCargado") Huesped huespedCargado,
             @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
-            @ModelAttribute("personasResultados") List<PersonaFisica> personasResultados
+            @ModelAttribute("personasResultados") List<PersonaFisica> personasResultados,
+            RedirectAttributes redirect
     ) {
 
-        TipoDocumento tipo = null;
+        try {
+            TipoDocumento tipo = null;
 
-        // Tipo de documento no valido
-        if (tipoDocumento != null && !tipoDocumento.isEmpty()) {
-            try {
-                tipo = TipoDocumento.valueOf(tipoDocumento);
-            } catch (Exception ignored) {
-                tipo = null;
+            // Tipo de documento no valido
+            if (tipoDocumento != null && !tipoDocumento.isEmpty()) {
+                try {
+                    tipo = TipoDocumento.valueOf(tipoDocumento);
+                } catch (Exception ignored) {
+                    tipo = null;
+                }
             }
+
+            // Primero busco un huesped
+            if (huespedCargado == null) {
+                personasResultados = gestionHuesped.buscarHuesped(apellido, nombre, tipo, documento);
+            } else {
+                personasResultados = gestionHuesped.buscarPersona(apellido, nombre, tipo, documento);
+            }
+
+            model.addAttribute("personasResultados", personasResultados);
+
+            model.addAttribute("huespedCargado", huespedCargado);
+            model.addAttribute("ocupantesCargados", ocupantesCargados);
+            return "ocupacion/cargar";
+        } catch (Exception e) {
+            redirect.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/ocupacion/cargar";
         }
-
-        // Primero busco un huesped
-        if (huespedCargado == null) {
-            personasResultados = gestionHuesped.buscarHuesped(apellido, nombre, tipo, documento);
-        } else {
-            personasResultados = gestionHuesped.buscarPersona(apellido, nombre, tipo, documento);
-        }
-
-        model.addAttribute("personasResultados", personasResultados);
-
-        model.addAttribute("huespedCargado", huespedCargado);
-        model.addAttribute("ocupantesCargados", ocupantesCargados);
-        return "ocupacion/cargar";
     }
 
     /**
@@ -389,64 +401,69 @@ public class OcupacionController {
             RedirectAttributes redirect
     ) {
 
-        System.out.println("\n\n llego a agregarOcupante() \n\n");
+        try {
+            System.out.println("\n\n llego a agregarOcupante() \n\n");
 
-        // CUITs que NO están en cargados
-        List<String> cuitsFaltantes = cuitsSeleccionados.stream()
-                .filter(cuit -> ocupantesCargados.stream()
-                .noneMatch(p -> cuit.equals(p.getCuit())))
-                .toList();
+            // CUITs que NO están en cargados
+            List<String> cuitsFaltantes = cuitsSeleccionados.stream()
+                    .filter(cuit -> ocupantesCargados.stream()
+                    .noneMatch(p -> cuit.equals(p.getCuit())))
+                    .toList();
 
-        // Recupero las personas desde la lista de sesión cagada anteriormente por su CUIT
-        List<PersonaFisica> seleccionadas = cuitsFaltantes.stream()
-                .map(cuit -> personasResultados.stream()
-                .filter(p -> cuit != null && cuit.equals(p.getCuit()))
-                .findFirst()
-                .orElse(null))
-                .filter(Objects::nonNull)
-                .toList();
+            // Recupero las personas desde la lista de sesión cagada anteriormente por su CUIT
+            List<PersonaFisica> seleccionadas = cuitsFaltantes.stream()
+                    .map(cuit -> personasResultados.stream()
+                    .filter(p -> cuit != null && cuit.equals(p.getCuit()))
+                    .findFirst()
+                    .orElse(null))
+                    .filter(Objects::nonNull)
+                    .toList();
 
-        if (seleccionadas.isEmpty()) {
+            if (seleccionadas.isEmpty()) {
 
-            System.out.println("\n\n redirige a /cargar \n\n");
+                System.out.println("\n\n redirige a /cargar \n\n");
 
-            redirect.addFlashAttribute("errorMessage", "No se encontraron las personas seleccionadas en sesión.");
-            return "redirect:/ocupacion/cargar";
-        }
-
-        if (huespedCargado == null) {
-
-            Huesped huesped = gestionHuesped.obtenerHuesped(seleccionadas.getFirst());
-
-            if (huesped == null) {
-                redirect.addFlashAttribute("errorMessage", "Hubo un error al cargar el Huesped.");
+                redirect.addFlashAttribute("errorMessage", "No se encontraron las personas seleccionadas en sesión.");
                 return "redirect:/ocupacion/cargar";
             }
 
-            model.addAttribute("huespedCargado", huesped);
-            System.out.println("\n\n huesped: " + huesped + " \n\n");
-        }
+            if (huespedCargado == null) {
 
-        // Agregar acompañantes
-        for (PersonaFisica persona : seleccionadas) {
-            if (!ocupantesCargados.contains(persona)) {
-                ocupantesCargados.add(persona);
+                Huesped huesped = gestionHuesped.obtenerHuesped(seleccionadas.getFirst());
+
+                if (huesped == null) {
+                    redirect.addFlashAttribute("errorMessage", "Hubo un error al cargar el Huesped.");
+                    return "redirect:/ocupacion/cargar";
+                }
+
+                model.addAttribute("huespedCargado", huesped);
+                System.out.println("\n\n huesped: " + huesped + " \n\n");
             }
+
+            // Agregar acompañantes
+            for (PersonaFisica persona : seleccionadas) {
+                if (!ocupantesCargados.contains(persona)) {
+                    ocupantesCargados.add(persona);
+                }
+            }
+
+            model.addAttribute("huespedCargado", huespedCargado);
+            model.addAttribute("ocupantesCargados", ocupantesCargados);
+            model.addAttribute("personasResultados", new ArrayList<>());
+
+            System.out.println("\n\n huespedCargado: " + huespedCargado + " \n\n");
+            System.out.println("\n\n ocupantesCargados: " + ocupantesCargados + " \n\n");
+
+            redirect.addFlashAttribute("successMessage", "Huesped agregado correctamente");
+
+            System.out.println("\n\n llego al final de agregarOcupante() \n\n");
+
+            return "ocupacion/resumen";
+
+        } catch (Exception e) {
+            redirect.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/ocupacion/cargar";
         }
-
-        model.addAttribute("huespedCargado", huespedCargado);
-        model.addAttribute("ocupantesCargados", ocupantesCargados);
-        model.addAttribute("personasResultados", new ArrayList<>());
-
-        System.out.println("\n\n huespedCargado: " + huespedCargado + " \n\n");
-        System.out.println("\n\n ocupantesCargados: " + ocupantesCargados + " \n\n");
-
-
-        redirect.addFlashAttribute("successMessage", "Huesped agregado correctamente");
-
-        System.out.println("\n\n llego al final de agregarOcupante() \n\n");
-
-        return "ocupacion/resumen";
     }
 
     /**
@@ -460,16 +477,23 @@ public class OcupacionController {
             @ModelAttribute("fechaDesde") String fechaDesde,
             @ModelAttribute("fechaHasta") String fechaHasta,
             @ModelAttribute("huespedCargado") Huesped huespedCargado,
-            @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados
+            @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
+            RedirectAttributes redirect
     ) {
 
-        model.addAttribute("reservaId", reservaId);
-        model.addAttribute("numeroHabitacion", numeroHabitacion);
-        model.addAttribute("fechaDesde", fechaDesde);
-        model.addAttribute("fechaHasta", fechaHasta);
-        model.addAttribute("huespedCargado", huespedCargado);
-        model.addAttribute("ocupantesCargados", ocupantesCargados);
+        try {
+            model.addAttribute("reservaId", reservaId);
+            model.addAttribute("numeroHabitacion", numeroHabitacion);
+            model.addAttribute("fechaDesde", fechaDesde);
+            model.addAttribute("fechaHasta", fechaHasta);
+            model.addAttribute("huespedCargado", huespedCargado);
+            model.addAttribute("ocupantesCargados", ocupantesCargados);
 
-        return "ocupacion/resumen";
+            return "ocupacion/resumen";
+
+        } catch (Exception e) {
+            redirect.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/ocupacion/cargar";
+        }
     }
 }
