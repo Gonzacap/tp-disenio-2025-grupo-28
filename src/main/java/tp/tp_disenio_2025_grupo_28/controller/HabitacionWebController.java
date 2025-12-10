@@ -27,6 +27,7 @@ import tp.tp_disenio_2025_grupo_28.service.GestionHabitacion;
 public class HabitacionWebController {
 
     private final GestionHabitacion gestionHabitacion;
+    private final GestionHabitacionOld gestionHabitacionOld;
 
     @Autowired
     public HabitacionWebController(GestionHabitacion gestionHabitacion) {
@@ -203,7 +204,7 @@ public class HabitacionWebController {
     @GetMapping()
     public String mostrarPaginaOld(Model model) {
 
-        model.addAttribute("habitacionesPorTipo", gestionHabitacion.obtenerHabitacionPorTipoMockup());
+        model.addAttribute("habitacionesPorTipo", gestionHabitacionOld.obtenerHabitacionPorTipoMockup());
         model.addAttribute("dias", new ArrayList<>());
 
         return "habitacion/GestionHabitacion";
@@ -222,14 +223,14 @@ public class HabitacionWebController {
 
         try {
 
-            gestionHabitacion.validarFecha(fechaDesde, fechaHasta);
+            gestionHabitacionOld.validarFecha(fechaDesde, fechaHasta);
 
-            List<Habitacion> habitaciones = gestionHabitacion.obtenerHabitaciones();
-            List<Map<String, Object>> habitacionesPorTipo = gestionHabitacion.obtenerHabitacionPorTipo(habitaciones);
+            List<Habitacion> habitaciones = gestionHabitacionOld.obtenerHabitaciones();
+            List<Map<String, Object>> habitacionesPorTipo = gestionHabitacionOld.obtenerHabitacionPorTipo(habitaciones);
 
-            List<Date> dias = gestionHabitacion.generarDiasEntre(fechaDesde, fechaHasta);
+            List<Date> dias = gestionHabitacionOld.generarDiasEntre(fechaDesde, fechaHasta);
 
-            List<Map<String, Object>> grilla = gestionHabitacion.grilla(
+            List<Map<String, Object>> grilla = gestionHabitacionOld.grilla(
                 habitacionesPorTipo,
                 habitaciones,
                 dias
