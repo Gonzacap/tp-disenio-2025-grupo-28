@@ -411,7 +411,7 @@ public class GestionHuesped {
 
         // Filtrar solo las que tienen registro de Huesped
         return personas.stream()
-                .filter(p -> huespedRepository.existsById(p.getCuit()))
+                .filter(p -> huespedRepository.existsById(p.getId()))
                 .distinct()
                 .toList();
     }
@@ -477,11 +477,11 @@ public class GestionHuesped {
      */
     public Huesped obtenerHuesped(PersonaFisica persona) {
 
-        if (persona == null || persona.getCuit() == null) {
+        if (persona == null || persona.getId() == null) {
             return null;
         }
 
-        return huespedRepository.findById(persona.getCuit()).orElse(null);
+        return huespedRepository.findById(persona.getId()).orElse(null);
     }
 
     /**
