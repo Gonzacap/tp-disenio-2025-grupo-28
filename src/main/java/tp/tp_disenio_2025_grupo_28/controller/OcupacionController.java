@@ -23,7 +23,7 @@ import tp.tp_disenio_2025_grupo_28.service.GestionHabitacion;
 import tp.tp_disenio_2025_grupo_28.service.GestionHuesped;
 
 @Controller
-@SessionAttributes({"huespedCargado", "ocupantesCargados", "responsable", "reservaId", "fechaDesde", "fechaHasta", "numeroHabitacion", "personasResultados"})
+@SessionAttributes({"huespedCargado", "ocupantesCargados", "responsable", "reservaId", "estadiaId", "fechaDesde", "fechaHasta", "numeroHabitacion", "personasResultados"})
 @RequestMapping("/ocupacion")
 public class OcupacionController {
 
@@ -285,6 +285,11 @@ public class OcupacionController {
         return null;
     }
 
+    @ModelAttribute("estadiaId")
+    public Integer estadiaId() {
+        return null;
+    }
+
     @ModelAttribute("fechaDesde")
     public String fechaDesde() {
         return null;
@@ -306,10 +311,12 @@ public class OcupacionController {
     @GetMapping("/cargar")
     public String iniciarCarga(
             @RequestParam(required = false) Integer reservaIdParam,
+            @RequestParam(required = false) Integer estadiaIdParam,
             @RequestParam(required = false) Integer numeroHabitacionParam,
             @RequestParam(required = false) String fechaDesdeParam,
             @RequestParam(required = false) String fechaHastaParam,
             @ModelAttribute("reservaId") Integer reservaId,
+            @ModelAttribute("estadiaId") Integer estadiaId,
             @ModelAttribute("numeroHabitacion") Integer numeroHabitacion,
             @ModelAttribute("fechaDesde") String fechaDesde,
             @ModelAttribute("fechaHasta") String fechaHasta,
@@ -323,6 +330,7 @@ public class OcupacionController {
             System.out.println("\n\n llego a iniciarCarga() \n\n");
 
             Integer reservaIdAux = reservaIdParam != null ? reservaIdParam : reservaId;
+            Integer estadiaIdAux = estadiaIdParam != null ? estadiaIdParam : estadiaId;
             Integer numeroHabitacionAux = numeroHabitacionParam != null ? numeroHabitacionParam : numeroHabitacion;
             String fechaDesdeAux = fechaDesdeParam != null ? fechaDesdeParam : fechaDesde;
             String fechaHastaAux = fechaHastaParam != null ? fechaHastaParam : fechaHasta;
@@ -330,6 +338,7 @@ public class OcupacionController {
 
             // Guardar en sesión
             model.addAttribute("reservaId", reservaIdAux);
+            model.addAttribute("estadiaId", estadiaIdAux);
             model.addAttribute("fechaDesde", fechaDesdeAux);
             model.addAttribute("fechaHasta", fechaHastaAux);
             model.addAttribute("personasResultados", new ArrayList<>());
@@ -346,6 +355,7 @@ public class OcupacionController {
             model.addAttribute("ocupantesCargados", ocupantesCargados);
 
             System.out.println("\n\n reservaId: " + reservaId + " \n\n");
+            System.out.println("\n\n estadiaId: " + estadiaId + " \n\n");
             System.out.println("\n\n numeroHabitacion: " + numeroHabitacion + " \n\n");
             System.out.println("\n\n fechaDesde: " + fechaDesde + " \n\n");
             System.out.println("\n\n fechaHasta: " + fechaHasta + " \n\n");
@@ -503,6 +513,7 @@ public class OcupacionController {
     public String resumen(
             Model model,
             @ModelAttribute("reservaId") Integer reservaId,
+            @ModelAttribute("estadiaId") Integer estadiaId,
             @ModelAttribute("numeroHabitacion") Integer numeroHabitacion,
             @ModelAttribute("fechaDesde") String fechaDesde,
             @ModelAttribute("fechaHasta") String fechaHasta,
@@ -516,6 +527,7 @@ public class OcupacionController {
             System.out.println("\n\n llego a resumen() \n\n");
 
             model.addAttribute("reservaId", reservaId);
+            model.addAttribute("estadiaId", estadiaId);
             model.addAttribute("numeroHabitacion", numeroHabitacion);
             model.addAttribute("fechaDesde", fechaDesde);
             model.addAttribute("fechaHasta", fechaHasta);
@@ -523,6 +535,7 @@ public class OcupacionController {
             model.addAttribute("ocupantesCargados", ocupantesCargados);
 
             System.out.println("\n\n reservaId: " + reservaId + " \n\n");
+            System.out.println("\n\n estadiaId: " + estadiaId + " \n\n");
             System.out.println("\n\n numeroHabitacion: " + numeroHabitacion + " \n\n");
             System.out.println("\n\n fechaDesde: " + fechaDesde + " \n\n");
             System.out.println("\n\n fechaHasta: " + fechaHasta + " \n\n");
