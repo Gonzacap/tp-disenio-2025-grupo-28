@@ -65,7 +65,9 @@ public class HuespedWebController {
             String nombre,
             String tipoDocumento,
             String documento,
-            Model model) {
+            Model model,
+            RedirectAttributes redirect
+        ) {
 
         TipoDocumento tipoDocEnum = null;
         if (tipoDocumento != null && !tipoDocumento.isBlank()) {
@@ -78,6 +80,7 @@ public class HuespedWebController {
         List<Huesped> resultados = gestionHuesped.buscarHuespedFinal(apellido, nombre, tipoDocEnum, documento);
 
         if (resultados.isEmpty()) {
+            redirect.addFlashAttribute("infoMessage", "No se encontraron coincidencias ¿Desea dar de alta el huesped?");
             return "redirect:/huespedes/nuevo";
         }
 
