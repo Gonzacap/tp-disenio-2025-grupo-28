@@ -8,6 +8,7 @@ import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 
 public class HuespedDTO {
 
+    private Integer id;
     private String nombre;
     private String apellido;
     private TipoDocumento tipoDocumento;
@@ -118,4 +119,11 @@ public class HuespedDTO {
         this.direccion = direccion;
     }
 
+    public Integer getId() {
+        return this.id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 }

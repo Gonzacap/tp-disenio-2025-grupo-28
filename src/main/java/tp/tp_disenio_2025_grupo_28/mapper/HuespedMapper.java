@@ -28,6 +28,7 @@ public class HuespedMapper {
         dto.setOcupacion(h.getOcupacion());
         dto.setPosicionFrenteAlIva(h.getPosicionFrenteAlIva());
         dto.setCuit(h.getCuit());
+        dto.setId(h.getId());
 
         Direccion d = h.getDireccion();
         if (d != null) {
@@ -76,6 +77,7 @@ public class HuespedMapper {
         h.setPosicionFrenteAlIva(dto.getPosicionFrenteAlIva());
         h.setTelefono(dto.getTelefono());
         h.setCuit(dto.getCuit());
+        h.setId(dto.getId());
 
         // direccion (Pais, Provincia, etc.), se setea en el service
         return h;
