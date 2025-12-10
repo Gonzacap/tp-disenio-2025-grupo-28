@@ -305,10 +305,14 @@ public class OcupacionController {
      */
     @GetMapping("/cargar")
     public String iniciarCarga(
-            @RequestParam(required = false) Integer reservaId,
-            @RequestParam Integer numeroHabitacion,
-            @RequestParam String fechaDesde,
-            @RequestParam String fechaHasta,
+            @RequestParam(required = false) Integer reservaIdParam,
+            @RequestParam(required = false) Integer numeroHabitacionParam,
+            @RequestParam(required = false) String fechaDesdeParam,
+            @RequestParam(required = false) String fechaHastaParam,
+            @ModelAttribute("reservaId") Integer reservaId,
+            @ModelAttribute("numeroHabitacion") Integer numeroHabitacion,
+            @ModelAttribute("fechaDesde") String fechaDesde,
+            @ModelAttribute("fechaHasta") String fechaHasta,
             Model model,
             @ModelAttribute("huespedCargado") Huesped huespedCargado,
             @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
@@ -316,13 +320,21 @@ public class OcupacionController {
     ) {
 
         try {
+            System.out.println("\n\n llego a iniciarCarga() \n\n");
+
+            Integer reservaIdAux = reservaIdParam != null ? reservaIdParam : reservaId;
+            Integer numeroHabitacionAux = numeroHabitacionParam != null ? numeroHabitacionParam : numeroHabitacion;
+            String fechaDesdeAux = fechaDesdeParam != null ? fechaDesdeParam : fechaDesde;
+            String fechaHastaAux = fechaHastaParam != null ? fechaHastaParam : fechaHasta;
+
+
             // Guardar en sesión
-            model.addAttribute("reservaId", reservaId);
-            model.addAttribute("fechaDesde", fechaDesde);
-            model.addAttribute("fechaHasta", fechaHasta);
+            model.addAttribute("reservaId", reservaIdAux);
+            model.addAttribute("fechaDesde", fechaDesdeAux);
+            model.addAttribute("fechaHasta", fechaHastaAux);
             model.addAttribute("personasResultados", new ArrayList<>());
 
-            model.addAttribute("numeroHabitacion", numeroHabitacion);
+            model.addAttribute("numeroHabitacion", numeroHabitacionAux);
 
             model.addAttribute("huespedCargado", huespedCargado);
 
@@ -332,6 +344,15 @@ public class OcupacionController {
             }
 
             model.addAttribute("ocupantesCargados", ocupantesCargados);
+
+            System.out.println("\n\n reservaId: " + reservaId + " \n\n");
+            System.out.println("\n\n numeroHabitacion: " + numeroHabitacion + " \n\n");
+            System.out.println("\n\n fechaDesde: " + fechaDesde + " \n\n");
+            System.out.println("\n\n fechaHasta: " + fechaHasta + " \n\n");
+            System.out.println("\n\n huespedCargado: " + huespedCargado + " \n\n");
+            System.out.println("\n\n ocupantesCargados: " + ocupantesCargados + " \n\n");
+
+            System.out.println("\n\n llego al final de iniciarCarga() \n\n");
 
             return "ocupacion/cargar";
 
@@ -358,6 +379,8 @@ public class OcupacionController {
     ) {
 
         try {
+            System.out.println("\n\n llego a buscarHuesped() \n\n");
+
             TipoDocumento tipo = null;
 
             // Tipo de documento no valido
@@ -380,6 +403,12 @@ public class OcupacionController {
 
             model.addAttribute("huespedCargado", huespedCargado);
             model.addAttribute("ocupantesCargados", ocupantesCargados);
+
+            System.out.println("\n\n huespedCargado: " + huespedCargado + " \n\n");
+            System.out.println("\n\n ocupantesCargados: " + ocupantesCargados + " \n\n");
+
+            System.out.println("\n\n llego al final de buscarHuesped() \n\n");
+
             return "ocupacion/cargar";
         } catch (Exception e) {
             redirect.addFlashAttribute("errorMessage", e.getMessage());
@@ -459,7 +488,7 @@ public class OcupacionController {
 
             System.out.println("\n\n llego al final de agregarOcupante() \n\n");
 
-            return "ocupacion/resumen";
+            return "redirect:/ocupacion/resumen-ocupacion";
 
         } catch (Exception e) {
             redirect.addFlashAttribute("errorMessage", e.getMessage());
@@ -492,6 +521,15 @@ public class OcupacionController {
             model.addAttribute("fechaHasta", fechaHasta);
             model.addAttribute("huespedCargado", huespedCargado);
             model.addAttribute("ocupantesCargados", ocupantesCargados);
+
+            System.out.println("\n\n reservaId: " + reservaId + " \n\n");
+            System.out.println("\n\n numeroHabitacion: " + numeroHabitacion + " \n\n");
+            System.out.println("\n\n fechaDesde: " + fechaDesde + " \n\n");
+            System.out.println("\n\n fechaHasta: " + fechaHasta + " \n\n");
+            System.out.println("\n\n huespedCargado: " + huespedCargado + " \n\n");
+            System.out.println("\n\n ocupantesCargados: " + ocupantesCargados + " \n\n");
+
+            System.out.println("\n\n llego al final de resumen() \n\n");
 
             return "ocupacion/resumen";
 
