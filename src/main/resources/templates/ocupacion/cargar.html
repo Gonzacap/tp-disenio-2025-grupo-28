@@ -17,75 +17,119 @@
         <p th:text="${successMessage}"></p>
       </div>
 
-      <section>
+      <section class="row my-3">
         <!-- FORMULARIO DE BÚSQUEDA -->
+        <div class="col-12">
+          <div class="row">
+            <p
+              for=""
+              class="h4"
+              th:text="${ huspedCargado == null ? 'Buscar Huesped' : 'Buscar Acompañante'}"
+            ></p>
+          </div>
 
-        <label for="" class="" th:text="${ huspedCargado == null ? 'Buscar Huesped' : 'Buscar Acompañante'}"></label>
+          <form
+            th:action="@{/ocupacion/buscar-huesped}"
+            method="post"
+            class="row g-3"
+          >
+            <input type="hidden" name="reservaId" th:value="${reservaId}" />
+            <input
+              type="hidden"
+              name="numeroHabitacion"
+              th:value="${numeroHabitacion}"
+            />
+            <input type="hidden" name="fechaDesde" th:value="${fechaDesde}" />
+            <input type="hidden" name="fechaHasta" th:value="${fechaHasta}" />
 
-        <form th:action="@{/ocupacion/buscar-huesped}" method="post">
-          <input type="hidden" name="reservaId" th:value="${reservaId}" />
-          <input type="hidden" name="numeroHabitacion" th:value="${numeroHabitacion}" />
-          <input type="hidden" name="fechaDesde" th:value="${fechaDesde}" />
-          <input type="hidden" name="fechaHasta" th:value="${fechaHasta}" />
+            <div class="col-md-6 mb-3">
+              <label>Nombre:</label>
+              <input type="text" name="nombre" th:value="${nombre}" />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label>Apellido:</label>
+              <input type="text" name="apellido" th:value="${apellido}" />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label>Tipo Doc:</label>
+              <input
+                type="text"
+                name="tipoDocumento"
+                th:value="${tipoDocumento}"
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label>N° Doc:</label>
+              <input type="text" name="documento" th:value="${documento}" />
+            </div>
 
-          <label>Nombre:</label>
-          <input type="text" name="nombre" th:value="${nombre}" />
-          <label>Apellido:</label>
-          <input type="text" name="apellido" th:value="${apellido}" />
-          <label>Tipo Doc:</label>
-          <input type="text" name="tipoDocumento" th:value="${tipoDocumento}" />
-          <label>N° Doc:</label>
-          <input type="text" name="documento" th:value="${documento}" />
-
-          <button type="submit">Buscar</button>
-        </form>
+            <div class="col-md-6 col-12">
+              <button type="submit" class="btn btn-primary">Buscar</button>
+            </div>
+          </form>
+        </div>
       </section>
 
-      <section>
+      <section class="row my-3">
         <!-- RESULTADOS -->
+        <div class="col-12">
+          <div class="row">
+            <p
+              for=""
+              class="h4"
+              th:text="${ huspedCargado == null ? 'Seleccione el huesped de la habitación' : 'Seleccione los acompañantes de la habitación'}"
+            ></p>
+          </div>
 
-        <label
-          for=""
-          class="form-label"
-          th:text="${ huspedCargado == null ? 'Seleccione el huesped de la habitación' : 'Seleccione los acompañantes de la habitación'}"></label>
-
-        <form th:action="@{/ocupacion/agregar-huesped}" method="post">
-          <table>
-            <tr th:each="persona : ${personasResultados}">
-              <td>
-                <input
-                  class="form-check-input"
-                  th:type="${huspedCargado == null ? 'radio' : 'checkbox'}"
-                  name="personasSeleccionadas"
-                  th:value="${persona.cuit}" />
-              </td>
-              <td th:text="${persona.nombre}">Nombre</td>
-              <td th:text="${persona.apellido}">Apellido</td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(personasResultados)}">
-              <td colspan="3">No se encontraron resultados</td>
-            </tr>
-          </table>
-
-          <button type="submit">Agregar</button>
-        </form>
+          <form
+            th:action="@{/ocupacion/agregar-huesped}"
+            method="post"
+            class="row g-3"
+          >
+            <table class="col-12">
+              <tr th:each="persona : ${personasResultados}">
+                <td>
+                  <input
+                    class="form-check-input"
+                    th:type="${huspedCargado == null ? 'radio' : 'checkbox'}"
+                    name="personasSeleccionadas"
+                    th:value="${persona.cuit}"
+                  />
+                </td>
+                <td th:text="${persona.nombre}">Nombre</td>
+                <td th:text="${persona.apellido}">Apellido</td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(personasResultados)}">
+                <td class="fw-bold" colspan="3">
+                  No se encontraron resultados
+                </td>
+              </tr>
+            </table>
+            <div class="col-md-6 col-12">
+              <button type="submit" class="btn btn-primary">Agregar</button>
+            </div>
+          </form>
+        </div>
       </section>
 
       <!-- YA CARGADOS -->
-      <section>
-        <a
-          class="btn btn-primary"
-          href="#"
-          role="button"
-          th:href="@{/ocupacion/resumen-ocupacion}"
-          th:disabled="${huspedCargado == null}">
-          Ir al resumen
-        </a>
+      <section class="row my-3">
+        <div class="col-md-6 col-12">
+          <a
+            class="btn btn-primary"
+            href="#"
+            role="button"
+            th:href="@{/ocupacion/resumen-ocupacion}"
+            th:disabled="${huspedCargado == null}"
+          >
+            Ir al resumen
+          </a>
+        </div>
       </section>
 
       <!-- YA CARGADOS -->
-      <section>
-        <h3>Ocupantes cargados</h3>
+      <section class="row my-3">
+        <p class="h4">Ocupantes cargados</p>
         <table>
           <tr th:each="i : ${ocupantesCargados}">
             <td>[[${i.nombre}]] [[${i.apellido}]]</td>
