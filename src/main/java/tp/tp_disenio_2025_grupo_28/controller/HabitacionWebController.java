@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -200,16 +201,32 @@ public class HabitacionWebController {
         return "redirect:/reserva/nueva";
     }
 
+    @ModelAttribute("fechaDesde")
+    public String fechaDesde() {
+        return null;
+    }
+
+    @ModelAttribute("fechaHasta")
+    public String fechaHasta() {
+        return null;
+    }
+
     /**
      * Old Method
      */
-    @GetMapping()
-    public String mostrarPaginaOld(Model model) {
+    @GetMapping("/old")
+    public String mostrarPaginaOld(
+        Model model,
+        @ModelAttribute("fechaDesde") Date fechaDesde,
+        @ModelAttribute("fechaHasta") Date fechaHasta
+    ) {
 
         model.addAttribute("habitacionesPorTipo", gestionHabitacionOld.obtenerHabitacionPorTipoMockup());
         model.addAttribute("dias", new ArrayList<>());
+        model.addAttribute("fechaDesde", fechaDesde);
+        model.addAttribute("fechaHasta", fechaHasta);
 
-        return "habitacion/GestionHabitacion";
+        return "habitacion/GestionHabitacionOld";
     }
 
     /**
@@ -217,8 +234,8 @@ public class HabitacionWebController {
      */
     @PostMapping("/validar-fecha-old")
     public String mostrarEstadoHabitaciones(
-            @RequestParam("fechaDesde") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
-            @RequestParam("fechaHasta") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
             RedirectAttributes redirectAttributes,
             Model model
     ) {
@@ -242,7 +259,13 @@ public class HabitacionWebController {
             model.addAttribute("dias", dias);
             model.addAttribute("habitacionesPorTipo", habitacionesPorTipo);
 
-            return "habitacion/GestionHabitacion";
+            model.addAttribute("fechaDesde", fechaDesde);
+            model.addAttribute("fechaHasta", fechaHasta);
+
+            model.addAttribute("habitacionesPorTipo", habitacionesPorTipo != null ? habitacionesPorTipo : List.of());
+            model.addAttribute("grilla", grilla != null ? grilla : List.of());
+
+            return "habitacion/GestionHabitacionOld";
 
         } catch (IllegalArgumentException e) {
 
