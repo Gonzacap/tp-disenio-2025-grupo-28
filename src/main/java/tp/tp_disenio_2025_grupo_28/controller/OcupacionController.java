@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,7 +23,7 @@ import tp.tp_disenio_2025_grupo_28.service.GestionHabitacion;
 import tp.tp_disenio_2025_grupo_28.service.GestionHuesped;
 
 @Controller
-@SessionAttributes({"huspedCargado", "ocupantesCargados", "responsable", "reservaId", "fechaDesde", "fechaHasta", "numeroHabitacion", "personasResultados"})
+@SessionAttributes({"huespedCargado", "ocupantesCargados", "responsable", "reservaId", "fechaDesde", "fechaHasta", "numeroHabitacion", "personasResultados"})
 @RequestMapping("/ocupacion")
 public class OcupacionController {
 
@@ -267,8 +266,8 @@ public class OcupacionController {
     /// Nuevos metodos
     /// ***********
 
-    @ModelAttribute("huspedCargado")
-    public Huesped huspedCargado() {
+    @ModelAttribute("huespedCargado")
+    public Huesped huespedCargado() {
         return null;
     }
 
@@ -312,7 +311,7 @@ public class OcupacionController {
             @RequestParam String fechaDesde,
             @RequestParam String fechaHasta,
             Model model,
-            @ModelAttribute("huspedCargado") Huesped huspedCargado,
+            @ModelAttribute("huespedCargado") Huesped huespedCargado,
             @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados
     ) {
 
@@ -324,10 +323,10 @@ public class OcupacionController {
 
         model.addAttribute("numeroHabitacion", numeroHabitacion);
 
-        model.addAttribute("huspedCargado", huspedCargado);
+        model.addAttribute("huespedCargado", huespedCargado);
 
         // Primero cargo el huesped
-        if (huspedCargado == null) {
+        if (huespedCargado == null) {
             ocupantesCargados = new ArrayList<>();
         }
 
@@ -346,7 +345,7 @@ public class OcupacionController {
             @RequestParam(required = false) String tipoDocumento,
             @RequestParam(required = false) String documento,
             Model model,
-            @ModelAttribute("huspedCargado") Huesped huspedCargado,
+            @ModelAttribute("huespedCargado") Huesped huespedCargado,
             @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
             @ModelAttribute("personasResultados") List<PersonaFisica> personasResultados
     ) {
@@ -363,7 +362,7 @@ public class OcupacionController {
         }
 
         // Primero busco un huesped
-        if (huspedCargado == null) {
+        if (huespedCargado == null) {
             personasResultados = gestionHuesped.buscarHuesped(apellido, nombre, tipo, documento);
         } else {
             personasResultados = gestionHuesped.buscarPersona(apellido, nombre, tipo, documento);
@@ -371,7 +370,7 @@ public class OcupacionController {
 
         model.addAttribute("personasResultados", personasResultados);
 
-        model.addAttribute("huspedCargado", huspedCargado);
+        model.addAttribute("huespedCargado", huespedCargado);
         model.addAttribute("ocupantesCargados", ocupantesCargados);
         return "ocupacion/cargar";
     }
@@ -384,11 +383,13 @@ public class OcupacionController {
             // @RequestParam List<PersonaFisica> personasSeleccionadas,
             @RequestParam(name = "personasSeleccionadas") List<String> cuitsSeleccionados,
             Model model,
-            @ModelAttribute("huspedCargado") Huesped huspedCargado,
+            @ModelAttribute("huespedCargado") Huesped huespedCargado,
             @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
             @ModelAttribute("personasResultados") List<PersonaFisica> personasResultados,
             RedirectAttributes redirect
     ) {
+
+        System.out.println("\n\n llego a agregarOcupante() \n\n");
 
         // CUITs que NO están en cargados
         List<String> cuitsFaltantes = cuitsSeleccionados.stream()
@@ -406,11 +407,14 @@ public class OcupacionController {
                 .toList();
 
         if (seleccionadas.isEmpty()) {
+
+            System.out.println("\n\n redirige a /cargar \n\n");
+
             redirect.addFlashAttribute("errorMessage", "No se encontraron las personas seleccionadas en sesión.");
             return "redirect:/ocupacion/cargar";
         }
 
-        if (huspedCargado == null) {
+        if (huespedCargado == null) {
 
             Huesped huesped = gestionHuesped.obtenerHuesped(seleccionadas.getFirst());
 
@@ -419,7 +423,8 @@ public class OcupacionController {
                 return "redirect:/ocupacion/cargar";
             }
 
-            model.addAttribute("huspedCargado", huesped);
+            model.addAttribute("huespedCargado", huesped);
+            System.out.println("\n\n huesped: " + huesped + " \n\n");
         }
 
         // Agregar acompañantes
@@ -429,13 +434,19 @@ public class OcupacionController {
             }
         }
 
-        model.addAttribute("huesped", huspedCargado);
+        model.addAttribute("huespedCargado", huespedCargado);
         model.addAttribute("ocupantesCargados", ocupantesCargados);
         model.addAttribute("personasResultados", new ArrayList<>());
 
+        System.out.println("\n\n huespedCargado: " + huespedCargado + " \n\n");
+        System.out.println("\n\n ocupantesCargados: " + ocupantesCargados + " \n\n");
+
+
         redirect.addFlashAttribute("successMessage", "Huesped agregado correctamente");
 
-        return "redirect:/ocupacion/resumen";
+        System.out.println("\n\n llego al final de agregarOcupante() \n\n");
+
+        return "ocupacion/resumen";
     }
 
     /**
@@ -448,7 +459,7 @@ public class OcupacionController {
             @ModelAttribute("numeroHabitacion") Integer numeroHabitacion,
             @ModelAttribute("fechaDesde") String fechaDesde,
             @ModelAttribute("fechaHasta") String fechaHasta,
-            @ModelAttribute("huspedCargado") Huesped huspedCargado,
+            @ModelAttribute("huespedCargado") Huesped huespedCargado,
             @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados
     ) {
 
@@ -456,9 +467,9 @@ public class OcupacionController {
         model.addAttribute("numeroHabitacion", numeroHabitacion);
         model.addAttribute("fechaDesde", fechaDesde);
         model.addAttribute("fechaHasta", fechaHasta);
-        model.addAttribute("huspedCargado", huspedCargado);
+        model.addAttribute("huespedCargado", huespedCargado);
         model.addAttribute("ocupantesCargados", ocupantesCargados);
 
-        return "ocuparHabitacion/resumen";
+        return "ocupacion/resumen";
     }
 }
