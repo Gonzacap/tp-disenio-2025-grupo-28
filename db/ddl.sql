@@ -73,7 +73,6 @@ CREATE TABLE responsable_pago (
 -- ---------------------
 CREATE TABLE persona_fisica (
     id INTEGER NOT NULL,
-    cuit VARCHAR(20),
     nombre VARCHAR(50),
     apellido VARCHAR(50),
     tipo_documento tipo_documento,
@@ -89,7 +88,6 @@ CREATE TABLE persona_fisica (
 -- ---------------------
 CREATE TABLE persona_juridica (
     id INTEGER NOT NULL,
-    cuit VARCHAR(20),
     CONSTRAINT persona_juridica_pkey PRIMARY KEY (id),
     CONSTRAINT persona_juridica_id_unique UNIQUE (id),
     CONSTRAINT persona_juridica_id_fk FOREIGN KEY (id) REFERENCES responsable_pago (id) ON DELETE CASCADE
@@ -100,7 +98,6 @@ CREATE TABLE persona_juridica (
 -- ---------------------
 CREATE TABLE huesped (
     id INTEGER NOT NULL,
-    cuit VARCHAR(20),
     posicion_frente_al_iva VARCHAR(50),
     email VARCHAR(100),
     ocupacion VARCHAR(100),
