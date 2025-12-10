@@ -24,7 +24,7 @@
             <p
               for=""
               class="h4"
-              th:text="${ huspedCargado == null ? 'Buscar Huesped' : 'Buscar Acompañante'}"
+              th:text="${ huespedCargado == null ? 'Buscar Huesped' : 'Buscar Acompañante'}"
             ></p>
           </div>
 
@@ -77,7 +77,7 @@
             <p
               for=""
               class="h4"
-              th:text="${ huspedCargado == null ? 'Seleccione el huesped de la habitación' : 'Seleccione los acompañantes de la habitación'}"
+              th:text="${ huespedCargado == null ? 'Seleccione el huesped de la habitación' : 'Seleccione los acompañantes de la habitación'}"
             ></p>
           </div>
 
@@ -91,7 +91,7 @@
                 <td>
                   <input
                     class="form-check-input"
-                    th:type="${huspedCargado == null ? 'radio' : 'checkbox'}"
+                    th:type="${huespedCargado == null ? 'radio' : 'checkbox'}"
                     name="personasSeleccionadas"
                     th:value="${persona.cuit}"
                   />
@@ -120,7 +120,7 @@
             href="#"
             role="button"
             th:href="@{/ocupacion/resumen-ocupacion}"
-            th:disabled="${huspedCargado == null}"
+            th:disabled="${huespedCargado == null}"
           >
             Ir al resumen
           </a>
