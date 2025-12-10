@@ -26,7 +26,8 @@
         <div>
           <p class="fw-bold">Responsable:</p>
           <p
-            th:text="${huespedCargado != null} huespedCargado.nombre + ', ' + huespedCargado.apellido + ', DNI: ' + huespedCargado.documento : '-'"></p>
+            th:text="${huespedCargado != null ? huespedCargado.nombre + ', ' + huespedCargado.apellido + ', DNI: ' + huespedCargado.documento : '-'}"
+          ></p>
         </div>
       </div>
 
@@ -59,20 +60,34 @@
       <div class="row">
         <div>
           <!-- Seguir cargando: volver a la selección de la misma habitación (paso anterior) -->
-          <form th:action="@{/ocupacion/buscar}" method="get" style="display: inline">
+          <form
+            th:action="@{/ocupacion/buscar}"
+            method="get"
+            style="display: inline"
+          >
             <input type="hidden" name="reservaId" th:value="${reservaId}" />
-            <input type="hidden" name="numeroHabitacion" th:value="${numeroHabitacion}" />
+            <input
+              type="hidden"
+              name="numeroHabitacion"
+              th:value="${numeroHabitacion}"
+            />
             <input type="hidden" name="fechaDesde" th:value="${fechaDesde}" />
             <input type="hidden" name="fechaHasta" th:value="${fechaHasta}" />
 
             <div class="col-auto">
-              <button type="submit" class="btn btn-primary mb-3">SEGUIR CARGANDO</button>
+              <button type="submit" class="btn btn-primary mb-3">
+                SEGUIR CARGANDO
+              </button>
             </div>
             <div class="col-auto">
-              <button type="button" class="btn btn-primary mb-3" disabled>CARGAR OTRA HABITACIÓN</button>
+              <button type="button" class="btn btn-primary mb-3" disabled>
+                CARGAR OTRA HABITACIÓN
+              </button>
             </div>
             <div class="col-auto">
-              <button type="button" class="btn btn-primary mb-3" disabled>SALIR</button>
+              <button type="button" class="btn btn-primary mb-3" disabled>
+                SALIR
+              </button>
             </div>
           </form>
         </div>
