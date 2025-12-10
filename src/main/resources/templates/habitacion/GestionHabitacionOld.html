@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="fragments/Base :: head('Gestion Habitacion')"></head>
+
+  <body>
+    <style>
+      .bg-orange {
+        background-color: orange !important;
+        color: white !important;
+      }
+    </style>
+
+    <div class="container-md my-5">
+      <h1 class="text-center mb-4">Hotel Premier - Gestion de Habitaciones</h1>
+
+      <!-- Mensaje de error -->
+      <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <p th:text="${errorMessage}">Validation Error Message</p>
+      </div>
+
+      <!-- Mensaje de éxito -->
+      <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <p th:text="${successMessage}">Success Message</p>
+      </div>
+
+      <!-- Formulario Fecha -->
+      <form
+        th:action="@{/habitacion/validar-fecha}"
+        method="post"
+        class="needs-validation mx-5 row g-3"
+        novalidate
+      >
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Fecha Desde</label>
+          <input type="date" name="fechaDesde" class="form-control" required />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Fecha Hasta</label>
+          <input type="date" name="fechaHasta" class="form-control" required />
+        </div>
+
+        <div class="col-md-4 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary me-2">Buscar</button>
+          <a th:href="@{/habitacion}" class="btn btn-secondary">Cancelar</a>
+        </div>
+      </form>
+
+      <hr class="my-4" />
+
+      <!-- Grilla Habitaciones -->
+      <div class="table-responsive mt-4">
+        <h4 class="mb-3">Disponibilidad de Habitaciones</h4>
+
+        <table class="table table-bordered text-center align-middle">
+          <!-- ENCABEZADO -->
+          <thead class="table-light">
+            <tr>
+              <th>Fecha</th>
+
+              <!-- Iteramos tipos de habitación -->
+              <th th:each="tipo : ${habitacionesPorTipo}">
+                <div class="fw-bold" th:text="${tipo.nombre}"></div>
+
+                <!-- Números de habitación en HORIZONTAL -->
+                <div class="d-flex justify-content-center gap-2 mt-1">
+                  <span
+                    th:each="num : ${tipo.habitaciones}"
+                    class="badge bg-primary"
+                    th:text="${num}"
+                  ></span>
+                </div>
+              </th>
+            </tr>
+          </thead>
+
+          <!-- CUERPO -->
+          <tbody>
+            <tr th:each="row : ${grilla}">
+              <!-- Fecha -->
+              <td
+                class="fw-bold"
+                th:text="${#dates.format(row.fecha, 'dd/MM/yyyy')}"
+              ></td>
+
+              <!-- Columnas por tipo -->
+              <td th:each="tipo : ${row.estadosPorTipo}">
+                <!-- ESTADOS EN HORIZONTAL -->
+                <div class="d-flex justify-content-center gap-2">
+                  <span
+                    th:each="estado : ${tipo.estados}"
+                    th:class="${estado == 'DISPONIBLE'     ? 'badge bg-success' :
+                                 estado == 'RESERVADA' || estado == 'confirmada' ? 'badge bg-orange text-dark' :
+                                 estado == 'OCUPADA'        ? 'badge bg-danger' :
+                                 estado == 'FUERA_SERVICIO' ? 'badge bg-warning' :
+                                                               'badge bg-secondary'}"
+                    th:text="${estado}"
+                  >
+                  </span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Leyenda -->
+      <div class="mt-4">
+        <h5>Leyenda</h5>
+        <div class="d-flex gap-4 mt-2">
+          <div><span class="badge bg-success">Disponible</span></div>
+          <div><span class="badge bg-warning text-dark">Reservada</span></div>
+          <div><span class="badge bg-danger">Ocupada</span></div>
+          <div><span class="badge bg-secondary">Fuera de Servicio</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div th:replace="fragments/Base :: scripts"></div>
+  </body>
+</html>
