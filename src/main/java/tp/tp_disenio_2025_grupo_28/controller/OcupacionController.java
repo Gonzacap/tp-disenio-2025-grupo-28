@@ -438,6 +438,8 @@ public class OcupacionController {
 
                 model.addAttribute("huespedCargado", huesped);
                 System.out.println("\n\n huesped: " + huesped + " \n\n");
+            } else{
+                model.addAttribute("huespedCargado", huespedCargado);
             }
 
             // Agregar acompañantes
@@ -447,7 +449,6 @@ public class OcupacionController {
                 }
             }
 
-            model.addAttribute("huespedCargado", huespedCargado);
             model.addAttribute("ocupantesCargados", ocupantesCargados);
             model.addAttribute("personasResultados", new ArrayList<>());
 
@@ -482,6 +483,9 @@ public class OcupacionController {
     ) {
 
         try {
+
+            System.out.println("\n\n llego a resumen() \n\n");
+
             model.addAttribute("reservaId", reservaId);
             model.addAttribute("numeroHabitacion", numeroHabitacion);
             model.addAttribute("fechaDesde", fechaDesde);

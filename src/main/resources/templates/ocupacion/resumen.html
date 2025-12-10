@@ -61,8 +61,7 @@
         <div>
           <!-- Seguir cargando: volver a la selección de la misma habitación (paso anterior) -->
           <form
-            th:action="@{/ocupacion/cargar}"
-            method="get"
+            method="post"
             style="display: inline"
           >
             <input type="hidden" name="reservaId" th:value="${reservaId}" />
@@ -75,7 +74,7 @@
             <input type="hidden" name="fechaHasta" th:value="${fechaHasta}" />
 
             <div class="col-auto">
-              <button type="submit" class="btn btn-primary mb-3">
+              <button type="submit" class="btn btn-primary mb-3" th:formaction="@{/ocupacion/cargar}">
                 SEGUIR CARGANDO
               </button>
             </div>
