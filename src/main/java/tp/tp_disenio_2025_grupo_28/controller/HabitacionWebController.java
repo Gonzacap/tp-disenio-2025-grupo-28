@@ -197,6 +197,57 @@ public class HabitacionWebController {
         return "redirect:/reserva/nueva";
     }
 
+    /**
+     * Old Method
+     */
+    @GetMapping()
+    public String mostrarPaginaOld(Model model) {
+
+        model.addAttribute("habitacionesPorTipo", gestionHabitacion.obtenerHabitacionPorTipoMockup());
+        model.addAttribute("dias", new ArrayList<>());
+
+        return "habitacion/GestionHabitacion";
+    }
+
+    /**
+     * Old Method
+     */
+    @PostMapping("/validar-fecha-old")
+    public String mostrarEstadoHabitaciones(
+            @RequestParam("fechaDesde") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
+            @RequestParam("fechaHasta") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
+            RedirectAttributes redirectAttributes,
+            Model model
+    ) {
+
+        try {
+
+            gestionHabitacion.validarFecha(fechaDesde, fechaHasta);
+
+            List<Habitacion> habitaciones = gestionHabitacion.obtenerHabitaciones();
+            List<Map<String, Object>> habitacionesPorTipo = gestionHabitacion.obtenerHabitacionPorTipo(habitaciones);
+
+            List<Date> dias = gestionHabitacion.generarDiasEntre(fechaDesde, fechaHasta);
+
+            List<Map<String, Object>> grilla = gestionHabitacion.grilla(
+                habitacionesPorTipo,
+                habitaciones,
+                dias
+            );
+
+            model.addAttribute("grilla", grilla);
+            model.addAttribute("dias", dias);
+            model.addAttribute("habitacionesPorTipo", habitacionesPorTipo);
+
+            return "habitacion/GestionHabitacion";
+
+        } catch (IllegalArgumentException e) {
+
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/habitacion";
+        }
+    }
+
 }
 
 
