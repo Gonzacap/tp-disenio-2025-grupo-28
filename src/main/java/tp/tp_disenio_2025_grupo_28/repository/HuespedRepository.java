@@ -12,7 +12,7 @@ import tp.tp_disenio_2025_grupo_28.model.Huesped;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 
 @Repository
-public interface HuespedRepository extends JpaRepository<Huesped, String> {
+public interface HuespedRepository extends JpaRepository<Huesped, Integer> {
 
     Optional<Huesped> findByTipoDocumentoAndDocumento(TipoDocumento tipo, String documento);
 
