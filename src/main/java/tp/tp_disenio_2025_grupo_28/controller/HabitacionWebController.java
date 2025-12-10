@@ -21,6 +21,7 @@ import tp.tp_disenio_2025_grupo_28.dto.ReservaHabitacionDTO;
 import tp.tp_disenio_2025_grupo_28.dto.ReservaRequestDTO;
 import tp.tp_disenio_2025_grupo_28.model.Habitacion;
 import tp.tp_disenio_2025_grupo_28.service.GestionHabitacion;
+import tp.tp_disenio_2025_grupo_28.service.GestionHabitacionOld;
 
 @Controller
 @RequestMapping("/habitacion")
@@ -30,8 +31,9 @@ public class HabitacionWebController {
     private final GestionHabitacionOld gestionHabitacionOld;
 
     @Autowired
-    public HabitacionWebController(GestionHabitacion gestionHabitacion) {
+    public HabitacionWebController(GestionHabitacion gestionHabitacion, GestionHabitacionOld gestionHabitacionOld) {
         this.gestionHabitacion = gestionHabitacion;
+        this.gestionHabitacionOld = gestionHabitacionOld;
     }
 
     @GetMapping
