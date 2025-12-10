@@ -59,7 +59,7 @@ CREATE TABLE direccion (
 -- ---------------------
 CREATE TABLE responsable_pago (
     id SERIAL NOT NULL,
-    cuit VARCHAR(20),
+    cuit VARCHAR(20) NULL,
     razon_social VARCHAR(100),
     telefono VARCHAR(20),
     direccion_id INTEGER REFERENCES direccion(id) ON DELETE CASCADE,
