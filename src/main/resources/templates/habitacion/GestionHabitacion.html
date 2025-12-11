@@ -64,9 +64,7 @@
     <h1 class="text-center mb-4">Hotel Premier - Gestion de Habitaciones</h1>
 
     <!-- Mensaje error -->
- <div th:if="${errorMessage}" class="alert alert-danger" role="alert"> <p th:text="${errorMessage}"></p> </div> 
-
-
+<div th:if="${errorMessage}" class="alert alert-danger" role="alert"> <p th:text="${errorMessage}"></p> </div> 
 
     <!-- Mensaje éxito -->
     <div th:if="${successMessage}" class="alert alert-success" role="alert">
@@ -163,10 +161,7 @@
             </form>
 
             <!-- OCUPAR → MUESTRA MODAL -->
-            <button type="button" class="btn btn-warning"
-                    onclick="abrirModalModoIncorrecto('ocupación')">
-                OCUPAR HABITACION
-            </button>
+            <button type="button" class="btn btn-warning" onclick="abrirModalModoIncorrecto('ocupación')"> OCUPAR HABITACION</button>
             <!-- CANCELAR -->
     <a th:href="@{/}" class="btn btn-secondary ms-2">CANCELAR</a>
         </div>
@@ -175,10 +170,7 @@
         <div th:if="${modo == 'ocupar'}">
 
             <!-- RESERVAR → MUESTRA MODAL -->
-            <button type="button" class="btn btn-success"
-                    onclick="abrirModalModoIncorrecto('reserva')">
-                RESERVAR
-            </button>
+            <button type="button" class="btn btn-success" onclick="abrirModalModoIncorrecto('reserva')"> RESERVAR </button>
 
             <!-- OCUPAR FUNCIONA -->
             <form th:action="@{/habitacion/ocupar}" method="post" class="d-inline">
@@ -233,6 +225,17 @@
         <h3>Acción No Permitida</h3>
         <p id="modal-texto-incorrecto"></p>
         <button onclick="cerrarModalModoIncorrecto()" class="btn btn-primary mt-3">Aceptar</button>
+    </div>
+</div>
+
+<!-- RESERVA DETECTADA EN RANGO -->
+<div id="modal-reserva-detectada" >
+    <div class="modal-box">
+        <h3>La habitación tiene días reservados</h3>
+        <p id="texto-reserva-detectada"></p>
+
+        <button class="btn btn-warning mt-3" onclick="confirmarOcuparIgual()">OCUPAR IGUAL</button>
+        <button class="btn btn-secondary mt-3" onclick="cerrarModalReservaDetectada()">VOLVER</button>
     </div>
 </div>
 
@@ -351,6 +354,29 @@ function abrirModalNoSeleccionadas() {
 
 function cerrarModalNoSeleccionadas() {
     document.getElementById("modal-no-seleccionadas").style.display = "none";
+}
+
+
+
+//MANEJO DE MODAL OCUPAR HABITACION
+let reservaDetectada = false;
+
+function abrirModalReservaDetectada(info) {
+    document.getElementById("texto-reserva-detectada").textContent = info;
+    document.getElementById("modal-reserva-detectada").style.display = "flex";
+}
+
+function cerrarModalReservaDetectada() {
+    reservaDetectada = false;
+    document.getElementById("modal-reserva-detectada").style.display = "none";
+}
+
+function confirmarOcuparIgual() {
+    reservaDetectada = true;
+    document.getElementById("modal-reserva-detectada").style.display = "none";
+
+    // reenviar formulario de ocupación
+    window.location.href = '/habitacion/ocupar/confirmar';
 }
 </script>
 

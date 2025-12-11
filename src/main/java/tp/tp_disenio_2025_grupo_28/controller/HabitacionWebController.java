@@ -1,6 +1,7 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,15 +131,6 @@ public class HabitacionWebController {
             redirect.addFlashAttribute("errorMessage", "Error procesando las fechas de selección (reservasInput).");
             return "redirect:/habitacion";
         }
-
-        /*  List<ReservaHabitacionDTO> habitacionesDTO
-                = seleccionadas.stream()
-                        .map(nro -> {
-                            ReservaHabitacionDTO rh = new ReservaHabitacionDTO(nro, fechaDesde, fechaHasta);
-
-                            return rh;
-                        })
-                        .toList();*/
         List<ReservaHabitacionDTO> habitacionesDTO;
         try {
             habitacionesDTO = seleccionadas.stream()
@@ -216,9 +208,9 @@ public class HabitacionWebController {
      */
     @GetMapping("/old")
     public String mostrarPaginaOld(
-        Model model,
-        @ModelAttribute("fechaDesde") Date fechaDesde,
-        @ModelAttribute("fechaHasta") Date fechaHasta
+            Model model,
+            @ModelAttribute("fechaDesde") Date fechaDesde,
+            @ModelAttribute("fechaHasta") Date fechaHasta
     ) {
 
         model.addAttribute("habitacionesPorTipo", gestionHabitacionOld.obtenerHabitacionPorTipoMockup());
@@ -250,9 +242,9 @@ public class HabitacionWebController {
             List<Date> dias = gestionHabitacionOld.generarDiasEntre(fechaDesde, fechaHasta);
 
             List<Map<String, Object>> grilla = gestionHabitacionOld.grilla(
-                habitacionesPorTipo,
-                habitaciones,
-                dias
+                    habitacionesPorTipo,
+                    habitaciones,
+                    dias
             );
 
             model.addAttribute("grilla", grilla);
@@ -274,55 +266,66 @@ public class HabitacionWebController {
         }
     }
 
-}
-
-
-/* 
+    // CU15 - OCUPAR HABITACIÓN (PASO 3 → IR A FORMULARIO DE OCUPACIÓN)
     @PostMapping("/ocupar")
-    public String ocuparDesdeGrilla(
+    public String pasarAFormularioOcupar(
             @RequestParam("fechaDesde") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
             @RequestParam("fechaHasta") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
-            @RequestParam("habitaciones") String habitacionesCSV,
-            RedirectAttributes redirectAttributes) {
+            @RequestParam String habitaciones,
+            RedirectAttributes redirect,
+            HttpSession session
+    ) {
 
-        // 1) Parsear CSV de habitaciones
-        List<Integer> habitacionesSel = new ArrayList<>();
-        if (habitacionesCSV != null && !habitacionesCSV.isEmpty()) {
-            for (String h : habitacionesCSV.split(",")) {
-                try {
-                    habitacionesSel.add(Integer.parseInt(h.trim()));
-                } catch (NumberFormatException ignored) {
-                }
-            }
+        // 1) VALIDACIONES BÁSICAS
+        if (habitaciones == null || habitaciones.isBlank()) {
+            redirect.addFlashAttribute("errorMessage", "Debe seleccionar al menos una habitación disponible.");
+            return "redirect:/habitacion?modo=ocupar";
         }
 
-        // 2) Validar selección
-        if (habitacionesSel.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Debe seleccionar al menos una habitación para ocupar.");
-            return "redirect:/habitacion";
+        List<Integer> seleccionadas = Arrays.stream(habitaciones.split(","))
+                .map(Integer::parseInt)
+                .toList();
+
+        if (seleccionadas.isEmpty()) {
+            redirect.addFlashAttribute("errorMessage", "Debe seleccionar al menos una habitación.");
+            return "redirect:/habitacion?modo=ocupar";
         }
 
-        Integer numeroHab = habitacionesSel.get(0);
+        // 2) VERIFICAR SI ALGUNA HABITACIÓN TIENE RESERVA EN EL RANGO
+        List<Integer> conReserva = gestionHabitacion.habitacionesConReserva(seleccionadas, fechaDesde, fechaHasta);
 
-        // 3) Validar que la habitación exista
-        if (!gestionHabitacion.existeHabitacion(numeroHab)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "La habitación seleccionada no existe.");
-            return "redirect:/habitacion";
+        if (!conReserva.isEmpty()
+                && session.getAttribute("confirmarOcuparIgual") == null) {
+
+            // Guardar selección temporal para reenviar luego
+            session.setAttribute("habitacionesPendientesOcupar", seleccionadas);
+            session.setAttribute("fechaDesdePendiente", fechaDesde);
+            session.setAttribute("fechaHastaPendiente", fechaHasta);
+
+            // activar modal en front-end
+            redirect.addFlashAttribute("modalReservaDetectada",
+                    "Las habitaciones " + conReserva + " tienen días reservados.");
+
+            return "redirect:/habitacion?modo=ocupar";
         }
 
-        // 4) Buscar reserva existente (si hay)
-        Integer reservaId = gestionHabitacion.buscarReservaParaOcupar(numeroHab, fechaDesde, fechaHasta, true);
+        // 3) SI LLEGÓ ACÁ, PUEDE OCUPAR → limpiar flag del modal
+        session.removeAttribute("confirmarOcuparIgual");
 
-        // 5) Formatear fechas para URL
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        // 4) IR A FORMULARIO /OCUPACION/CARGAR (EX CU15 PASO 3)
+        redirect.addAttribute("habitaciones", habitaciones);
+        redirect.addAttribute("fechaDesde", fechaDesde);
+        redirect.addAttribute("fechaHasta", fechaHasta);
 
-        // 6) Redirigir a CU15 con los parámetros necesarios
-        String url = "redirect:/ocupacion/buscar?"
-                + "numero_habitacion=" + numeroHab
-                + "&fechaDesde=" + df.format(fechaDesde)
-                + "&fechaHasta=" + df.format(fechaHasta)
-                + "&reservaId=" + (reservaId != null ? reservaId : 0); // 0 = ocupa sin reserva
-
-        return url;
+        return "redirect:/ocupacion/cargar";
     }
-} */
+//setear un flag para que NO vuelva a saltar el modal:
+
+    @PostMapping("/ocupar/confirmar")
+    public String confirmarOcuparIgual(HttpSession session) {
+        session.setAttribute("confirmarOcuparIgual", true);
+
+        return "redirect:/habitacion/ocupar";
+    }
+
+}
