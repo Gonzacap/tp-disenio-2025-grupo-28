@@ -71,6 +71,7 @@
         <p th:text="${successMessage}"></p>
     </div>
 
+
     <!-- FORM FECHAS -->
     <form th:action="@{/habitacion/validar-fecha}" method="post"
         class="needs-validation mx-5 row g-3" novalidate>
@@ -87,6 +88,8 @@
             <input type="date" name="fechaHasta" class="form-control"
             th:value="${fechaHasta}" required>
         </div>
+        <!--CASO DE USO 15-->
+<div th:if="${sinHabitaciones}" class="alert alert-warning"> No hay habitaciones disponibles para la búsqueda realizada.</div>
 
         <div class="col-md-4 d-flex align-items-end">
             <button type="submit" class="btn btn-primary me-2">Buscar</button>
@@ -176,7 +179,7 @@
             <form th:action="@{/habitacion/ocupar}" method="post" class="d-inline">
                 <input type="hidden" id="fechaDesdeSeleccionada" name="fechaDesde">
                 <input type="hidden" id="fechaHastaSeleccionada" name="fechaHasta">
-                <input type="hidden" id="habitacionesInput2" name="habitaciones">
+                <input type="hidden" id="numeroHabitacionInput" name="numeroHabitacion">
 
                 <button type="submit" class="btn btn-warning">OCUPAR HABITACION</button>
             </form>
@@ -198,6 +201,10 @@
         </div>
     </div>
 </div>
+
+<div th:if="${modalReservaDetectada}" id="modal-reserva-detectada-loader"   th:data-msg="${modalReservaDetectada}"></div>
+<div id="modal-presione-tecla" style="display:none"> <p>PRESIONE CUALQUIER TECLA Y CONTINÚA…</p></div>
+
 
 <!-- ======================== MODALES ======================== -->
 
@@ -243,65 +250,84 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const seleccionadas = new Set();
-    const reservas = {};
+    const reservas = {}; // para CU04 y CU15
 
+    // =================== CLICK EN CELDAS ===================
     document.querySelectorAll(".estado-clickable").forEach(cell => {
         cell.addEventListener("click", () => {
-
             const estado = cell.dataset.estado.trim().toLowerCase();
             const hab = cell.dataset.habitacion;
-
             const fila = cell.closest("tr");
             const fecha = fila.querySelector("td[data-fecha]").dataset.fecha;
 
             // === SETEAR FECHAS AUTOMÁTICAS ===
             const desdeInput = document.getElementById("fechaDesdeSeleccionada");
             const hastaInput = document.getElementById("fechaHastaSeleccionada");
+            if (!desdeInput.value || fecha < desdeInput.value) desdeInput.value = fecha;
+            if (!hastaInput.value || fecha > hastaInput.value) hastaInput.value = fecha;
 
-            if (!desdeInput.value || fecha < desdeInput.value) {
-                desdeInput.value = fecha;
-            }
-            if (!hastaInput.value || fecha > hastaInput.value) {
-                hastaInput.value = fecha;
-            }
+            const modo = document.body.dataset.modo; // se define <body data-modo="reservar/ocupar">
 
-            // === HAB NO DISPONIBLE ===
-            if (estado !== "disponible") {
-                abrirModalNoDisponible();
-                return;
-            }
+            // === MODO RESERVAR ===
+            if (modo === "reservar") {
+                if (estado !== "disponible") { abrirModalNoDisponible(); return; }
 
-            // === SELECCIÓN / DESELECCIÓN ===
-            if (cell.classList.contains("celda-seleccionada")) {
-                cell.classList.remove("celda-seleccionada");
-                seleccionadas.delete(hab);
-                delete reservas[hab];
-            } else {
-                cell.classList.add("celda-seleccionada");
-                seleccionadas.add(hab);
-
-                if (!reservas[hab]) {
-                    reservas[hab] = { desde: fecha, hasta: fecha };
+                // selección / deselect
+                if (cell.classList.contains("celda-seleccionada")) {
+                    cell.classList.remove("celda-seleccionada");
+                    seleccionadas.delete(hab);
+                    delete reservas[hab];
                 } else {
-                    if (fecha < reservas[hab].desde) reservas[hab].desde = fecha;
-                    if (fecha > reservas[hab].hasta) reservas[hab].hasta = fecha;
+                    cell.classList.add("celda-seleccionada");
+                    seleccionadas.add(hab);
+                    if (!reservas[hab]) reservas[hab] = { desde: fecha, hasta: fecha };
+                    else {
+                        if (fecha < reservas[hab].desde) reservas[hab].desde = fecha;
+                        if (fecha > reservas[hab].hasta) reservas[hab].hasta = fecha;
+                    }
                 }
+                const lista = [...seleccionadas].join(",");
+                const h1 = document.getElementById("habitacionesInput");
+                if (h1) h1.value = lista;
+                const reservasInput = document.getElementById("reservasInput");
+                if (reservasInput) reservasInput.value = JSON.stringify(reservas);
             }
 
-            const lista = [...seleccionadas].join(",");
+            // === MODO OCUPAR ===
+            if (modo === "ocupar") {
+                // CU15: flujo alternativo: si no disponible
+                if (estado !== "disponible" && estado !== "reservada") {
+                    abrirModalNoDisponible(); 
+                    return;
+                }
 
-            const h1 = document.getElementById("habitacionesInput");
-            if (h1) h1.value = lista;
+                // CU15: detectar días reservados
+                if (estado === "reservada") {
+                    document.getElementById("texto-reserva-detectada").textContent =
+                        `Habitación ${hab} tiene días reservados.`;
+                    document.getElementById("modal-reserva-detectada").style.display = "flex";
+                    return;
+                }
 
-            const h2 = document.getElementById("habitacionesInput2");
-            if (h2) h2.value = lista;
+                // selección / deselection
+                if (cell.classList.contains("celda-seleccionada")) {
+                    cell.classList.remove("celda-seleccionada");
+                    seleccionadas.delete(hab);
+                } else {
+                    cell.classList.add("celda-seleccionada");
+                    seleccionadas.add(hab);
+                }
 
-            const reservasInput = document.getElementById("reservasInput");
-            if (reservasInput) reservasInput.value = JSON.stringify(reservas);
+                // actualizar input
+                const lista = [...seleccionadas].join(",");
+                const hNumInput = document.getElementById("numeroHabitacionInput");
+                if (hNumInput) hNumInput.value = lista;
+            }
         });
     });
 
-    // === VALIDAR RESERVAR ===
+    // =================== VALIDAR FORMULARIOS ===================
+    // VALIDAR RESERVAR
     const formReservar = document.querySelector("form[action='/habitacion/reservar']");
     if (formReservar) {
         formReservar.addEventListener("submit", evt => {
@@ -312,11 +338,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // === VALIDAR OCUPAR ===
+    // VALIDAR OCUPAR
     const formOcupar = document.querySelector("form[action='/habitacion/ocupar']");
     if (formOcupar) {
         formOcupar.addEventListener("submit", evt => {
-            if (!document.getElementById("habitacionesInput2").value.trim()) {
+            if (!document.getElementById("numeroHabitacionInput").value.trim()) {
                 evt.preventDefault();
                 abrirModalNoSeleccionadas();
             }
@@ -324,61 +350,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-//MODALES
+// =================== MODALES ===================
 function abrirModalModoIncorrecto(accion) {
     const p = document.getElementById("modal-texto-incorrecto");
-
-    if (accion === "ocupación")
-        p.textContent = "No puede OCUPAR una habitación desde la pantalla de RESERVA.";
-    else
-        p.textContent = "No puede RESERVAR una habitación desde la pantalla de OCUPACIÓN.";
-
+    p.textContent = accion === "ocupación"
+        ? "No puede OCUPAR una habitación desde la pantalla de RESERVA."
+        : "No puede RESERVAR una habitación desde la pantalla de OCUPACIÓN.";
     document.getElementById("modal-modo-incorrecto").style.display = "flex";
 }
+function cerrarModalModoIncorrecto() { document.getElementById("modal-modo-incorrecto").style.display = "none"; }
 
-function cerrarModalModoIncorrecto() {
-    document.getElementById("modal-modo-incorrecto").style.display = "none";
-}
+function abrirModalNoDisponible() { document.getElementById("modal-no-disponible").style.display = "flex"; }
+function cerrarModalNoDisponible() { document.getElementById("modal-no-disponible").style.display = "none"; }
 
-function abrirModalNoDisponible() {
-    document.getElementById("modal-no-disponible").style.display = "flex";
-}
+function abrirModalNoSeleccionadas() { document.getElementById("modal-no-seleccionadas").style.display = "flex"; }
+function cerrarModalNoSeleccionadas() { document.getElementById("modal-no-seleccionadas").style.display = "none"; }
 
-function cerrarModalNoDisponible() {
-    document.getElementById("modal-no-disponible").style.display = "none";
-}
-
-function abrirModalNoSeleccionadas() {
-    document.getElementById("modal-no-seleccionadas").style.display = "flex";
-}
-
-function cerrarModalNoSeleccionadas() {
-    document.getElementById("modal-no-seleccionadas").style.display = "none";
-}
-
-
-
-//MANEJO DE MODAL OCUPAR HABITACION
-let reservaDetectada = false;
-
-function abrirModalReservaDetectada(info) {
-    document.getElementById("texto-reserva-detectada").textContent = info;
-    document.getElementById("modal-reserva-detectada").style.display = "flex";
-}
-
+// =================== MODAL RESERVA DETECTADA ===================
 function cerrarModalReservaDetectada() {
-    reservaDetectada = false;
     document.getElementById("modal-reserva-detectada").style.display = "none";
 }
-
 function confirmarOcuparIgual() {
-    reservaDetectada = true;
-    document.getElementById("modal-reserva-detectada").style.display = "none";
-
-    // reenviar formulario de ocupación
-    window.location.href = '/habitacion/ocupar/confirmar';
+    // marcar habitación como seleccionada igual
+    const hab = document.getElementById("texto-reserva-detectada").textContent.match(/\d+/)[0];
+    const cell = document.querySelector(`.estado-clickable[data-habitacion='${hab}']`);
+    if (cell) cell.classList.add("celda-seleccionada");
+    cerrarModalReservaDetectada();
 }
+
+// =================== PRESIONE CUALQUIER TECLA ===================
+document.addEventListener("keydown", () => {
+    const modal = document.getElementById("modal-presione-tecla");
+    if (modal.style.display === "block") modal.style.display = "none";
+});
 </script>
+
 
 </body>
 </html>

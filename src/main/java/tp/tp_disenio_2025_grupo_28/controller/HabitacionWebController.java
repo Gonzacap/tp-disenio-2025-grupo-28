@@ -71,6 +71,11 @@ public class HabitacionWebController {
             List<Map<String, Object>> porTipo = gestionHabitacion.obtenerHabitacionPorTipo(habitaciones);
             List<Date> dias = gestionHabitacion.generarDiasEntre(desde, hasta);
             List<Map<String, Object>> grilla = gestionHabitacion.grilla(porTipo, habitaciones, dias, desde, hasta);
+
+            if (modo.equals("ocupar") && porTipo.isEmpty()) {
+                model.addAttribute("sinHabitaciones", true);
+            }
+
             model.addAttribute("modo", modo);
             model.addAttribute("habitacionesPorTipo", porTipo);
             model.addAttribute("grilla", grilla);
@@ -271,40 +276,27 @@ public class HabitacionWebController {
     public String pasarAFormularioOcupar(
             @RequestParam("fechaDesde") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaDesde,
             @RequestParam("fechaHasta") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
-            @RequestParam String habitaciones,
+            @RequestParam("numeroHabitacion") Integer numeroHabitacion,
             RedirectAttributes redirect,
             HttpSession session
     ) {
 
         // 1) VALIDACIONES BÁSICAS
-        if (habitaciones == null || habitaciones.isBlank()) {
+        if (numeroHabitacion == null) {
             redirect.addFlashAttribute("errorMessage", "Debe seleccionar al menos una habitación disponible.");
             return "redirect:/habitacion?modo=ocupar";
         }
-
-        List<Integer> seleccionadas = Arrays.stream(habitaciones.split(","))
-                .map(Integer::parseInt)
-                .toList();
-
-        if (seleccionadas.isEmpty()) {
-            redirect.addFlashAttribute("errorMessage", "Debe seleccionar al menos una habitación.");
-            return "redirect:/habitacion?modo=ocupar";
-        }
-
         // 2) VERIFICAR SI ALGUNA HABITACIÓN TIENE RESERVA EN EL RANGO
-        List<Integer> conReserva = gestionHabitacion.habitacionesConReserva(seleccionadas, fechaDesde, fechaHasta);
+        boolean tieneReserva = gestionHabitacion.habitacionTieneReserva(numeroHabitacion, fechaDesde, fechaHasta);
 
-        if (!conReserva.isEmpty()
-                && session.getAttribute("confirmarOcuparIgual") == null) {
+        if (tieneReserva && session.getAttribute("confirmarOcuparIgual") == null) {
 
-            // Guardar selección temporal para reenviar luego
-            session.setAttribute("habitacionesPendientesOcupar", seleccionadas);
+            session.setAttribute("numeroHabitacionPendiente", numeroHabitacion);
             session.setAttribute("fechaDesdePendiente", fechaDesde);
             session.setAttribute("fechaHastaPendiente", fechaHasta);
 
-            // activar modal en front-end
             redirect.addFlashAttribute("modalReservaDetectada",
-                    "Las habitaciones " + conReserva + " tienen días reservados.");
+                    "La habitación " + numeroHabitacion + " tiene días reservados en ese rango.");
 
             return "redirect:/habitacion?modo=ocupar";
         }
@@ -313,7 +305,7 @@ public class HabitacionWebController {
         session.removeAttribute("confirmarOcuparIgual");
 
         // 4) IR A FORMULARIO /OCUPACION/CARGAR (EX CU15 PASO 3)
-        redirect.addAttribute("habitaciones", habitaciones);
+        redirect.addAttribute("numeroHabitacion", numeroHabitacion);
         redirect.addAttribute("fechaDesde", fechaDesde);
         redirect.addAttribute("fechaHasta", fechaHasta);
 
@@ -322,10 +314,11 @@ public class HabitacionWebController {
 //setear un flag para que NO vuelva a saltar el modal:
 
     @PostMapping("/ocupar/confirmar")
-    public String confirmarOcuparIgual(HttpSession session) {
+    public String confirmarOcuparIgual(HttpSession session, Model model) {
         session.setAttribute("confirmarOcuparIgual", true);
+        model.addAttribute("modalPresioneTecla", true);
 
-        return "redirect:/habitacion/ocupar";
+        return "redirect:/habitacion?modo=ocupar";
     }
 
 }

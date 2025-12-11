@@ -19,7 +19,6 @@ import tp.tp_disenio_2025_grupo_28.model.enums.EstadoHabitacion;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
 import tp.tp_disenio_2025_grupo_28.repository.EstadoHabitacionPeriodoRepository;
 import tp.tp_disenio_2025_grupo_28.repository.HabitacionRepository;
-import tp.tp_disenio_2025_grupo_28.repository.PersonaFisicaRepository;
 import tp.tp_disenio_2025_grupo_28.repository.ReservaRepository;
 
 @Service
@@ -29,15 +28,11 @@ public class GestionHabitacion {
     @Autowired
     private HabitacionRepository habitacionRepository;
     @Autowired
-    private ReservaRepository reservaRepository;
-    @Autowired
     private EstadoHabitacionPeriodoRepository estadoPeriodoRepository;
     @Autowired
     private EstadoHabitacionPeriodoService estadoPeriodoService;
     @Autowired
-    private PersonaFisicaRepository personaFisicaRepository;
-    @Autowired
-    private EstadiaService estadiaService;
+    private ReservaRepository reservaRepository;
 
     //CASO DE USO 05
     //GRILLA DE ESTADOS CU05
@@ -219,142 +214,11 @@ public class GestionHabitacion {
         }
         return noDisp;
     }
-    /* 
-    // ----------------- CU15: OCUPAR HABITACIÓN -----------------
-    //METEDO NUEVO, TENIENDO EN CUENTA LOS FLUJOS ALTERNATIVOS
-    @Transactional
-    public void ocuparHabitacion(Integer idReserva, OcupacionRequestDTO request, OcupacionHuespedDTO huespedes, boolean forzar) {
-        validarFecha(request.getFechaDesde(), request.getFechaHasta());
-        Reserva reservaExistente = buscarReservaParaOcupar(request.getNumeroHabitacion(), request.getFechaDesde(), request.getFechaDesde()) != null
-                ? reservaRepository.findById(buscarReservaParaOcupar(request.getNumeroHabitacion(),
-                        request.getFechaDesde(), request.getFechaHasta(), false))
-                        .orElse(null)
-                : null;
+    //CU15
 
-        //Si no hay reserva y no se forza, lanzar excepcion
-        if (reservaExistente != null && !forzar) {
-            throw new IllegalStateException("La habitación está ocupada o reservada por otra reserva en ese período.");
-        }
-        //buscamos la reserva asociada al idReserva
-        Reserva reserva = null;
-        if (idReserva != null) {
-            reserva = reservaRepository.findById(idReserva).orElse(null);
-        }
-        //si no hay reserva creamos una  nueva
-        if (reserva == null) {
-            PersonaFisica responsable = personaFisicaRepository.findById(huespedes.getIdHuesped())
-                    .orElseThrow(() -> new IllegalArgumentException("Responsable no encontrado"));
-
-            List<PersonaFisica> acompanantes = new ArrayList<>();
-            if (huespedes.getIdAcompanantes() != null && !huespedes.getIdAcompanantes().isEmpty()) {
-                List<PersonaFisica> listaAcomp = personaFisicaRepository.findAllById(huespedes.getIdAcompanantes());
-                if (listaAcomp.size() != huespedes.getIdAcompanantes().size()) {
-                    throw new IllegalArgumentException("Uno o más acompañantes no encontrados");
-                }
-                acompanantes.addAll(listaAcomp);
-            }
-            Habitacion hab = habitacionRepository.findById(request.getNumeroHabitacion()).orElseThrow(() -> new IllegalArgumentException("Habitación no encontrada"));
-            int totalOcupantes = 1 + acompanantes.size();
-            if (hab.getCapacidad() != null && totalOcupantes > hab.getCapacidad()) {
-                throw new IllegalStateException("No hay capacidad suficiente para esa habitación.");
-            }
-            //CREAMOS UNA NUEVA RESERVA
-            reserva = new Reserva();
-            reserva.setNombre(responsable.getNombre());
-            reserva.setApellido(responsable.getApellido());
-            reserva.setTelefono(responsable.getTelefono());
-            reserva.setHabitaciones(List.of(hab));
-            reserva.setAcompanantes(acompanantes);
-            reserva.setFechaDesde(request.getFechaDesde());
-            reserva.setFechaHasta(request.getFechaHasta());
-            reserva.setEstado(EstadoReserva.generada);
-            reserva = reservaRepository.save(reserva);
-        } else {
-            // 4. Validar que la habitación pertenezca a la reserva
-            boolean habitacionPertenece = reserva.getHabitaciones().stream()
-                    .anyMatch(h -> h.getNumeroHabitacion().equals(request.getNumeroHabitacion()));
-            if (!habitacionPertenece) {
-                throw new IllegalArgumentException("La habitación no pertenece a esta reserva.");
-            }
-
-            // Validar capacidad de la habitación
-            Habitacion hab = habitacionRepository.findById(request.getNumeroHabitacion())
-                    .orElseThrow(() -> new IllegalArgumentException("Habitación no encontrada"));
-            int cantidadOcupantes = 1 + (huespedes.getIdAcompanantes() != null ? huespedes.getIdAcompanantes().size() : 0);
-            if (hab.getCapacidad() != null && cantidadOcupantes > hab.getCapacidad()) {
-                throw new IllegalStateException("No hay capacidad suficiente para esa habitación.");
-            }
-        }
-//Registrar ocupacion en el periodo
-        try {
-            estadoPeriodoService.ocupar(request.getNumeroHabitacion(), request.getFechaDesde(), request.getFechaHasta());
-        } catch (Exception e) {
-            throw new IllegalStateException("No se pudo registrar la ocupación. Intente nuevamente.", e);
-        }
-        // Asignar responsable y acompañantes
-        PersonaFisica responsable = personaFisicaRepository.findById(huespedes.getIdHuesped())
-                .orElseThrow(() -> new IllegalArgumentException("Responsable no encontrado"));
-
-        List<PersonaFisica> ocupantes = new ArrayList<>();
-        ocupantes.add(responsable);
-
-        if (huespedes.getIdAcompanantes() != null && !huespedes.getIdAcompanantes().isEmpty()) {
-            List<PersonaFisica> listaAcomp = personaFisicaRepository.findAllById(huespedes.getIdAcompanantes());
-            ocupantes.addAll(listaAcomp);
-            reserva.setAcompanantes(listaAcomp);
-            reservaRepository.save(reserva);
-            // reservaService.agregarAcompanantesAreserva(reserva.getIdReserva(), listaAcomp);
-        }
-
-        String key = ((idReserva != null) ? idReserva.toString() : "0") + "_" + request.getNumeroHabitacion();
-        // ocupantesAsignados.put(key, ocupantes);
-
-        // Crear estadía basada en la reserva
-        Estadia estadia = estadiaService.crearDesdeReserva(reserva, request.getFechaDesde(), responsable);
-
-        //  Actualizar estado de la reserva si estaba confirmada
-        if (reserva.getEstado() == EstadoReserva.confirmada) {
-            reserva.setEstado(EstadoReserva.cumplida);
-            reservaRepository.save(reserva);
-        }
-
-    }
-
-    // ----------------- OBTENER OCUPANTES -----------------
-    public List<PersonaFisica> obtenerOcupantesAsignados(Integer idReserva, Integer numeroHabitacion) {
-        String key = idReserva + "_" + numeroHabitacion;
-        return ocupantesAsignados.getOrDefault(key, List.of());
-    }
-
-    // ----------------- BUSCAR RESERVA PARA OCUPAR -----------------
     @Transactional(readOnly = true)
-    public Reserva buscarReservaParaOcupar(Integer numeroHab, Date fechaDesde, Date fechaHasta) {
-        List<Reserva> reservas = reservaRepository.findByHabitacion(numeroHab);
-        if (reservas == null || reservas.isEmpty()) {
-            return null;
-        }
-
-        for (Reserva r : reservas) {
-            if (r.getEstado() == EstadoReserva.cancelada) {
-                continue;
-            }
-
-            boolean seSolapa = !(fechaHasta.before(r.getFechaDesde()) || fechaDesde.after(r.getFechaHasta()));
-            if (seSolapa) {
-                return r;
-            }
-        }
-        return null;
+    public boolean habitacionTieneReserva(Integer numeroHabitacion, Date desde, Date hasta) {
+        return reservaRepository.existeSolapamiento(numeroHabitacion, desde, hasta);
     }
 
-    // ----------------- BUSCAR RESERVA PARA OCUPAR (RETORNA ID) -----------------
-    @Transactional(readOnly = true)
-    public Integer buscarReservaParaOcupar(Integer numeroHab, Date fechaDesde, Date fechaHasta, boolean permitirSinReserva) {
-        Reserva r = buscarReservaParaOcupar(numeroHab, fechaDesde, fechaHasta); // método interno que ya tenemos
-        if (r != null) {
-            return r.getIdReserva();
-        }
-        return permitirSinReserva ? 0 : null;
-    }
-     */
 }
