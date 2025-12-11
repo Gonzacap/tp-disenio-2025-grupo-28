@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments/Base :: head('Gestion Habitacion')"></head>
 
-<body>
+<body th:attr="data-modo=${modo}">
 <style>
     .bg-orange {
         background-color: orange !important;
@@ -22,7 +22,8 @@
     }
 #modal-no-disponible,
 #modal-no-seleccionadas,
-#modal-modo-incorrecto  {
+#modal-modo-incorrecto,
+#modal-reserva-detectada  {
     display: none;
     position: fixed;
     top: 0;
@@ -93,7 +94,8 @@
 
         <div class="col-md-4 d-flex align-items-end">
             <button type="submit" class="btn btn-primary me-2">Buscar</button>
-            <a th:href="@{/habitacion}" class="btn btn-secondary">Cancelar</a>
+           <!-- <a th:href="@{/habitacion}" class="btn btn-secondary">Cancelar</a> -->
+            <a th:href="@{/habitacion(modo=${modo})}" class="btn btn-secondary">Cancelar</a>
         </div>
     </form>
 
@@ -202,7 +204,7 @@
     </div>
 </div>
 
-<div th:if="${modalReservaDetectada}" id="modal-reserva-detectada-loader"   th:data-msg="${modalReservaDetectada}"></div>
+
 <div id="modal-presione-tecla" style="display:none"> <p>PRESIONE CUALQUIER TECLA Y CONTINÚA…</p></div>
 
 

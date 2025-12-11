@@ -1,8 +1,11 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpSession;
 import tp.tp_disenio_2025_grupo_28.dto.ReservaHabitacionDTO;
@@ -60,7 +63,7 @@ public class HabitacionWebController {
             @DateTimeFormat(pattern = "yyyy-MM-dd") Date desde,
             @RequestParam(value = "fechaHasta", required = false)
             @DateTimeFormat(pattern = "yyyy-MM-dd") Date hasta,
-            @RequestParam(value = "modo", required = false, defaultValue = "reservar") String modo,
+            @RequestParam(value = "modo") String modo,
             Model model,
             RedirectAttributes redirect
     ) {
@@ -87,7 +90,7 @@ public class HabitacionWebController {
 
         } catch (IllegalArgumentException e) {
             redirect.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/habitacion";
+            return "redirect:/habitacion?modo=" + modo;
         }
     }
 
@@ -103,11 +106,11 @@ public class HabitacionWebController {
     ) {
         if (habitaciones == null || habitaciones.isBlank()) {
             redirect.addFlashAttribute("errorMessage", "Debe seleccionar al menos una habitación disponible.");
-            return "redirect:/habitacion";
+            return "redirect:/habitacion?modo=reservar";
         }
         if (reservasJson == null || reservasJson.isBlank()) {
             redirect.addFlashAttribute("errorMessage", "Faltan las fechas de selección por habitación.");
-            return "redirect:/habitacion";
+            return "redirect:/habitacion?modo=reservar";
         }
 
         List<Integer> seleccionadas = Arrays.stream(habitaciones.split(",")).map(Integer::parseInt).toList();
@@ -115,14 +118,14 @@ public class HabitacionWebController {
         if (seleccionadas.isEmpty()) {
             redirect.addFlashAttribute("errorMessage",
                     "Debe seleccionar al menos una habitación disponible.");
-            return "redirect:/habitacion";
+            return "redirect:/habitacion?modo=reservar";
         }
 
         List<Integer> noDisponibles = gestionHabitacion.habitacionesNoDisponibles(seleccionadas, fechaDesde, fechaHasta);
 
         if (!noDisponibles.isEmpty()) {
             redirect.addFlashAttribute("errorMessage", "Habitaciones no disponibles: " + noDisponibles);
-            return "redirect:/habitacion";
+            return "redirect:/habitacion?modo=reservar";
         }
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Map<String, String>> reservasMap;
@@ -134,7 +137,7 @@ public class HabitacionWebController {
             );
         } catch (IOException e) {
             redirect.addFlashAttribute("errorMessage", "Error procesando las fechas de selección (reservasInput).");
-            return "redirect:/habitacion";
+            return "redirect:/habitacion?modo=reservar";
         }
         List<ReservaHabitacionDTO> habitacionesDTO;
         try {
@@ -153,7 +156,7 @@ public class HabitacionWebController {
                     .toList();
         } catch (IllegalArgumentException ex) {
             redirect.addFlashAttribute("errorMessage", ex.getMessage());
-            return "redirect:/habitacion";
+            return "redirect:/habitacion?modo=reservar";
         }
         if (habitacionesDTO.size() > 1) {
             Date baseDesde = habitacionesDTO.get(0).getFechaDesde();
@@ -165,7 +168,7 @@ public class HabitacionWebController {
             if (mismatch) {
                 redirect.addFlashAttribute("errorMessage",
                         "Todas las habitaciones seleccionadas deben tener el mismo rango de fechas.");
-                return "redirect:/habitacion";
+                return "redirect:/habitacion?modo=reservar";
             }
 
             // si son iguales, también actualizamos fechaDesde/fechaHasta globales (consistencia)
@@ -181,7 +184,7 @@ public class HabitacionWebController {
             if (!disponible) {
                 redirect.addFlashAttribute("errorMessage",
                         "La habitación " + rh.getNumeroHabitacion() + " no está disponible en el período seleccionado.");
-                return "redirect:/habitacion";
+                return "redirect:/habitacion?modo=reservar";
             }
         }
 
