@@ -54,4 +54,18 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             @Param("hasta") Date hasta
     );
 
+    @Query("""
+        SELECT r FROM Reserva r 
+        JOIN r.habitaciones h
+        WHERE h.numeroHabitacion = :numero
+        AND r.fechaDesde <= :hasta
+        AND r.fechaHasta >= :desde
+        AND r.estado <> 'cancelada'
+    """)
+    List<Reserva> buscarSolapamientos(
+            @Param("numero") Integer numeroHabitacion,
+            @Param("desde") Date desde,
+            @Param("hasta") Date hasta
+    );
+
 }
