@@ -47,13 +47,13 @@ public class Huesped extends PersonaFisica {
         this.posicionFrenteAlIva = posicionFrenteAlIva;
     }
 
-    public String getTelefono() {
-        return this.telefono;
-    }
+    // public String getTelefono() {
+    //     return this.telefono;
+    // }
 
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
+    // public void setTelefono(String telefono) {
+    //     this.telefono = telefono;
+    // }
 
     public String getEmail() {
         return this.email;
