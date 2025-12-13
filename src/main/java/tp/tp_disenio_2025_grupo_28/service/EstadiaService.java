@@ -12,6 +12,7 @@ import tp.tp_disenio_2025_grupo_28.model.Habitacion;
 import tp.tp_disenio_2025_grupo_28.model.Huesped;
 import tp.tp_disenio_2025_grupo_28.model.PersonaFisica;
 import tp.tp_disenio_2025_grupo_28.model.Reserva;
+import tp.tp_disenio_2025_grupo_28.model.ResponsablePago;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoEstadia;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoReserva;
 import tp.tp_disenio_2025_grupo_28.repository.EstadiaRepository;
@@ -152,6 +153,27 @@ public class EstadiaService {
         r.getHabitaciones().add(hab);
 
         return reservaRepository.save(r);
+    }
+
+    /**
+     * 
+     */
+    public Estadia obtenerEstadia(Integer estadiaId){
+        return estadiaRepository.findById(estadiaId)
+                .orElseThrow(() -> new RuntimeException("Estadia no encontrada"));
+    }
+
+    /**
+     * 
+     */
+    public Estadia asignarHuesped(Integer idEstadia, ResponsablePago responsable) {
+
+        Estadia e = estadiaRepository.findById(idEstadia)
+                .orElseThrow(() -> new RuntimeException("Estadia no encontrada"));
+
+        e.setResponsablePago(responsable);
+
+        return estadiaRepository.save(e);
     }
 
     
