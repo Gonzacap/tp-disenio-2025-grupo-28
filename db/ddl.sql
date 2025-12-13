@@ -119,7 +119,7 @@ CREATE TABLE Estadia (
     fecha_ingreso DATE NULL,
     -- huesped character varying(255) null,
     habitacion_id INT NULL,
-    responsable_id INT NOT NULL
+    responsable_id INT NULL
     CONSTRAINT estadia_pkey PRIMARY KEY (id_estadia),
     CONSTRAINT fk_estadia_responsable_id FOREIGN KEY (responsable_id) REFERENCES responsable_pago (id) ON DELETE CASCADE
 );
