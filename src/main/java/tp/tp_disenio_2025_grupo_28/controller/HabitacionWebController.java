@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ import tp.tp_disenio_2025_grupo_28.dto.ReservaHabitacionDTO;
 import tp.tp_disenio_2025_grupo_28.dto.ReservaRequestDTO;
 import tp.tp_disenio_2025_grupo_28.model.Habitacion;
 import tp.tp_disenio_2025_grupo_28.model.Reserva;
+import tp.tp_disenio_2025_grupo_28.model.enums.EstadoHabitacion;
 import tp.tp_disenio_2025_grupo_28.service.GestionHabitacion;
 import tp.tp_disenio_2025_grupo_28.service.GestionHabitacionOld;
 
@@ -357,26 +359,35 @@ public class HabitacionWebController {
             RedirectAttributes redirect,
             HttpSession session) {
 
-        // 1) Validación básica
+        // Validación básica
         if (numeroHabitacion == null) {
             redirect.addFlashAttribute("errorMessage", "Debe seleccionar una habitación.");
             return "redirect:/habitacion?modo=ocupar";
         }
+        EnumSet<EstadoHabitacion> estados
+                = gestionHabitacion.estadosEnRango(numeroHabitacion, fechaDesde, fechaHasta);
 
-        // 2) Buscar reservas en el rango
-        List<Reserva> reservas = gestionHabitacion.obtenerReservasEnRango(numeroHabitacion, fechaDesde, fechaHasta);
+        // 3.B / 3.C → estados inválidos
+        if (estados.contains(EstadoHabitacion.ocupada)
+                || estados.contains(EstadoHabitacion.mantenimiento)) {
 
-        boolean hayReservas = !reservas.isEmpty();
+            redirect.addFlashAttribute("errorMessage",
+                    "La habitación no puede ocuparse en el rango seleccionado.");
+            return "redirect:/habitacion?modo=ocupar";
+        }
+
+        // 3.D → hay reserva
+        boolean hayReserva = estados.contains(EstadoHabitacion.reservada);
         boolean confirmo = Boolean.TRUE.equals(session.getAttribute("confirmarOcuparIgual"));
 
         // 3.D → Hay reservas y TODAVÍA no confirmó ocupar igual
-        if (hayReservas && !confirmo) {
+        if (hayReserva && !confirmo) {
 
             session.setAttribute("numeroHabitacionPendiente", numeroHabitacion);
             session.setAttribute("fechaDesdePendiente", fechaDesde);
             session.setAttribute("fechaHastaPendiente", fechaHasta);
 
-            redirect.addFlashAttribute("reservasDetectadas", reservas);
+            //redirect.addFlashAttribute("reservasDetectadas", reservas);
             redirect.addFlashAttribute("modalReservaDetectada", true);
 
             //QUEDA EN LA MISMA PANTALLA

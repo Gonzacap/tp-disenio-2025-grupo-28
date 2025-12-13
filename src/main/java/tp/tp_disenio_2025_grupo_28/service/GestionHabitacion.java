@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import tp.tp_disenio_2025_grupo_28.model.EstadoHabitacionPeriodo;
 import tp.tp_disenio_2025_grupo_28.model.Habitacion;
-import tp.tp_disenio_2025_grupo_28.model.Reserva;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoHabitacion;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
 import tp.tp_disenio_2025_grupo_28.repository.EstadoHabitacionPeriodoRepository;
@@ -223,8 +223,20 @@ public class GestionHabitacion {
     }
 
     //cu15
-    public List<Reserva> obtenerReservasEnRango(Integer nroHabitacion, Date desde, Date hasta) {
-        return reservaRepository.buscarReservasEnRango(nroHabitacion, desde, hasta);
+    public EnumSet<EstadoHabitacion> estadosEnRango(
+            Integer numeroHabitacion, Date desde, Date hasta) {
+
+        List<EstadoHabitacionPeriodo> periodos
+                = estadoPeriodoRepository.findPeriodosSuperpuestos(
+                        numeroHabitacion, desde, hasta);
+
+        EnumSet<EstadoHabitacion> estados = EnumSet.noneOf(EstadoHabitacion.class);
+
+        for (EstadoHabitacionPeriodo p : periodos) {
+            estados.add(p.getEstado());
+        }
+
+        return estados;
     }
 
 }
