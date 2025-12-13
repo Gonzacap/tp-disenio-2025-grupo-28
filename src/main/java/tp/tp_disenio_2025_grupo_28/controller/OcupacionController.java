@@ -350,9 +350,7 @@ public class OcupacionController {
                 }
 
                 // Actualizar acompañantes
-                // estadia.setAcompanantes(ocupantesCargados);
-
-                // estadiaService.guardar(estadia);
+                estadiaService.agregarAcompanantes(reservaId, ocupantesCargados);
 
                 System.out.println(">>> Estadia actualizada correctamente.");
             }
