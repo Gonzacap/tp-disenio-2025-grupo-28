@@ -54,7 +54,7 @@ public class Estadia {
     // @Enumerated(EnumType.STRING)
     // private TipoEstadia tipo;
     @ManyToOne
-    @JoinColumn(name = "responsable_id", nullable = false)
+    @JoinColumn(name = "responsable_id", nullable = true)
     private ResponsablePago responsablePago;
     // BD: Tabla intermedia Estadia_Servicio
     @ManyToMany
