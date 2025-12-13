@@ -1,7 +1,9 @@
 package tp.tp_disenio_2025_grupo_28.service;
 
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import tp.tp_disenio_2025_grupo_28.model.PersonaFisica;
 import tp.tp_disenio_2025_grupo_28.model.Reserva;
 import tp.tp_disenio_2025_grupo_28.model.ResponsablePago;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoEstadia;
+import tp.tp_disenio_2025_grupo_28.model.enums.EstadoHabitacion;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoReserva;
 import tp.tp_disenio_2025_grupo_28.repository.EstadiaRepository;
 import tp.tp_disenio_2025_grupo_28.repository.HabitacionRepository;
@@ -112,6 +115,8 @@ public class EstadiaService {
         Habitacion hab = habitacionRepository.findById(numeroHabitacion)
                 .orElseThrow(() -> new RuntimeException("Habitación no encontrada"));
 
+        // logica de ocupar habitacion
+
         Reserva reservaAUsar;
 
         if (idReserva == null) {
@@ -144,27 +149,29 @@ public class EstadiaService {
 
         Reserva r = new Reserva();
 
+        // :TODO falta asociar la reserva con el huesped
+
         r.setNombre(huesped.getNombre());
         r.setApellido(huesped.getApellido());
         r.setTelefono(huesped.getTelefono());
         r.setFechaDesde(desde);
         r.setFechaHasta(hasta);
-        r.setEstado(EstadoReserva.generada);
+        r.setEstado(EstadoReserva.confirmada);
         r.getHabitaciones().add(hab);
 
         return reservaRepository.save(r);
     }
 
     /**
-     * 
+     *
      */
-    public Estadia obtenerEstadia(Integer estadiaId){
+    public Estadia obtenerEstadia(Integer estadiaId) {
         return estadiaRepository.findById(estadiaId)
                 .orElseThrow(() -> new RuntimeException("Estadia no encontrada"));
     }
 
     /**
-     * 
+     *
      */
     public Estadia asignarHuesped(Integer idEstadia, ResponsablePago responsable) {
 
@@ -176,6 +183,46 @@ public class EstadiaService {
         return estadiaRepository.save(e);
     }
 
-    
+    /**
+     *
+     */
+    public Reserva agregarAcompanantes(Integer idReserva, List<PersonaFisica> nuevos) {
+
+        Reserva r = reservaRepository.findById(idReserva)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+
+        if (r.getAcompanantes() == null) {
+            r.setAcompanantes(new ArrayList<>());
+        }
+
+        for (PersonaFisica p : nuevos) {
+            boolean existe = r.getAcompanantes().stream()
+                    .anyMatch(a -> a.getDocumento().equals(p.getDocumento()));
+
+            if (!existe) {
+                r.getAcompanantes().add(p);
+            }
+        }
+
+        return reservaRepository.save(r);
+    }
+
+    /**
+     * 
+     */
+    public Estadia confirmarEstadia(Integer idEstadia) {
+
+        Estadia e = estadiaRepository.findById(idEstadia)
+                .orElseThrow(() -> new RuntimeException("Estadia no encontrada"));
+
+        e.setEstado(EstadoEstadia.enCurso);
+
+        // Marcar habitaciones como ocupadas
+        for (Habitacion h : e.getReserva().getHabitaciones()) {
+            h.setEstado(EstadoHabitacion.ocupada);
+        }
+
+        return estadiaRepository.save(e);
+    }
 
 }
