@@ -1,5 +1,6 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
+import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,11 +17,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import tp.tp_disenio_2025_grupo_28.model.Estadia;
 import tp.tp_disenio_2025_grupo_28.model.Huesped;
 import tp.tp_disenio_2025_grupo_28.model.PersonaFisica;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
+import tp.tp_disenio_2025_grupo_28.service.EstadiaService;
 import tp.tp_disenio_2025_grupo_28.service.GestionHabitacion;
 import tp.tp_disenio_2025_grupo_28.service.GestionHuesped;
+import tp.tp_disenio_2025_grupo_28.service.ReservaService;
 
 @Controller
 @SessionAttributes({"huespedCargado", "ocupantesCargados", "responsable", "reservaId", "estadiaId", "fechaDesde", "fechaHasta", "numeroHabitacion", "personasResultados"})
@@ -32,6 +36,12 @@ public class OcupacionController {
 
     @Autowired
     private GestionHuesped gestionHuesped;
+
+    @Autowired
+    private EstadiaService estadiaService;
+
+    @Autowired
+    private ReservaService reservaService;
 
     private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -299,6 +309,58 @@ public class OcupacionController {
 
             System.out.println("\n\n llego a resumen() \n\n");
 
+            Estadia estadia;
+
+            // 1) Si NO hay estadia creada → CREARLA
+            if (estadiaId == null) {
+
+                System.out.println("Estadia NO existe. Se creeara la estadia.\n");
+
+                // Validaciones
+                if (huespedCargado == null) {
+                    redirect.addFlashAttribute("errorMessage", "Debe seleccionar un huésped antes de continuar.");
+                    return "redirect:/ocupacion/cargar";
+                }
+
+                if (numeroHabitacion == null || fechaDesde == null || fechaHasta == null) {
+                    redirect.addFlashAttribute("errorMessage", "Faltan datos de habitación o fechas.");
+                    return "redirect:/ocupacion/cargar";
+                }
+
+                Date fDesde = Date.valueOf(fechaDesde);
+                Date fHasta = Date.valueOf(fechaHasta);
+
+                estadia = estadiaService.iniciarCarga(huespedCargado, numeroHabitacion, fDesde, fHasta, reservaId);
+
+                // Guardar ID en sesión
+                model.addAttribute("estadiaId", estadia.getIdEstadia());
+
+                System.out.println(">>> Estadia creada con ID: " + estadia.getIdEstadia());
+
+            } else {
+
+                // Si ya existe la estadia -> actualizar acompañantes
+                System.out.println("Estadia ya existente. Se debe actualizaran los acmpañantes.");
+
+                estadia = estadiaService.obtenerEstadia(estadiaId);
+
+                if (estadia == null) {
+                    redirect.addFlashAttribute("errorMessage", "Error: la estadía no existe.");
+                    return "redirect:/ocupacion/cargar";
+                }
+
+                // Actualizar acompañantes
+                // estadia.setAcompanantes(ocupantesCargados);
+
+                // estadiaService.guardar(estadia);
+
+                System.out.println(">>> Estadia actualizada correctamente.");
+            }
+
+            // ---- fin lógica creación/actualización ----
+            
+            model.addAttribute("estadiaId", estadia.getIdEstadia());
+            
             model.addAttribute("reservaId", reservaId);
             model.addAttribute("estadiaId", estadiaId);
             model.addAttribute("numeroHabitacion", numeroHabitacion);
