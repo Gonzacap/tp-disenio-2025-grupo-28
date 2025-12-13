@@ -89,6 +89,16 @@ public class OcupacionController {
         return null;
     }
 
+    @ModelAttribute("errorMessage")
+    public String errorMessage() {
+        return null;
+    }
+
+    @ModelAttribute("successMessage")
+    public String successMessage() {
+        return null;
+    }
+
     /**
      * 1) INICIALIZAR PANTALLA DE CARGA
      */
@@ -104,6 +114,8 @@ public class OcupacionController {
             @ModelAttribute("numeroHabitacion") Integer numeroHabitacion,
             @ModelAttribute("fechaDesde") String fechaDesde,
             @ModelAttribute("fechaHasta") String fechaHasta,
+            @ModelAttribute("errorMessage") String errorMessage,
+            @ModelAttribute("successMessage") String successMessage,
             Model model,
             @ModelAttribute("huespedCargado") Huesped huespedCargado,
             @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
@@ -146,6 +158,9 @@ public class OcupacionController {
             System.out.println("\n\n ocupantesCargados: " + ocupantesCargados + " \n\n");
 
             System.out.println("\n\n llego al final de iniciarCarga() \n\n");
+
+            model.addAttribute("errorMessage", errorMessage);
+            model.addAttribute("successMessage", successMessage);
 
             return "ocupacion/cargar";
 
@@ -316,13 +331,27 @@ public class OcupacionController {
 
                 System.out.println("Estadia NO existe. Se creeara la estadia.\n");
 
+
+                /*******************
+                 * aca algo esta tirando un error
+                 *******************/
+
                 // Validaciones
                 if (huespedCargado == null) {
+                    System.out.println("ERROR: Debe seleccionar un huésped antes de continuar. " + huespedCargado);
+
                     redirect.addFlashAttribute("errorMessage", "Debe seleccionar un huésped antes de continuar.");
                     return "redirect:/ocupacion/cargar";
                 }
 
                 if (numeroHabitacion == null || fechaDesde == null || fechaHasta == null) {
+                    System.out.println(
+                        "ERROR: Debe seleccionar un huésped antes de continuar." + "\n" + 
+                        "numeroHabitacion: " + numeroHabitacion + "\n" +
+                        "fechaDesde: " + fechaDesde + "\n" +
+                        "fechaHasta: " + fechaHasta + "\n"
+                    );
+
                     redirect.addFlashAttribute("errorMessage", "Faltan datos de habitación o fechas.");
                     return "redirect:/ocupacion/cargar";
                 }
@@ -333,9 +362,10 @@ public class OcupacionController {
                 estadia = estadiaService.iniciarCarga(huespedCargado, numeroHabitacion, fDesde, fHasta, reservaId);
 
                 // Guardar ID en sesión
-                model.addAttribute("estadiaId", estadia.getIdEstadia());
+                estadiaId =  estadia.getIdEstadia();
+                model.addAttribute("estadiaId",estadiaId);
 
-                System.out.println(">>> Estadia creada con ID: " + estadia.getIdEstadia());
+                System.out.println(">>> Estadia creada con ID: " + estadiaId);
 
             } else {
 
@@ -356,9 +386,7 @@ public class OcupacionController {
             }
 
             // ---- fin lógica creación/actualización ----
-            
-            model.addAttribute("estadiaId", estadia.getIdEstadia());
-            
+                        
             model.addAttribute("reservaId", reservaId);
             model.addAttribute("estadiaId", estadiaId);
             model.addAttribute("numeroHabitacion", numeroHabitacion);
@@ -380,6 +408,8 @@ public class OcupacionController {
             return "ocupacion/resumen";
 
         } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+
             redirect.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/ocupacion/cargar";
         }
