@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import tp.tp_disenio_2025_grupo_28.model.EstadoHabitacionPeriodo;
 import tp.tp_disenio_2025_grupo_28.model.Habitacion;
+import tp.tp_disenio_2025_grupo_28.model.Reserva;
 import tp.tp_disenio_2025_grupo_28.model.enums.EstadoHabitacion;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoHabitacion;
 import tp.tp_disenio_2025_grupo_28.repository.EstadoHabitacionPeriodoRepository;
@@ -219,6 +220,11 @@ public class GestionHabitacion {
     @Transactional(readOnly = true)
     public boolean habitacionTieneReserva(Integer numeroHabitacion, Date desde, Date hasta) {
         return reservaRepository.existeSolapamiento(numeroHabitacion, desde, hasta);
+    }
+
+    //cu15
+    public List<Reserva> obtenerReservasEnRango(Integer nroHabitacion, Date desde, Date hasta) {
+        return reservaRepository.buscarReservasEnRango(nroHabitacion, desde, hasta);
     }
 
 }

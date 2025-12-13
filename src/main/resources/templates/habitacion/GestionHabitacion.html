@@ -23,7 +23,7 @@
 #modal-no-disponible,
 #modal-no-seleccionadas,
 #modal-modo-incorrecto,
-#modal-reserva-detectada  {
+#modal-reserva-detectada , #modal-presione-tecla  {
     display: none;
     position: fixed;
     top: 0;
@@ -34,6 +34,7 @@
     justify-content: center;
     align-items: center;
 }
+
 
 #modal-box-nd {
     background: white;
@@ -130,8 +131,9 @@
         <div class="d-flex justify-content-center gap-2">
             <span th:each="estado, i : ${tipo.estados}" 
                 th:data-habitacion="${tipo.habitaciones[i.index]}" 
-                th:data-estado="${#strings.toLowerCase(estado)}" 
+                th:data-estado="${#strings.toLowerCase(estado)}"
                 th:class="${
+                
                     (#strings.toLowerCase(estado) == 'disponible' ? 'badge bg-success' :
                     #strings.toLowerCase(estado) == 'reservada'  ? 'badge bg-orange text-dark' :
                     #strings.toLowerCase(estado) == 'ocupada'    ? 'badge bg-danger' :
@@ -139,7 +141,7 @@
                     'badge bg-secondary')
                     + ' estado-clickable'
                     }"
-                    th:text="${estado}">
+                    th:text="${estado}"> 
             </span>
         </div>
     </td>
@@ -204,10 +206,12 @@
     </div>
 </div>
 
-
-<div id="modal-presione-tecla" style="display:none"> <p>PRESIONE CUALQUIER TECLA Y CONTINÚA…</p></div>
-
-
+<div id="modal-presione-tecla">
+    <div class="modal-box">
+        <h3>Atención</h3>
+        <p>PRESIONE CUALQUIER TECLA PARA CONTINUAR…</p>
+    </div>
+</div>
 <!-- ======================== MODALES ======================== -->
 
 <!-- NO DISPONIBLE -->
@@ -241,10 +245,21 @@
 <div id="modal-reserva-detectada" >
     <div class="modal-box">
         <h3>La habitación tiene días reservados</h3>
-        <p id="texto-reserva-detectada"></p>
+       <p th:if="${reservasDetectadas}"
+   th:text="'Reservada del ' 
+   + ${#dates.format(reservasDetectadas[0].fechaDesde,'dd/MM/yyyy')}
+   + ' al '
+   + ${#dates.format(reservasDetectadas[0].fechaHasta,'dd/MM/yyyy')}">
+</p>
 
-        <button class="btn btn-warning mt-3" onclick="confirmarOcuparIgual()">OCUPAR IGUAL</button>
-        <button class="btn btn-secondary mt-3" onclick="cerrarModalReservaDetectada()">VOLVER</button>
+       <form th:action="@{/habitacion/ocupar/confirmar}" method="post">
+    <button type="submit" class="btn btn-warning mt-3">
+        OCUPAR IGUAL
+    </button>
+</form>
+
+<button class="btn btn-secondary mt-3"
+        onclick="cerrarModalReservaDetectada()">VOLVER</button>
     </div>
 </div>
 
@@ -302,28 +317,29 @@ document.addEventListener("DOMContentLoaded", () => {
                     abrirModalNoDisponible(); 
                     return;
                 }
+                  // si ya hay una habitación seleccionada y es OTRA → limpiar
+    if (seleccionadas.size > 0 && !seleccionadas.has(hab)) {
+        document.querySelectorAll(".celda-seleccionada").forEach(c =>
+            c.classList.remove("celda-seleccionada")
+        );
+        seleccionadas.clear();
+    }
 
-                // CU15: detectar días reservados
-                if (estado === "reservada") {
-                    document.getElementById("texto-reserva-detectada").textContent =
-                        `Habitación ${hab} tiene días reservados.`;
-                    document.getElementById("modal-reserva-detectada").style.display = "flex";
-                    return;
-                }
-
-                // selección / deselection
+              // selección / deselection
                 if (cell.classList.contains("celda-seleccionada")) {
                     cell.classList.remove("celda-seleccionada");
-                    seleccionadas.delete(hab);
+                   // seleccionadas.delete(hab);
                 } else {
                     cell.classList.add("celda-seleccionada");
                     seleccionadas.add(hab);
                 }
 
                 // actualizar input
-                const lista = [...seleccionadas].join(",");
+                document.getElementById("numeroHabitacionInput").value =
+                [...seleccionadas][0] || "";
+               /* const lista = [...seleccionadas].join(",");
                 const hNumInput = document.getElementById("numeroHabitacionInput");
-                if (hNumInput) hNumInput.value = lista;
+                if (hNumInput) hNumInput.value = lista;*/
             }
         });
     });
@@ -377,14 +393,35 @@ function confirmarOcuparIgual() {
     const hab = document.getElementById("texto-reserva-detectada").textContent.match(/\d+/)[0];
     const cell = document.querySelector(`.estado-clickable[data-habitacion='${hab}']`);
     if (cell) cell.classList.add("celda-seleccionada");
-    cerrarModalReservaDetectada();
+
+    /* fetch('/habitacion/ocupar/confirmar', {
+        method: 'POST'
+    }).then(() => {
+        window.location.reload();
+    });
+    cerrarModalReservaDetectada();*/
 }
 
 // =================== PRESIONE CUALQUIER TECLA ===================
 document.addEventListener("keydown", () => {
-    const modal = document.getElementById("modal-presione-tecla");
-    if (modal.style.display === "block") modal.style.display = "none";
+    if (document.getElementById("modal-presione-tecla")) {
+        window.location.href = "/ocupacion/cargar";
+    }
 });
+
+</script>
+
+
+<script th:if="${modalReservaDetectada}">
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("modal-reserva-detectada").style.display = "flex";
+    });
+</script>
+
+<script th:if="${mostrarPresioneTecla}">
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("modal-presione-tecla").style.display = "flex";
+    });
 </script>
 
 

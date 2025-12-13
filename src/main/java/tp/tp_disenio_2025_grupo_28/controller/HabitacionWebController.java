@@ -1,6 +1,7 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -25,6 +28,7 @@ import jakarta.servlet.http.HttpSession;
 import tp.tp_disenio_2025_grupo_28.dto.ReservaHabitacionDTO;
 import tp.tp_disenio_2025_grupo_28.dto.ReservaRequestDTO;
 import tp.tp_disenio_2025_grupo_28.model.Habitacion;
+import tp.tp_disenio_2025_grupo_28.model.Reserva;
 import tp.tp_disenio_2025_grupo_28.service.GestionHabitacion;
 import tp.tp_disenio_2025_grupo_28.service.GestionHabitacionOld;
 
@@ -44,15 +48,85 @@ public class HabitacionWebController {
     @GetMapping
     public String mostrarPagina(
             @RequestParam(value = "modo", required = false, defaultValue = "reservar") String modo,
-            Model model
+            Model model, HttpSession session
     ) {
         model.addAttribute("modo", modo);
-        model.addAttribute("habitacionesPorTipo", gestionHabitacion.obtenerHabitacionPorTipoMockup());
-        model.addAttribute("dias", List.of());
-        model.addAttribute("grilla", List.of());
-        model.addAttribute("fechaDesde", null);
-        model.addAttribute("fechaHasta", null);
+        if (!"buscar".equals(session.getAttribute("origen"))) {
+            session.removeAttribute("fechaDesdeBuscada");
+            session.removeAttribute("fechaHastaBuscada");
+        }
+        session.removeAttribute("origen");
 
+        Date desde = (Date) session.getAttribute("fechaDesdeBuscada");
+        Date hasta = (Date) session.getAttribute("fechaHastaBuscada");
+
+        // SI YA SE EJECUTÓ EL CU05 → RECONSTRUIR GRILLA
+        if (desde != null && hasta != null) {
+
+            List<Habitacion> habitaciones = gestionHabitacion.obtenerHabitaciones();
+            List<Map<String, Object>> porTipo = gestionHabitacion.obtenerHabitacionPorTipo(habitaciones);
+            List<Date> dias = gestionHabitacion.generarDiasEntre(desde, hasta);
+            List<Map<String, Object>> grilla = gestionHabitacion.grilla(porTipo, habitaciones, dias, desde, hasta);
+            // ===== FORZAR OCUPADA (CU15) =====
+            Boolean forzar = (Boolean) session.getAttribute("forzarOcupada");
+
+            if (Boolean.TRUE.equals(forzar)) {
+
+                Integer habForzada = (Integer) session.getAttribute("numeroHabitacion");
+                Date desdeForzada = (Date) session.getAttribute("fechaDesde");
+                Date hastaForzada = (Date) session.getAttribute("fechaHasta");
+
+                if (habForzada != null && desdeForzada != null && hastaForzada != null) {
+
+                    for (Map<String, Object> fila : grilla) {
+
+                        Date fechaFila = (Date) fila.get("fecha");
+
+                        if (!fechaFila.before(desdeForzada) && !fechaFila.after(hastaForzada)) {
+
+                            List<Map<String, Object>> estadosPorTipo
+                                    = (List<Map<String, Object>>) fila.get("estadosPorTipo");
+
+                            for (Map<String, Object> tipo : estadosPorTipo) {
+
+                                List<Integer> numeros
+                                        = (List<Integer>) tipo.get("habitaciones");
+
+                                List<String> estados
+                                        = (List<String>) tipo.get("estados");
+
+                                for (int i = 0; i < numeros.size(); i++) {
+                                    if (numeros.get(i).equals(habForzada)) {
+                                        estados.set(i, "ocupada"); // 👈 MINÚSCULA
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ===== MOSTRAR “PRESIONE CUALQUIER TECLA” =====
+            Boolean mostrar = (Boolean) session.getAttribute("mostrarPresioneTecla");
+            if (Boolean.TRUE.equals(mostrar)) {
+                model.addAttribute("mostrarPresioneTecla", true);
+            }
+            model.addAttribute("habitacionesPorTipo", porTipo);
+            model.addAttribute("grilla", grilla);
+            model.addAttribute("dias", dias);
+            model.addAttribute("fechaDesde", desde);
+            model.addAttribute("fechaHasta", hasta);
+
+        } else {
+            // PRIMER INGRESO
+
+            model.addAttribute("modo", modo);
+            model.addAttribute("habitacionesPorTipo", gestionHabitacion.obtenerHabitacionPorTipoMockup());
+            model.addAttribute("dias", List.of());
+            model.addAttribute("grilla", List.of());
+            model.addAttribute("fechaDesde", null);
+            model.addAttribute("fechaHasta", null);
+        }
         return "habitacion/GestionHabitacion";
     }
 
@@ -65,10 +139,14 @@ public class HabitacionWebController {
             @DateTimeFormat(pattern = "yyyy-MM-dd") Date hasta,
             @RequestParam(value = "modo") String modo,
             Model model,
-            RedirectAttributes redirect
+            RedirectAttributes redirect, HttpSession session
     ) {
 
         try {
+            session.setAttribute("origen", "buscar");
+            session.setAttribute("fechaDesdeBuscada", desde);
+            session.setAttribute("fechaHastaBuscada", hasta);
+
             gestionHabitacion.validarFecha(desde, hasta);
             List<Habitacion> habitaciones = gestionHabitacion.obtenerHabitaciones();
             List<Map<String, Object>> porTipo = gestionHabitacion.obtenerHabitacionPorTipo(habitaciones);
@@ -201,6 +279,7 @@ public class HabitacionWebController {
         return "redirect:/reserva/nueva";
     }
 
+    /*
     @ModelAttribute("fechaDesde")
     public String fechaDesde() {
         return null;
@@ -209,8 +288,7 @@ public class HabitacionWebController {
     @ModelAttribute("fechaHasta")
     public String fechaHasta() {
         return null;
-    }
-
+    }*/
     /**
      * Old Method
      */
@@ -249,11 +327,7 @@ public class HabitacionWebController {
 
             List<Date> dias = gestionHabitacionOld.generarDiasEntre(fechaDesde, fechaHasta);
 
-            List<Map<String, Object>> grilla = gestionHabitacionOld.grilla(
-                    habitacionesPorTipo,
-                    habitaciones,
-                    dias
-            );
+            List<Map<String, Object>> grilla = gestionHabitacionOld.grilla(habitacionesPorTipo, habitaciones, dias);
 
             model.addAttribute("grilla", grilla);
             model.addAttribute("dias", dias);
@@ -281,47 +355,78 @@ public class HabitacionWebController {
             @RequestParam("fechaHasta") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaHasta,
             @RequestParam("numeroHabitacion") Integer numeroHabitacion,
             RedirectAttributes redirect,
-            HttpSession session
-    ) {
+            HttpSession session) {
 
-        // 1) VALIDACIONES BÁSICAS
+        // 1) Validación básica
         if (numeroHabitacion == null) {
-            redirect.addFlashAttribute("errorMessage", "Debe seleccionar al menos una habitación disponible.");
+            redirect.addFlashAttribute("errorMessage", "Debe seleccionar una habitación.");
             return "redirect:/habitacion?modo=ocupar";
         }
-        // 2) VERIFICAR SI ALGUNA HABITACIÓN TIENE RESERVA EN EL RANGO
-        boolean tieneReserva = gestionHabitacion.habitacionTieneReserva(numeroHabitacion, fechaDesde, fechaHasta);
 
-        if (tieneReserva && session.getAttribute("confirmarOcuparIgual") == null) {
+        // 2) Buscar reservas en el rango
+        List<Reserva> reservas = gestionHabitacion.obtenerReservasEnRango(numeroHabitacion, fechaDesde, fechaHasta);
+
+        boolean hayReservas = !reservas.isEmpty();
+        boolean confirmo = Boolean.TRUE.equals(session.getAttribute("confirmarOcuparIgual"));
+
+        // 3.D → Hay reservas y TODAVÍA no confirmó ocupar igual
+        if (hayReservas && !confirmo) {
 
             session.setAttribute("numeroHabitacionPendiente", numeroHabitacion);
             session.setAttribute("fechaDesdePendiente", fechaDesde);
             session.setAttribute("fechaHastaPendiente", fechaHasta);
 
-            redirect.addFlashAttribute("modalReservaDetectada",
-                    "La habitación " + numeroHabitacion + " tiene días reservados en ese rango.");
+            redirect.addFlashAttribute("reservasDetectadas", reservas);
+            redirect.addFlashAttribute("modalReservaDetectada", true);
 
+            //QUEDA EN LA MISMA PANTALLA
             return "redirect:/habitacion?modo=ocupar";
         }
 
-        // 3) SI LLEGÓ ACÁ, PUEDE OCUPAR → limpiar flag del modal
+        // ===== LLEGA SOLO SI: NO hay reservas O eligió OCUPAR IGUAL =====
         session.removeAttribute("confirmarOcuparIgual");
 
-        // 4) IR A FORMULARIO /OCUPACION/CARGAR (EX CU15 PASO 3)
-        redirect.addAttribute("numeroHabitacion", numeroHabitacion);
-        redirect.addAttribute("fechaDesde", fechaDesde);
-        redirect.addAttribute("fechaHasta", fechaHasta);
+        //  session.setAttribute("mostrarPresioneTecla", true);
+        redirect.addFlashAttribute("mostrarPresioneTecla", true);
+        // guardar en sesión para el próximo controller
+        session.setAttribute("numeroHabitacion", numeroHabitacion);
+        session.setAttribute("fechaDesde", fechaDesde);
+        session.setAttribute("fechaHasta", fechaHasta);
 
-        return "redirect:/ocupacion/cargar";
-    }
-//setear un flag para que NO vuelva a saltar el modal:
+        // flag del CU15 – paso 4
+        //redirect.addFlashAttribute("forzarOcupada", true);
+        //redirect.addFlashAttribute("mostrarPresioneTecla", true);
+        session.setAttribute("forzarOcupada", true);
+        session.setAttribute("mostrarPresioneTecla", true);
 
-    @PostMapping("/ocupar/confirmar")
-    public String confirmarOcuparIgual(HttpSession session, Model model) {
-        session.setAttribute("confirmarOcuparIgual", true);
-        model.addAttribute("modalPresioneTecla", true);
-
+        // VOLVER A LA GRILLA
         return "redirect:/habitacion?modo=ocupar";
+    }
+
+//setear un flag para que NO vuelva a saltar el modal:
+    @PostMapping("/ocupar/confirmar")
+    public String confirmarOcuparIgual(HttpSession session, RedirectAttributes redirect) {
+
+        // marcar confirmación
+        session.setAttribute("confirmarOcuparIgual", true);
+
+        // recuperar lo pendiente
+        Integer numeroHabitacion = (Integer) session.getAttribute("numeroHabitacionPendiente");
+        Date fechaDesde = (Date) session.getAttribute("fechaDesdePendiente");
+        Date fechaHasta = (Date) session.getAttribute("fechaHastaPendiente");
+
+        // guardar lo que necesita el CU 15 – paso 6
+        session.setAttribute("numeroHabitacion", numeroHabitacion);
+        session.setAttribute("fechaDesde", fechaDesde);
+        session.setAttribute("fechaHasta", fechaHasta);
+
+        // limpiar basura
+        session.removeAttribute("numeroHabitacionPendiente");
+        session.removeAttribute("fechaDesdePendiente");
+        session.removeAttribute("fechaHastaPendiente");
+
+        // IR DIRECTO AL SIGUIENTE CASO DE USO
+        return "redirect:/ocupacion/cargar";
     }
 
 }

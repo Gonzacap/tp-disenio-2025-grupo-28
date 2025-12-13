@@ -41,4 +41,17 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             @Param("desde") Date desde,
             @Param("hasta") Date hasta);
 
+    @Query("""
+    SELECT r
+    FROM Reserva r
+    JOIN r.habitaciones h
+    WHERE h.numeroHabitacion = :numeroHabitacion
+      AND r.fechaDesde <= :hasta
+      AND r.fechaHasta >= :desde""")
+    List<Reserva> buscarReservasEnRango(
+            @Param("numeroHabitacion") Integer numeroHabitacion,
+            @Param("desde") Date desde,
+            @Param("hasta") Date hasta
+    );
+
 }
