@@ -12,10 +12,16 @@ import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.UniqueConstraint;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 
 @Entity
-@Table(name = "persona_fisica")
+@Table(
+        name = "persona_fisica",
+        uniqueConstraints = {
+            @UniqueConstraint(columnNames = {"tipo_documento", "documento"})
+        }
+)
 @PrimaryKeyJoinColumn(name = "id")
 public class PersonaFisica extends ResponsablePago {
 
@@ -25,6 +31,7 @@ public class PersonaFisica extends ResponsablePago {
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_documento")
     protected TipoDocumento tipoDocumento;
+    @Column(nullable = false)
     protected String documento;
 
     @Temporal(TemporalType.DATE)
@@ -43,6 +50,30 @@ public class PersonaFisica extends ResponsablePago {
         this.tipoDocumento = tipoDocumento;
         this.documento = documento;
         this.fechaNacimiento = fechaNacimiento;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PersonaFisica)) {
+            return false;
+        }
+
+        PersonaFisica that = (PersonaFisica) o;
+
+        if (tipoDocumento != that.tipoDocumento) {
+            return false;
+        }
+        return documento != null && documento.equals(that.documento);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = tipoDocumento != null ? tipoDocumento.hashCode() : 0;
+        result = 31 * result + (documento != null ? documento.hashCode() : 0);
+        return result;
     }
 
     public boolean esMayorDeEdad() {

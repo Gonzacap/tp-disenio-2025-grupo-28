@@ -2,13 +2,15 @@ package tp.tp_disenio_2025_grupo_28.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -51,25 +53,37 @@ public class Reserva {
             joinColumns = @JoinColumn(name = "id_reserva"),
             inverseJoinColumns = @JoinColumn(name = "numero_habitacion")
     )
-    private List<Habitacion> habitaciones = new ArrayList<>();
+    private List<Habitacion> habitaciones;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_reserva")
-    private List<PersonaFisica> acompanantes;
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "reserva_acompanantes",
+            joinColumns = @JoinColumn(name = "id_reserva"),
+            inverseJoinColumns = @JoinColumn(name = "id_persona")
+    )
+    private Set<PersonaFisica> acompanantes = new HashSet<>();
 
     public Reserva() {
+        this.habitaciones = new ArrayList<>();
+        this.acompanantes = new HashSet<>();
     }
 
-    public Reserva(String nombre, String apellido, String telefono, Date fechaDesde, Date fechaHasta, List<Habitacion> habitaciones/*, List<PersonaFisica> acompanantes*/) {
+    public Reserva(String nombre, String apellido, String telefono,
+            Date fechaDesde, Date fechaHasta,
+            List<Habitacion> habitaciones) {
 
         this.nombre = nombre;
         this.apellido = apellido;
         this.telefono = telefono;
         this.fechaDesde = fechaDesde;
         this.fechaHasta = fechaHasta;
-        this.estado = EstadoReserva.generada; // según tu enum
-        this.habitaciones = habitaciones != null ? habitaciones : new ArrayList<>();
-        // this.acompanantes = acompanantes != null ? acompanantes : new ArrayList<>();
+        this.estado = EstadoReserva.generada;
+
+        this.habitaciones = habitaciones != null
+                ? habitaciones
+                : new ArrayList<>();
+
+        this.acompanantes = new HashSet<>();
     }
 
     public Integer getIdReserva() {
@@ -136,12 +150,28 @@ public class Reserva {
         this.fechaHasta = fechaHasta;
     }
 
-    public List<PersonaFisica> getAcompanantes() {
-        return acompanantes;
+    public Set<PersonaFisica> getAcompanantes() {
+        return this.acompanantes;
     }
 
-    public void setAcompanantes(List<PersonaFisica> acompanantes) {
-        this.acompanantes = acompanantes;
+    public void setAcompanantes(Set<PersonaFisica> acompanantes) {
+        this.acompanantes = acompanantes != null
+                ? acompanantes
+                : new HashSet<>();
+    }
+
+    public List<PersonaFisica> getAcompanantesList() {
+        return new ArrayList<>(this.acompanantes);
+    }
+
+    public void addAcompanante(PersonaFisica persona) {
+        if (persona != null) {
+            this.acompanantes.add(persona);
+        }
+    }
+
+    public void removeAcompanante(PersonaFisica persona) {
+        this.acompanantes.remove(persona);
     }
 
 }
