@@ -231,6 +231,18 @@ CREATE TABLE Reserva_Habitacion (
 );
 
 -- ---------------------
+-- Tabla Reserva_Acompanantes
+-- ---------------------
+CREATE TABLE Reserva_Acompanantes (
+    id_reserva INT NOT NULL,
+    id_persona INT NOT NULL,
+    CONSTRAINT pk_reserva_acompanantes PRIMARY KEY (id_reserva, id_persona),
+    CONSTRAINT fk_reserva_acompanantes_reserva FOREIGN KEY (id_reserva) REFERENCES reserva (id_reserva) ON DELETE CASCADE,
+    CONSTRAINT fk_reserva_acompanantes_persona FOREIGN KEY (id_persona) REFERENCES persona_fisica (id) ON DELETE CASCADE
+);
+
+
+-- ---------------------
 -- Tabla MonedaExtranjera
 -- ---------------------
 CREATE TABLE MonedaExtranjera (
