@@ -1,12 +1,13 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
-import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -75,12 +76,12 @@ public class OcupacionController {
     }
 
     @ModelAttribute("fechaDesde")
-    public String fechaDesde() {
+    public Date fechaDesde() {
         return null;
     }
 
     @ModelAttribute("fechaHasta")
-    public String fechaHasta() {
+    public Date fechaHasta() {
         return null;
     }
 
@@ -89,15 +90,15 @@ public class OcupacionController {
         return null;
     }
 
-    @ModelAttribute("errorMessage")
-    public String errorMessage() {
-        return null;
-    }
+    // @ModelAttribute("errorMessage")
+    // public String errorMessage() {
+    //     return null;
+    // }
 
-    @ModelAttribute("successMessage")
-    public String successMessage() {
-        return null;
-    }
+    // @ModelAttribute("successMessage")
+    // public String successMessage() {
+    //     return null;
+    // }
 
     /**
      * 1) INICIALIZAR PANTALLA DE CARGA
@@ -107,13 +108,17 @@ public class OcupacionController {
             @RequestParam(required = false) Integer reservaIdParam,
             @RequestParam(required = false) Integer estadiaIdParam,
             @RequestParam(required = false) Integer numeroHabitacionParam,
-            @RequestParam(required = false) String fechaDesdeParam,
-            @RequestParam(required = false) String fechaHastaParam,
+            @RequestParam(required = false)
+            @DateTimeFormat(pattern = "EEE MMM dd HH:mm:ss zzz yyyy") Date fechaDesdeParam,
+            @RequestParam(required = false)
+            @DateTimeFormat(pattern = "EEE MMM dd HH:mm:ss zzz yyyy") Date fechaHastaParam,
             @ModelAttribute("reservaId") Integer reservaId,
             @ModelAttribute("estadiaId") Integer estadiaId,
             @ModelAttribute("numeroHabitacion") Integer numeroHabitacion,
-            @ModelAttribute("fechaDesde") String fechaDesde,
-            @ModelAttribute("fechaHasta") String fechaHasta,
+            @ModelAttribute("fechaDesde")
+            @DateTimeFormat(pattern = "EEE MMM dd HH:mm:ss zzz yyyy") Date fechaDesde,
+            @ModelAttribute("fechaHasta")
+            @DateTimeFormat(pattern = "EEE MMM dd HH:mm:ss zzz yyyy") Date fechaHasta,
             @ModelAttribute("errorMessage") String errorMessage,
             @ModelAttribute("successMessage") String successMessage,
             Model model,
@@ -128,39 +133,36 @@ public class OcupacionController {
             Integer reservaIdAux = reservaIdParam != null ? reservaIdParam : reservaId;
             Integer estadiaIdAux = estadiaIdParam != null ? estadiaIdParam : estadiaId;
             Integer numeroHabitacionAux = numeroHabitacionParam != null ? numeroHabitacionParam : numeroHabitacion;
-            String fechaDesdeAux = fechaDesdeParam != null ? fechaDesdeParam : fechaDesde;
-            String fechaHastaAux = fechaHastaParam != null ? fechaHastaParam : fechaHasta;
+            Date fechaDesdeAux = fechaDesdeParam != null ? fechaDesdeParam : fechaDesde;
+            Date fechaHastaAux = fechaHastaParam != null ? fechaHastaParam : fechaHasta;
 
             // Guardar en sesión
             model.addAttribute("reservaId", reservaIdAux);
             model.addAttribute("estadiaId", estadiaIdAux);
+            model.addAttribute("numeroHabitacion", numeroHabitacionAux);
             model.addAttribute("fechaDesde", fechaDesdeAux);
             model.addAttribute("fechaHasta", fechaHastaAux);
             model.addAttribute("personasResultados", new ArrayList<>());
 
-            model.addAttribute("numeroHabitacion", numeroHabitacionAux);
-
-            model.addAttribute("huespedCargado", huespedCargado);
-
-            // Primero cargo el huesped
             if (huespedCargado == null) {
                 ocupantesCargados = new ArrayList<>();
             }
 
+            model.addAttribute("huespedCargado", huespedCargado);
             model.addAttribute("ocupantesCargados", ocupantesCargados);
 
-            System.out.println("\n\n reservaId: " + reservaId + " \n\n");
-            System.out.println("\n\n estadiaId: " + estadiaId + " \n\n");
-            System.out.println("\n\n numeroHabitacion: " + numeroHabitacion + " \n\n");
-            System.out.println("\n\n fechaDesde: " + fechaDesde + " \n\n");
-            System.out.println("\n\n fechaHasta: " + fechaHasta + " \n\n");
-            System.out.println("\n\n huespedCargado: " + huespedCargado + " \n\n");
-            System.out.println("\n\n ocupantesCargados: " + ocupantesCargados + " \n\n");
+            System.out.println("\n reservaId: " + reservaId + " \n");
+            System.out.println("\n estadiaId: " + estadiaId + " \n");
+            System.out.println("\n numeroHabitacion: " + numeroHabitacion + " \n");
+            System.out.println("\n fechaDesde: " + fechaDesde + " \n");
+            System.out.println("\n fechaHasta: " + fechaHasta + " \n");
+            System.out.println("\n huespedCargado: " + huespedCargado + " \n");
+            System.out.println("\n ocupantesCargados: " + ocupantesCargados + " \n");
 
-            System.out.println("\n\n llego al final de iniciarCarga() \n\n");
+            System.out.println("\n llego al final de iniciarCarga() \n");
 
-            model.addAttribute("errorMessage", errorMessage);
-            model.addAttribute("successMessage", successMessage);
+            // model.addAttribute("errorMessage", errorMessage);
+            // model.addAttribute("successMessage", successMessage);
 
             return "ocupacion/cargar";
 
@@ -212,10 +214,10 @@ public class OcupacionController {
             model.addAttribute("huespedCargado", huespedCargado);
             model.addAttribute("ocupantesCargados", ocupantesCargados);
 
-            System.out.println("\n\n huespedCargado: " + huespedCargado + " \n\n");
-            System.out.println("\n\n ocupantesCargados: " + ocupantesCargados + " \n\n");
+            System.out.println("\n huespedCargado: " + huespedCargado + " \n");
+            System.out.println("\n ocupantesCargados: " + ocupantesCargados + " \n");
 
-            System.out.println("\n\n llego al final de buscarHuesped() \n\n");
+            System.out.println("\n llego al final de buscarHuesped() \n");
 
             return "ocupacion/cargar";
         } catch (Exception e) {
@@ -258,7 +260,7 @@ public class OcupacionController {
 
             if (seleccionadas.isEmpty()) {
 
-                System.out.println("\n\n redirige a /cargar \n\n");
+                System.out.println("\n redirige a /cargar \n");
 
                 redirect.addFlashAttribute("errorMessage", "No se encontraron las personas seleccionadas en sesión.");
                 return "redirect:/ocupacion/cargar";
@@ -274,7 +276,7 @@ public class OcupacionController {
                 }
 
                 model.addAttribute("huespedCargado", huesped);
-                System.out.println("\n\n huesped: " + huesped + " \n\n");
+                System.out.println("\n huesped: " + huesped + " \n");
             } else {
                 model.addAttribute("huespedCargado", huespedCargado);
             }
@@ -289,12 +291,12 @@ public class OcupacionController {
             model.addAttribute("ocupantesCargados", ocupantesCargados);
             model.addAttribute("personasResultados", new ArrayList<>());
 
-            System.out.println("\n\n huespedCargado: " + huespedCargado + " \n\n");
-            System.out.println("\n\n ocupantesCargados: " + ocupantesCargados + " \n\n");
+            System.out.println("\n huespedCargado: " + huespedCargado + " \n");
+            System.out.println("\n ocupantesCargados: " + ocupantesCargados + " \n");
 
             redirect.addFlashAttribute("successMessage", "Huesped agregado correctamente");
 
-            System.out.println("\n\n llego al final de agregarOcupante() \n\n");
+            System.out.println("\n llego al final de agregarOcupante() \n");
 
             return "redirect:/ocupacion/resumen-ocupacion";
 
@@ -308,13 +310,16 @@ public class OcupacionController {
      * 4) RESUMEN FINAL
      */
     @GetMapping("/resumen-ocupacion")
+    @SuppressWarnings("CallToPrintStackTrace")
     public String resumen(
             Model model,
             @ModelAttribute("reservaId") Integer reservaId,
             @ModelAttribute("estadiaId") Integer estadiaId,
             @ModelAttribute("numeroHabitacion") Integer numeroHabitacion,
-            @ModelAttribute("fechaDesde") String fechaDesde,
-            @ModelAttribute("fechaHasta") String fechaHasta,
+            @ModelAttribute("fechaDesde")
+            @DateTimeFormat(pattern = "EEE MMM dd HH:mm:ss zzz yyyy") Date fechaDesde,
+            @ModelAttribute("fechaHasta")
+            @DateTimeFormat(pattern = "EEE MMM dd HH:mm:ss zzz yyyy") Date fechaHasta,
             @ModelAttribute("huespedCargado") Huesped huespedCargado,
             @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
             RedirectAttributes redirect
@@ -331,11 +336,6 @@ public class OcupacionController {
 
                 System.out.println("Estadia NO existe. Se creeara la estadia.\n");
 
-
-                /*******************
-                 * aca algo esta tirando un error
-                 *******************/
-
                 // Validaciones
                 if (huespedCargado == null) {
                     System.out.println("ERROR: Debe seleccionar un huésped antes de continuar. " + huespedCargado);
@@ -346,24 +346,21 @@ public class OcupacionController {
 
                 if (numeroHabitacion == null || fechaDesde == null || fechaHasta == null) {
                     System.out.println(
-                        "ERROR: Debe seleccionar un huésped antes de continuar." + "\n" + 
-                        "numeroHabitacion: " + numeroHabitacion + "\n" +
-                        "fechaDesde: " + fechaDesde + "\n" +
-                        "fechaHasta: " + fechaHasta + "\n"
+                            "ERROR: Debe seleccionar un huésped antes de continuar." + "\n"
+                            + "numeroHabitacion: " + numeroHabitacion + "\n"
+                            + "fechaDesde: " + fechaDesde + "\n"
+                            + "fechaHasta: " + fechaHasta + "\n"
                     );
 
                     redirect.addFlashAttribute("errorMessage", "Faltan datos de habitación o fechas.");
                     return "redirect:/ocupacion/cargar";
                 }
 
-                Date fDesde = Date.valueOf(fechaDesde);
-                Date fHasta = Date.valueOf(fechaHasta);
-
-                estadia = estadiaService.iniciarCarga(huespedCargado, numeroHabitacion, fDesde, fHasta, reservaId);
+                estadia = estadiaService.iniciarCarga(huespedCargado, numeroHabitacion, fechaDesde, fechaHasta, reservaId);
 
                 // Guardar ID en sesión
-                estadiaId =  estadia.getIdEstadia();
-                model.addAttribute("estadiaId",estadiaId);
+                estadiaId = estadia.getIdEstadia();
+                model.addAttribute("estadiaId", estadiaId);
 
                 System.out.println(">>> Estadia creada con ID: " + estadiaId);
 
@@ -386,7 +383,6 @@ public class OcupacionController {
             }
 
             // ---- fin lógica creación/actualización ----
-                        
             model.addAttribute("reservaId", reservaId);
             model.addAttribute("estadiaId", estadiaId);
             model.addAttribute("numeroHabitacion", numeroHabitacion);
@@ -395,22 +391,24 @@ public class OcupacionController {
             model.addAttribute("huespedCargado", huespedCargado);
             model.addAttribute("ocupantesCargados", ocupantesCargados);
 
-            System.out.println("\n\n reservaId: " + reservaId + " \n\n");
-            System.out.println("\n\n estadiaId: " + estadiaId + " \n\n");
-            System.out.println("\n\n numeroHabitacion: " + numeroHabitacion + " \n\n");
-            System.out.println("\n\n fechaDesde: " + fechaDesde + " \n\n");
-            System.out.println("\n\n fechaHasta: " + fechaHasta + " \n\n");
-            System.out.println("\n\n huespedCargado: " + huespedCargado + " \n\n");
-            System.out.println("\n\n ocupantesCargados: " + ocupantesCargados + " \n\n");
+            System.out.println("\n reservaId: " + reservaId + " \n");
+            System.out.println("\n estadiaId: " + estadiaId + " \n");
+            System.out.println("\n numeroHabitacion: " + numeroHabitacion + " \n");
+            System.out.println("\n fechaDesde: " + fechaDesde + " \n");
+            System.out.println("\n fechaHasta: " + fechaHasta + " \n");
+            System.out.println("\n huespedCargado: " + huespedCargado + " \n");
+            System.out.println("\n ocupantesCargados: " + ocupantesCargados + " \n");
 
             System.out.println("\n\n llego al final de resumen() \n\n");
 
             return "ocupacion/resumen";
 
         } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
+            System.out.println("ERROR: " + e.getMessage() + "\n");
 
-            redirect.addFlashAttribute("errorMessage", e.getMessage());
+            e.printStackTrace();
+
+            redirect.addFlashAttribute("errorMessage", "Ocurrió un error inesperado: " + e.getMessage());
             return "redirect:/ocupacion/cargar";
         }
     }
