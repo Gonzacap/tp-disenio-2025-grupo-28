@@ -110,8 +110,6 @@ public class OcupacionController {
             @DateTimeFormat(pattern = "EEE MMM dd HH:mm:ss zzz yyyy") Date fechaDesde,
             @ModelAttribute("fechaHasta")
             @DateTimeFormat(pattern = "EEE MMM dd HH:mm:ss zzz yyyy") Date fechaHasta,
-            // @ModelAttribute("errorMessage") String errorMessage,
-            // @ModelAttribute("successMessage") String successMessage,
             Model model,
             @ModelAttribute("huespedCargado") Huesped huespedCargado,
             @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
@@ -142,13 +140,14 @@ public class OcupacionController {
             model.addAttribute("huespedCargado", huespedCargado);
             model.addAttribute("ocupantesCargados", ocupantesCargados);
 
-            System.out.println("\n reservaId: " + reservaId + " \n");
-            System.out.println("\n estadiaId: " + estadiaId + " \n");
-            System.out.println("\n numeroHabitacion: " + numeroHabitacion + " \n");
-            System.out.println("\n fechaDesde: " + fechaDesde + " \n");
-            System.out.println("\n fechaHasta: " + fechaHasta + " \n");
-            System.out.println("\n huespedCargado: " + huespedCargado + " \n");
-            System.out.println("\n ocupantesCargados: " + ocupantesCargados + " \n");
+            System.out.println("\n valores en sesion...\n\n");
+            System.out.println("reservaId: " + reservaId + " \n");
+            System.out.println("estadiaId: " + estadiaId + " \n");
+            System.out.println("numeroHabitacion: " + numeroHabitacion + " \n");
+            System.out.println("fechaDesde: " + fechaDesde + " \n");
+            System.out.println("fechaHasta: " + fechaHasta + " \n");
+            System.out.println("huespedCargado: " + huespedCargado + " \n");
+            System.out.println("ocupantesCargados: " + ocupantesCargados + " \n");
 
             System.out.println("\n llego al final de iniciarCarga() \n");
 
@@ -202,8 +201,9 @@ public class OcupacionController {
             model.addAttribute("huespedCargado", huespedCargado);
             model.addAttribute("ocupantesCargados", ocupantesCargados);
 
-            System.out.println("\n huespedCargado: " + huespedCargado + " \n");
-            System.out.println("\n ocupantesCargados: " + ocupantesCargados + " \n");
+            System.out.println("\n valores en sesion...\n\n");
+            System.out.println("huespedCargado: " + huespedCargado + " \n");
+            System.out.println("ocupantesCargados: " + ocupantesCargados + " \n");
 
             System.out.println("\n llego al final de buscarHuesped() \n");
 
@@ -279,8 +279,9 @@ public class OcupacionController {
             model.addAttribute("ocupantesCargados", ocupantesCargados);
             model.addAttribute("personasResultados", new ArrayList<>());
 
-            System.out.println("\n huespedCargado: " + huespedCargado + " \n");
-            System.out.println("\n ocupantesCargados: " + ocupantesCargados + " \n");
+            System.out.println("\n valores en sesion...\n\n");
+            System.out.println("huespedCargado: " + huespedCargado + " \n");
+            System.out.println("ocupantesCargados: " + ocupantesCargados + " \n");
 
             redirect.addFlashAttribute("successMessage", "Huesped agregado correctamente");
 
