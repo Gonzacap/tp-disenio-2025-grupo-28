@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="fragments/Base :: head('Ocupar Habitacion')"></head>
+  <head th:replace="~{fragments/Base :: head('Ocupar Habitacion')}"></head>
 
   <body>
     <div class="container-md my-5">
@@ -92,6 +92,6 @@
         </div>
       </div>
     </div>
-    <div th:replace="fragments/Base :: scripts"></div>
+    <div th:replace="~{fragments/Base :: scripts}"></div>
   </body>
 </html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/Base :: head('Gestion Habitacion')"></head>
+<head th:replace="~{fragments/Base :: head('Gestion Habitacion')}"></head>
 
 <body th:attr="data-modo=${modo}">
 <style>
@@ -263,7 +263,7 @@
     </div>
 </div>
 
-<div th:replace="fragments/Base :: scripts"></div>
+<div th:replace="~{fragments/Base :: scripts}"></div>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const seleccionadas = new Set();
