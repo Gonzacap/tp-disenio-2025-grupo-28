@@ -326,7 +326,7 @@ public class OcupacionController {
 
                 // Validaciones
                 if (huespedCargado == null) {
-                    System.out.println("ERROR: Debe seleccionar un huésped antes de continuar. " + huespedCargado);
+                    System.out.println("ERROR: Debe seleccionar un huésped antes de continuar. " + huespedCargado + "\n");
 
                     redirect.addFlashAttribute("errorMessage", "Debe seleccionar un huésped antes de continuar.");
                     return "redirect:/ocupacion/cargar";
@@ -334,7 +334,7 @@ public class OcupacionController {
 
                 if (numeroHabitacion == null || fechaDesde == null || fechaHasta == null) {
                     System.out.println(
-                            "ERROR: Debe seleccionar un huésped antes de continuar." + "\n"
+                            "ERROR: \n"
                             + "numeroHabitacion: " + numeroHabitacion + "\n"
                             + "fechaDesde: " + fechaDesde + "\n"
                             + "fechaHasta: " + fechaHasta + "\n"
@@ -356,12 +356,12 @@ public class OcupacionController {
                 estadiaId = estadia.getIdEstadia();
                 model.addAttribute("estadiaId", estadiaId);
 
-                System.out.println(">>> Estadia creada con ID: " + estadiaId);
+                System.out.println(">>> Estadia creada con ID: " + estadiaId + "\n");
 
             } else {
 
                 // Si ya existe la estadia -> actualizar acompañantes
-                System.out.println("Estadia ya existente. Se debe actualizaran los acmpañantes.");
+                System.out.println("Estadia ya existente. Se debe actualizaran los acmpañantes.\n");
 
                 estadia = estadiaService.obtenerEstadia(estadiaId);
 
@@ -373,7 +373,7 @@ public class OcupacionController {
                 // Actualizar acompañantes
                 estadiaService.agregarAcompanantes(reservaId, ocupantesCargados);
 
-                System.out.println(">>> Estadia actualizada correctamente.");
+                System.out.println(">>> Estadia actualizada correctamente.\n");
             }
 
             // ---- fin lógica creación/actualización ----
@@ -385,15 +385,17 @@ public class OcupacionController {
             model.addAttribute("huespedCargado", huespedCargado);
             model.addAttribute("ocupantesCargados", ocupantesCargados);
 
-            System.out.println("\n reservaId: " + reservaId + " \n");
-            System.out.println("\n estadiaId: " + estadiaId + " \n");
-            System.out.println("\n numeroHabitacion: " + numeroHabitacion + " \n");
-            System.out.println("\n fechaDesde: " + fechaDesde + " \n");
-            System.out.println("\n fechaHasta: " + fechaHasta + " \n");
-            System.out.println("\n huespedCargado: " + huespedCargado + " \n");
-            System.out.println("\n ocupantesCargados: " + ocupantesCargados + " \n");
+            System.out.println("\n valores en sesion...\n\n");
 
-            System.out.println("\n\n llego al final de resumen() \n\n");
+            System.out.println("reservaId: " + reservaId + " \n");
+            System.out.println("estadiaId: " + estadiaId + " \n");
+            System.out.println("numeroHabitacion: " + numeroHabitacion + " \n");
+            System.out.println("fechaDesde: " + fechaDesde + " \n");
+            System.out.println("fechaHasta: " + fechaHasta + " \n");
+            System.out.println("huespedCargado: " + huespedCargado + " \n");
+            System.out.println("ocupantesCargados: " + ocupantesCargados + " \n");
+
+            System.out.println("\n llego al final de resumen() \n\n");
 
             return "ocupacion/resumen";
 
