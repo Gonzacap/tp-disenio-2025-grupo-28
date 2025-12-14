@@ -104,19 +104,17 @@ public class EstadiaService {
     /**
      *
      */
-    public Estadia iniciarCarga(
+    public Reserva procesarReserva(
             Huesped huesped,
             Integer numeroHabitacion,
             Date desde,
             Date hasta,
             Integer idReserva
     ) {
-
         Habitacion hab = habitacionRepository.findById(numeroHabitacion)
                 .orElseThrow(() -> new RuntimeException("Habitación no encontrada"));
 
         // logica de ocupar habitacion
-
         Reserva reservaAUsar;
 
         if (idReserva == null) {
@@ -130,13 +128,27 @@ public class EstadiaService {
 
         System.out.println("Reserva: " + reservaAUsar + "\n");
 
+        return reservaAUsar;
+    }
+
+    /**
+     *
+     */
+    public Estadia iniciarCarga(
+            Huesped huesped,
+            Integer numeroHabitacion,
+            Date desde,
+            Date hasta,
+            Reserva reserva
+    ) {
+
         System.out.println(">>> Se crea la nueva estadia.\n");
 
         Estadia estadia = new Estadia();
         estadia.setFechaCheckIn(desde);
         estadia.setFechaCheckOut(hasta);
         estadia.setEstado(EstadoEstadia.enCurso);
-        estadia.setReserva(reservaAUsar);
+        estadia.setReserva(reserva);
 
         // ResponsablePago se setea más adelante
         return estadiaRepository.save(estadia);
@@ -150,7 +162,6 @@ public class EstadiaService {
         Reserva r = new Reserva();
 
         // :TODO falta asociar la reserva con el huesped
-
         r.setNombre(huesped.getNombre());
         r.setApellido(huesped.getApellido());
         r.setTelefono(huesped.getTelefono());
@@ -208,7 +219,7 @@ public class EstadiaService {
     }
 
     /**
-     * 
+     *
      */
     public Estadia confirmarEstadia(Integer idEstadia) {
 
