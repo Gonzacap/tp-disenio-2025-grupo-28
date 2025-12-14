@@ -21,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tp.tp_disenio_2025_grupo_28.model.Estadia;
 import tp.tp_disenio_2025_grupo_28.model.Huesped;
 import tp.tp_disenio_2025_grupo_28.model.PersonaFisica;
+import tp.tp_disenio_2025_grupo_28.model.Reserva;
 import tp.tp_disenio_2025_grupo_28.model.enums.TipoDocumento;
 import tp.tp_disenio_2025_grupo_28.service.EstadiaService;
 import tp.tp_disenio_2025_grupo_28.service.GestionHabitacion;
@@ -90,16 +91,6 @@ public class OcupacionController {
         return null;
     }
 
-    // @ModelAttribute("errorMessage")
-    // public String errorMessage() {
-    //     return null;
-    // }
-
-    // @ModelAttribute("successMessage")
-    // public String successMessage() {
-    //     return null;
-    // }
-
     /**
      * 1) INICIALIZAR PANTALLA DE CARGA
      */
@@ -119,8 +110,8 @@ public class OcupacionController {
             @DateTimeFormat(pattern = "EEE MMM dd HH:mm:ss zzz yyyy") Date fechaDesde,
             @ModelAttribute("fechaHasta")
             @DateTimeFormat(pattern = "EEE MMM dd HH:mm:ss zzz yyyy") Date fechaHasta,
-            @ModelAttribute("errorMessage") String errorMessage,
-            @ModelAttribute("successMessage") String successMessage,
+            // @ModelAttribute("errorMessage") String errorMessage,
+            // @ModelAttribute("successMessage") String successMessage,
             Model model,
             @ModelAttribute("huespedCargado") Huesped huespedCargado,
             @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
@@ -160,9 +151,6 @@ public class OcupacionController {
             System.out.println("\n ocupantesCargados: " + ocupantesCargados + " \n");
 
             System.out.println("\n llego al final de iniciarCarga() \n");
-
-            // model.addAttribute("errorMessage", errorMessage);
-            // model.addAttribute("successMessage", successMessage);
 
             return "ocupacion/cargar";
 
@@ -356,7 +344,13 @@ public class OcupacionController {
                     return "redirect:/ocupacion/cargar";
                 }
 
-                estadia = estadiaService.iniciarCarga(huespedCargado, numeroHabitacion, fechaDesde, fechaHasta, reservaId);
+                Reserva reservaAUsar = estadiaService.procesarReserva(huespedCargado, numeroHabitacion, fechaDesde, fechaHasta, reservaId);
+
+                // Guardar ID en sesión
+                reservaId = reservaAUsar.getIdReserva();
+                model.addAttribute("reservaId", reservaId);
+
+                estadia = estadiaService.iniciarCarga(huespedCargado, numeroHabitacion, fechaDesde, fechaHasta, reservaAUsar);
 
                 // Guardar ID en sesión
                 estadiaId = estadia.getIdEstadia();
