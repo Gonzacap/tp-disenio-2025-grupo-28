@@ -1,10 +1,8 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -44,8 +42,6 @@ public class OcupacionController {
 
     @Autowired
     private ReservaService reservaService;
-
-    private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
     /// ***********
     /// Nuevos metodos
@@ -219,8 +215,7 @@ public class OcupacionController {
      */
     @PostMapping("/agregar-huesped")
     public String agregarOcupante(
-            // @RequestParam List<PersonaFisica> personasSeleccionadas,
-            @RequestParam(name = "personasSeleccionadas") List<String> cuitsSeleccionados,
+            @RequestParam("personasSeleccionadas") List<Integer> idsSeleccionados,
             Model model,
             @ModelAttribute("huespedCargado") Huesped huespedCargado,
             @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
@@ -231,25 +226,12 @@ public class OcupacionController {
         try {
             System.out.println("\n\n llego a agregarOcupante() \n\n");
 
-            // CUITs que NO están en cargados
-            List<String> cuitsFaltantes = cuitsSeleccionados.stream()
-                    .filter(cuit -> ocupantesCargados.stream()
-                    .noneMatch(p -> cuit.equals(p.getCuit())))
-                    .toList();
-
-            // Recupero las personas desde la lista de sesión cagada anteriormente por su CUIT
-            List<PersonaFisica> seleccionadas = cuitsFaltantes.stream()
-                    .map(cuit -> personasResultados.stream()
-                    .filter(p -> cuit != null && cuit.equals(p.getCuit()))
-                    .findFirst()
-                    .orElse(null))
-                    .filter(Objects::nonNull)
+            // Personas seleccionadas desde sesión usando ID
+            List<PersonaFisica> seleccionadas = personasResultados.stream()
+                    .filter(p -> idsSeleccionados.contains(p.getId()))
                     .toList();
 
             if (seleccionadas.isEmpty()) {
-
-                System.out.println("\n redirige a /cargar \n");
-
                 redirect.addFlashAttribute("errorMessage", "No se encontraron las personas seleccionadas en sesión.");
                 return "redirect:/ocupacion/cargar";
             }
@@ -270,11 +252,11 @@ public class OcupacionController {
             }
 
             // Agregar acompañantes
-            for (PersonaFisica persona : seleccionadas) {
-                if (!ocupantesCargados.contains(persona)) {
-                    ocupantesCargados.add(persona);
+            seleccionadas.forEach(p -> {
+                if (!ocupantesCargados.contains(p)) {
+                    ocupantesCargados.add(p);
                 }
-            }
+            });
 
             model.addAttribute("ocupantesCargados", ocupantesCargados);
             model.addAttribute("personasResultados", new ArrayList<>());
