@@ -1,8 +1,8 @@
 package tp.tp_disenio_2025_grupo_28.service;
 
 import java.sql.Time;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,25 +197,17 @@ public class EstadiaService {
     /**
      *
      */
+    @Transactional
     public Reserva agregarAcompanantes(Integer idReserva, List<PersonaFisica> nuevos) {
 
-        Reserva r = reservaRepository.findById(idReserva)
+        Reserva reserva = reservaRepository.findById(idReserva)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
 
-        if (r.getAcompanantes() == null) {
-            r.setAcompanantes(new ArrayList<>());
+        if (nuevos != null && !nuevos.isEmpty()) {
+            reserva.getAcompanantes().addAll(new HashSet<>(nuevos));
         }
 
-        for (PersonaFisica p : nuevos) {
-            boolean existe = r.getAcompanantes().stream()
-                    .anyMatch(a -> a.getDocumento().equals(p.getDocumento()));
-
-            if (!existe) {
-                r.getAcompanantes().add(p);
-            }
-        }
-
-        return reservaRepository.save(r);
+        return reserva;
     }
 
     /**
