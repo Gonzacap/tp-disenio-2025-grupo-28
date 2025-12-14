@@ -79,7 +79,7 @@ CREATE TABLE persona_fisica (
     documento VARCHAR(20),
     fecha_nacimiento DATE NULL,
     CONSTRAINT persona_fisica_pkey PRIMARY KEY (id),
-    CONSTRAINT persona_fisica_id_unique UNIQUE (id),
+    CONSTRAINT uk_persona_doc UNIQUE (tipo_documento, documento);
     CONSTRAINT persona_fisica_id_fk FOREIGN KEY (id) REFERENCES responsable_pago (id) ON DELETE CASCADE
 );
 
