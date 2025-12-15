@@ -396,4 +396,17 @@ public class OcupacionController {
         }
     }
 
+    /**
+     * 5) CARGAR OTRA HABITACION
+     */
+    @PostMapping("/limpiar-ocupantes-y-validar")
+    public String limpiarOcupantesYValidar(Model model) {
+
+        // limpiar SOLO los ocupantes
+        model.addAttribute("ocupantesCargados", new ArrayList<>());
+
+        // Reenvio el mismo POST a validar-fecha // NO redirect
+        return "forward:/habitacion/validar-fecha";
+    }
+
 }
