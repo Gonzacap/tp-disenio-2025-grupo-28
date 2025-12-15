@@ -449,6 +449,9 @@ public class HabitacionWebController {
         session.setAttribute("forzarOcupada", true);
         session.setAttribute("mostrarPresioneTecla", true);
 
+        //cambio el estado
+        gestionHabitacion.ocuparHabitacion(numeroHabitacion, fechaDesde, fechaHasta);
+
         // VOLVER A LA GRILLA
         return "redirect:/habitacion?modo=ocupar";
     }
@@ -474,6 +477,9 @@ public class HabitacionWebController {
         session.removeAttribute("numeroHabitacionPendiente");
         session.removeAttribute("fechaDesdePendiente");
         session.removeAttribute("fechaHastaPendiente");
+
+        //cambio el estado
+        gestionHabitacion.ocuparHabitacion(numeroHabitacion, fechaDesde, fechaHasta);
 
         // IR DIRECTO AL SIGUIENTE CASO DE USO
         return "redirect:/ocupacion/cargar";

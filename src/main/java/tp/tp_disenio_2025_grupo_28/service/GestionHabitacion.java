@@ -239,4 +239,12 @@ public class GestionHabitacion {
         return estados;
     }
 
+    @Transactional
+    public void ocuparHabitacion(Integer numeroHabitacion, Date fechaDesde, Date fechaHasta) {
+        EstadoHabitacionPeriodo periodo = new EstadoHabitacionPeriodo(EstadoHabitacion.ocupada, fechaDesde,
+                fechaHasta, numeroHabitacion);
+
+        estadoPeriodoRepository.save(periodo);
+    }
+
 }
