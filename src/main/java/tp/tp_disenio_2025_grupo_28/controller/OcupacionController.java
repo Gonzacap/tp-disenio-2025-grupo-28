@@ -358,7 +358,12 @@ public class OcupacionController {
                 }
 
                 // Actualizar acompañantes
-                estadiaService.agregarAcompanantes(reservaId, ocupantesCargados);
+                if (estadiaService.validarCapacidadHabitacion(numeroHabitacion, ocupantesCargados.size())) {
+                    estadiaService.agregarAcompanantes(reservaId, ocupantesCargados);
+                } else {
+                    redirect.addFlashAttribute("errorMessage", "Error: no hay suficiente capacidad en esta habitacion.");
+                    return "redirect:/ocupacion/cargar";
+                }
 
                 System.out.println(">>> Estadia actualizada correctamente.\n");
             }

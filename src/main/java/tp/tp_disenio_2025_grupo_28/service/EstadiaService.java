@@ -228,4 +228,14 @@ public class EstadiaService {
         return estadiaRepository.save(e);
     }
 
+    public boolean validarCapacidadHabitacion(Integer numeroHabitacion, Integer nroAcompanantes) {
+        Habitacion hab = habitacionRepository.findById(numeroHabitacion)
+                .orElseThrow(() -> new RuntimeException("Habitación no encontrada"));
+
+        if (hab.getCapacidad() < nroAcompanantes) {
+            return true;
+        }
+        return false;
+    }
+
 }
