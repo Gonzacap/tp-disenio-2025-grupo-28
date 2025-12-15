@@ -232,10 +232,7 @@ public class EstadiaService {
         Habitacion hab = habitacionRepository.findById(numeroHabitacion)
                 .orElseThrow(() -> new RuntimeException("Habitación no encontrada"));
 
-        if (hab.getCapacidad() < nroAcompanantes) {
-            return true;
-        }
-        return false;
+        return nroAcompanantes < hab.getCapacidad(); 
     }
 
 }
