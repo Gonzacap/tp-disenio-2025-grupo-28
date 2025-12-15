@@ -62,6 +62,7 @@
           <!-- Seguir cargando: volver a la selección de la misma habitación (paso anterior) -->
           <form method="get" style="display: inline">
             <input type="hidden" name="reservaId" th:value="${reservaId}" />
+            <input type="hidden" name="estadiaId" th:value="${estadiaId}" />
             <input
               type="hidden"
               name="numeroHabitacion"
@@ -80,9 +81,12 @@
               </button>
             </div>
             <div class="col-auto">
-              <button type="button" class="btn btn-primary mb-3" disabled>
+              <a
+                class="btn btn-primary mb-3"
+                th:href="@{/habitacion(modo='ocupar', reservaId=${reservaId}, estadiaId=${estadiaId})}"
+              >
                 CARGAR OTRA HABITACIÓN
-              </button>
+              </a>
             </div>
             <div class="col-auto">
               <a th:href="@{/}" class="btn btn-primary mb-3"> SALIR </a>
