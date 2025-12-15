@@ -215,7 +215,7 @@ public class OcupacionController {
      */
     @PostMapping("/agregar-huesped")
     public String agregarOcupante(
-            @RequestParam("personasSeleccionadas") List<Integer> idsSeleccionados,
+            @RequestParam(value = "personasSeleccionadas", required = false) List<Integer> idsSeleccionados,
             Model model,
             @ModelAttribute("huespedCargado") Huesped huespedCargado,
             @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
@@ -226,10 +226,14 @@ public class OcupacionController {
         try {
             System.out.println("\n\n llego a agregarOcupante() \n\n");
 
-            // Personas seleccionadas desde sesión usando ID
-            List<PersonaFisica> seleccionadas = personasResultados.stream()
-                    .filter(p -> idsSeleccionados.contains(p.getId()))
-                    .toList();
+            List<PersonaFisica> seleccionadas = new ArrayList<>();
+
+            if (idsSeleccionados != null && !idsSeleccionados.isEmpty()) {
+                // Personas seleccionadas desde sesión usando ID
+                seleccionadas = personasResultados.stream()
+                        .filter(p -> idsSeleccionados.contains(p.getId()))
+                        .toList();
+            }
 
             if (seleccionadas.isEmpty()) {
                 redirect.addFlashAttribute("errorMessage", "No se encontraron las personas seleccionadas en sesión.");
