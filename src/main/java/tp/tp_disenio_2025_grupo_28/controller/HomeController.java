@@ -1,5 +1,7 @@
 package tp.tp_disenio_2025_grupo_28.controller;
 
+import java.util.Enumeration;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -12,8 +14,18 @@ public class HomeController {
     public String index(HttpSession session) {
 
         // Validar que el usuario está logueado
-        if (session.getAttribute("usuario") == null) {
+        Object usuario = session.getAttribute("usuario");
+        if (usuario == null) {
             return "redirect:/login";
+        }
+
+        // Limpiar sesions
+        Enumeration<String> atributos = session.getAttributeNames();
+        while (atributos.hasMoreElements()) {
+            String nombre = atributos.nextElement();
+            if (!"usuario".equals(nombre)) {
+                session.removeAttribute(nombre);
+            }
         }
 
         return "index";  // nombre de la plantilla index.html
