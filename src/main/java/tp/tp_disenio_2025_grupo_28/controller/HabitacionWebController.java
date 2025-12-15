@@ -50,9 +50,28 @@ public class HabitacionWebController {
     @GetMapping
     public String mostrarPagina(
             @RequestParam(value = "modo", required = false, defaultValue = "reservar") String modo,
+            @RequestParam(value = "reservaId", required = false) Integer reservaId,
+            @RequestParam(value = "estadiaId", required = false) Integer estadiaId,
             Model model, HttpSession session
     ) {
         model.addAttribute("modo", modo);
+
+        // si vienen por URL, guardarlos en sesión
+        if (reservaId != null) {
+            session.setAttribute("reservaId", reservaId);
+        }
+        if (estadiaId != null) {
+            session.setAttribute("estadiaId", estadiaId);
+        }
+
+        // debug
+        System.out.println("\n\n llego a HabitacionWebController.mostrarPagina() \n\n");
+
+        System.out.println("reservaId: " + reservaId + " \n");
+        System.out.println("estadiaId: " + estadiaId + " \n");
+        model.addAttribute("reservaId", session.getAttribute("reservaId"));
+        model.addAttribute("estadiaId", session.getAttribute("estadiaId"));
+
         if (!"buscar".equals(session.getAttribute("origen"))) {
             session.removeAttribute("fechaDesdeBuscada");
             session.removeAttribute("fechaHastaBuscada");
@@ -140,6 +159,8 @@ public class HabitacionWebController {
             @RequestParam(value = "fechaHasta", required = false)
             @DateTimeFormat(pattern = "yyyy-MM-dd") Date hasta,
             @RequestParam(value = "modo") String modo,
+            @RequestParam(value = "reservaId", required = false) Integer reservaId,
+            @RequestParam(value = "estadiaId", required = false) Integer estadiaId,
             Model model,
             RedirectAttributes redirect, HttpSession session
     ) {
@@ -148,6 +169,22 @@ public class HabitacionWebController {
             session.setAttribute("origen", "buscar");
             session.setAttribute("fechaDesdeBuscada", desde);
             session.setAttribute("fechaHastaBuscada", hasta);
+
+            // si vienen por URL, guardarlos en sesión
+            if (reservaId != null) {
+                session.setAttribute("reservaId", reservaId);
+            }
+            if (estadiaId != null) {
+                session.setAttribute("estadiaId", estadiaId);
+            }
+
+            // debug
+            System.out.println("\n\n llego a HabitacionWebController.mostrarPagina() \n\n");
+
+            System.out.println("reservaId: " + reservaId + " \n");
+            System.out.println("estadiaId: " + estadiaId + " \n");
+            model.addAttribute("reservaId", session.getAttribute("reservaId"));
+            model.addAttribute("estadiaId", session.getAttribute("estadiaId"));
 
             gestionHabitacion.validarFecha(desde, hasta);
             List<Habitacion> habitaciones = gestionHabitacion.obtenerHabitaciones();

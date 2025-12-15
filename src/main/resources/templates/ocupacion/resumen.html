@@ -80,18 +80,29 @@
                 SEGUIR CARGANDO
               </button>
             </div>
+          </form>
+          <!-- cargar otra habitacion: vuelve a habitacion/validar-fecha -->
+          <form
+            th:action="@{/habitacion/validar-fecha}"
+            method="post"
+            style="display: inline"
+          >
+            <input type="hidden" name="modo" value="ocupar" />
+            <input type="hidden" name="fechaDesde" th:value="${fechaDesde}" />
+            <input type="hidden" name="fechaHasta" th:value="${fechaHasta}" />
+
             <div class="col-auto">
-              <a
-                class="btn btn-primary mb-3"
-                th:href="@{/habitacion(modo='ocupar', reservaId=${reservaId}, estadiaId=${estadiaId})}"
-              >
+              <button type="submit" class="btn btn-primary mb-3">
                 CARGAR OTRA HABITACIÓN
-              </a>
+              </button>
             </div>
+          </form>
+          <div style="display: inline">
+            <!-- salir: redirige al index -->
             <div class="col-auto">
               <a th:href="@{/}" class="btn btn-primary mb-3"> SALIR </a>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
