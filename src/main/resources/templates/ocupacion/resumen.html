@@ -87,9 +87,24 @@
             method="post"
             style="display: inline"
           >
+            <input type="hidden" name="reservaId" th:value="${reservaId}" />
+            <input type="hidden" name="estadiaId" th:value="${estadiaId}" />
+            <input
+              type="hidden"
+              name="numeroHabitacion"
+              th:value="${numeroHabitacion}"
+            />
             <input type="hidden" name="modo" value="ocupar" />
-            <input type="hidden" name="fechaDesde" th:value="${fechaDesde}" />
-            <input type="hidden" name="fechaHasta" th:value="${fechaHasta}" />
+            <input
+              type="hidden"
+              name="fechaDesde"
+              th:value="${#dates.format(fechaDesde, 'yyyy-MM-dd')}"
+            />
+            <input
+              type="hidden"
+              name="fechaHasta"
+              th:value="${#dates.format(fechaHasta, 'yyyy-MM-dd')}"
+            />
 
             <div class="col-auto">
               <button type="submit" class="btn btn-primary mb-3">
