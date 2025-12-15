@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -165,7 +166,7 @@ public class OcupacionController {
             @RequestParam(required = false) String tipoDocumento,
             @RequestParam(required = false) String documento,
             Model model,
-            @ModelAttribute("huespedCargado") Huesped huespedCargado,
+            @SessionAttribute(value = "huespedCargado", required = false) Huesped huespedCargado,
             @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
             @ModelAttribute("personasResultados") List<PersonaFisica> personasResultados,
             RedirectAttributes redirect
@@ -205,6 +206,9 @@ public class OcupacionController {
 
             return "ocupacion/cargar";
         } catch (Exception e) {
+            
+            e.printStackTrace();
+
             redirect.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/ocupacion/cargar";
         }
@@ -217,7 +221,7 @@ public class OcupacionController {
     public String agregarOcupante(
             @RequestParam(value = "personasSeleccionadas", required = false) List<Integer> idsSeleccionados,
             Model model,
-            @ModelAttribute("huespedCargado") Huesped huespedCargado,
+            @SessionAttribute(value = "huespedCargado", required = false) Huesped huespedCargado,
             @ModelAttribute("ocupantesCargados") List<PersonaFisica> ocupantesCargados,
             @ModelAttribute("personasResultados") List<PersonaFisica> personasResultados,
             RedirectAttributes redirect
