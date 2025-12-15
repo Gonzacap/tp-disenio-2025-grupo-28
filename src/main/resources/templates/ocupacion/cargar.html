@@ -1,140 +1,176 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{fragments/Base :: head('Ocupar Habitacion')}"></head>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/Base :: head('Ocupar Habitación')}"></head>
 
   <body>
-    <div class="container-md my-5">
+    <div class="container my-4">
       <!-- TÍTULO -->
-      <h2 th:text="'Seleccionar ocupantes - Habitación N°' + ${numeroHabitacion}"></h2>
+      <div class="mb-4">
+        <div class="">
+          <h2
+            class="mb-0"
+            th:text="'Seleccionar ocupantes - Habitación N° ' + ${numeroHabitacion}"
+          ></h2>
+        </div>
+      </div>
 
-      <!-- Mensaje error -->
+      <!-- Mensajes -->
       <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
-        <p th:text="${errorMessage}"></p>
+        <span th:text="${errorMessage}"></span>
       </div>
-
-      <!-- Mensaje éxito -->
       <div th:if="${successMessage}" class="alert alert-success" role="alert">
-        <p th:text="${successMessage}"></p>
+        <span th:text="${successMessage}"></span>
       </div>
 
-      <section class="row my-3">
+      <section>
         <!-- FORMULARIO DE BÚSQUEDA -->
-        <div class="col-12">
-          <div class="row">
-            <p
-              for=""
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header fw-bold">
+            <span
               class="h4"
-              th:text="${ huespedCargado == null ? 'Buscar Huesped' : 'Buscar Acompañante'}"
-            ></p>
+              th:text="${huespedCargado == null ? 'Buscar Huésped' : 'Buscar Acompañante'}"
+            ></span>
           </div>
-
-          <form
-            th:action="@{/ocupacion/buscar-huesped}"
-            method="post"
-            class="row g-3"
-          >
-            <input type="hidden" name="reservaId" th:value="${reservaId}" />
-            <input
-              type="hidden"
-              name="numeroHabitacion"
-              th:value="${numeroHabitacion}"
-            />
-            <input type="hidden" name="fechaDesde" th:value="${fechaDesde}" />
-            <input type="hidden" name="fechaHasta" th:value="${fechaHasta}" />
-
-            <div class="col-md-6 mb-3">
-              <label>Nombre:</label>
-              <input type="text" name="nombre" th:value="${nombre}" />
-            </div>
-            <div class="col-md-6 mb-3">
-              <label>Apellido:</label>
-              <input type="text" name="apellido" th:value="${apellido}" />
-            </div>
-            <div class="col-md-6 mb-3">
-              <label>Tipo Doc:</label>
+          <div class="card-body">
+            <form
+              th:action="@{/ocupacion/buscar-huesped}"
+              method="post"
+              class="row g-3"
+            >
+              <input type="hidden" name="reservaId" th:value="${reservaId}" />
               <input
-                type="text"
-                name="tipoDocumento"
-                th:value="${tipoDocumento}"
+                type="hidden"
+                name="numeroHabitacion"
+                th:value="${numeroHabitacion}"
               />
-            </div>
-            <div class="col-md-6 mb-3">
-              <label>N° Doc:</label>
-              <input type="text" name="documento" th:value="${documento}" />
-            </div>
+              <input type="hidden" name="fechaDesde" th:value="${fechaDesde}" />
+              <input type="hidden" name="fechaHasta" th:value="${fechaHasta}" />
 
-            <div class="col-md-6 col-12">
-              <button type="submit" class="btn btn-primary">Buscar</button>
-            </div>
-          </form>
+              <div class="col-md-6">
+                <label class="form-label">Nombre</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="nombre"
+                  th:value="${nombre}"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Apellido</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="apellido"
+                  th:value="${apellido}"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Tipo documento</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="tipoDocumento"
+                  th:value="${tipoDocumento}"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Número documento</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="documento"
+                  th:value="${documento}"
+                />
+              </div>
+
+              <div class="col-12 text-end">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+                <a th:href="@{/}" class="btn btn-outline-secondary ms-2"
+                  >Cancelar</a
+                >
+              </div>
+            </form>
+          </div>
         </div>
       </section>
 
-      <section class="row my-3">
+      <section>
         <!-- RESULTADOS -->
-        <div class="col-12">
-          <div class="row">
-            <p
-              for=""
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header fw-bold">
+            <span
               class="h4"
-              th:text="${ huespedCargado == null ? 'Seleccione el huesped de la habitación' : 'Seleccione los acompañantes de la habitación'}"
-            ></p>
+              th:text="${huespedCargado == null ? 'Resultado de la búsqueda (Huésped)' : 'Resultado de la búsqueda (Acompañantes)'}"
+            ></span>
           </div>
-
-          <form
-            th:action="@{/ocupacion/agregar-huesped}"
-            method="post"
-            class="row g-3"
-          >
-            <table class="col-12">
-              <tr th:each="persona : ${personasResultados}">
-                <td>
-                  <input
-                    class="form-check-input"
-                    th:type="${huespedCargado == null ? 'radio' : 'checkbox'}"
-                    name="personasSeleccionadas"
-                    th:value="${persona.id}"
-                  />
-                </td>
-                <td th:text="${persona.nombre}">Nombre</td>
-                <td th:text="${persona.apellido}">Apellido</td>
-              </tr>
-              <tr th:if="${#lists.isEmpty(personasResultados)}">
-                <td class="fw-bold" colspan="3">
-                  No se encontraron resultados
-                </td>
-              </tr>
-            </table>
-            <div class="col-md-6 col-12">
-              <button type="submit" class="btn btn-primary">Agregar</button>
-            </div>
-          </form>
+          <div class="card-body p-0">
+            <form th:action="@{/ocupacion/agregar-huesped}" method="post">
+              <table class="table table-hover table-striped table-bordered mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th style="width: 50px"></th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="persona : ${personasResultados}">
+                    <td class="text-center">
+                      <input
+                        class="form-check-input"
+                        th:type="${huespedCargado == null ? 'radio' : 'checkbox'}"
+                        name="personasSeleccionadas"
+                        th:value="${persona.id}"
+                      />
+                    </td>
+                    <td th:text="${persona.nombre}"></td>
+                    <td th:text="${persona.apellido}"></td>
+                  </tr>
+                  <tr th:if="${#lists.isEmpty(personasResultados)}">
+                    <td colspan="3" class="text-center fw-bold py-3">
+                      No se encontraron resultados
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="p-3 text-end">
+                <button type="submit" class="btn btn-success">Aceptar</button>
+              </div>
+            </form>
+          </div>
         </div>
       </section>
 
       <!-- YA CARGADOS -->
-      <section class="row my-3">
-        <div class="col-md-6 col-12">
+      <section>
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header fw-bold">
+            <span class="h4"> Ocupantes cargados </span>
+          </div>
+          <div class="card-body">
+            <table class="table table-sm">
+              <tbody>
+                <tr th:each="i : ${ocupantesCargados}">
+                  <td th:text="${i.nombre + ' ' + i.apellido}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(ocupantesCargados)}">
+                  <td class="text-muted">Aún no hay ocupantes cargados</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ACCIONES -->
+        <div class="text-end mb-5">
           <a
             class="btn btn-primary"
-            href="#"
-            role="button"
             th:href="@{/ocupacion/resumen-ocupacion}"
-            th:disabled="${huespedCargado == null}"
+            th:classappend="${huespedCargado == null} ? ' disabled' : ''"
           >
             Ir al resumen
           </a>
         </div>
-      </section>
-
-      <!-- YA CARGADOS -->
-      <section class="row my-3">
-        <p class="h4">Ocupantes cargados</p>
-        <table>
-          <tr th:each="i : ${ocupantesCargados}">
-            <td>[[${i.nombre}]] [[${i.apellido}]]</td>
-          </tr>
-        </table>
       </section>
     </div>
 
