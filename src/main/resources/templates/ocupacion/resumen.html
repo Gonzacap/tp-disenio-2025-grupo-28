@@ -45,10 +45,10 @@
           </thead>
           <tbody>
             <tr th:each="ocupante, estado : ${ocupantesCargados}">
-              <td th:text="${ocupante.nombre}"></td>
-              <td th:text="${ocupante.apellido}"></td>
-              <td th:text="${ocupante.tipoDocumento}"></td>
-              <td th:text="${ocupante.documento}"></td>
+              <td th:text="${#strings.toUpperCase(ocupante.nombre)}"></td>
+              <td th:text="${#strings.toUpperCase(ocupante.apellido)}"></td>
+              <td th:text="${#strings.toUpperCase(ocupante.tipoDocumento)}"></td>
+              <td th:text="${#strings.toUpperCase(ocupante.documento)}"></td>
             </tr>
             <tr th:if="${#lists.isEmpty(ocupantesCargados)}">
               <td colspan="4">No hay ocupantes asignados.</td>
