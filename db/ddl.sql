@@ -199,7 +199,9 @@ CREATE TABLE Reserva (
     apellido VARCHAR(100),
     telefono VARCHAR(20),
     fecha_desde DATE NOT NULL,
-    fecha_hasta DATE NOT NULL
+    fecha_hasta DATE NOT NULL,
+    huesped_id INTEGER NULL,
+    CONSTRAINT fk_huesped_huesped_id FOREIGN KEY (huesped_id) REFERENCES huesped (id) ON DELETE SET NULL
 );
 
 -- ---------------------
