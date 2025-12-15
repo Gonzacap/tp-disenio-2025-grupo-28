@@ -179,10 +179,12 @@ public class HabitacionWebController {
             }
 
             // debug
-            System.out.println("\n\n llego a HabitacionWebController.mostrarPagina() \n\n");
+            System.out.println("\n\n llego a HabitacionWebController.buscarDisponibilidad() \n\n");
 
             System.out.println("reservaId: " + reservaId + " \n");
             System.out.println("estadiaId: " + estadiaId + " \n");
+            System.out.println("estadiaId: " + desde + " \n");
+            System.out.println("estadiaId: " + hasta + " \n");
             model.addAttribute("reservaId", session.getAttribute("reservaId"));
             model.addAttribute("estadiaId", session.getAttribute("estadiaId"));
 
